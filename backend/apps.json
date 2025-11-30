@@ -1,0 +1,32 @@
+[
+  {
+    "id": "archer",
+    "name": "Archer",
+    "script": "../../archer/archer.py",
+    "url": "http://localhost:8000"
+  },
+  {
+    "id": "cybercache",
+    "name": "CyberCache",
+    "script": "../../cybercache/backend/app.py",
+    "url": "http://localhost:22243"
+  },
+  {
+    "id": "rivendell",
+    "name": "Rivendell",
+    "script": "../../rivendell/src/web/backend/main.py",
+    "url": "http://localhost:5687"
+  },
+  {
+    "id": "ancestree",
+    "name": "Ancestree",
+    "script": "../../ancestree/backend/run.py",
+    "url": "http://localhost:8733"
+  },
+  {
+    "id": "audiobookconstructor",
+    "name": "AudiobookConstructor",
+    "script": "../../AudiobookConstructor/AudiobookConstructor.py",
+    "url": "http://localhost:8080"
+  }
+]

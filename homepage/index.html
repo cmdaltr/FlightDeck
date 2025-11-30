@@ -1,0 +1,1703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flight Deck</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛩️</text></svg>">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', 'Monaco', 'Consolas', monospace;
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('images/background.jpg') no-repeat center center fixed;
+            background-size: cover;
+            min-height: 100vh;
+            color: #00ff88;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+
+        /* Clouds floating in background */
+        .cloud {
+            position: fixed;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 100px;
+            z-index: 0;
+            animation: floatCloud linear infinite;
+            box-shadow:
+                20px 10px 30px rgba(255,255,255,0.6),
+                -20px 10px 30px rgba(255,255,255,0.6),
+                0 20px 40px rgba(255,255,255,0.4);
+        }
+
+        .cloud::before,
+        .cloud::after {
+            content: '';
+            position: absolute;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+        }
+
+        .cloud-1 {
+            width: 200px;
+            height: 60px;
+            top: 35%;
+            animation-duration: 60s;
+        }
+        .cloud-1::before { width: 80px; height: 80px; top: -40px; left: 30px; }
+        .cloud-1::after { width: 100px; height: 100px; top: -50px; left: 80px; }
+
+        .cloud-2 {
+            width: 150px;
+            height: 45px;
+            top: 50%;
+            animation-duration: 80s;
+            animation-delay: -30s;
+            opacity: 0.7;
+        }
+        .cloud-2::before { width: 60px; height: 60px; top: -30px; left: 20px; }
+        .cloud-2::after { width: 75px; height: 75px; top: -38px; left: 60px; }
+
+        .cloud-3 {
+            width: 180px;
+            height: 55px;
+            top: 65%;
+            animation-duration: 70s;
+            animation-delay: -45s;
+            opacity: 0.5;
+        }
+        .cloud-3::before { width: 70px; height: 70px; top: -35px; left: 25px; }
+        .cloud-3::after { width: 90px; height: 90px; top: -45px; left: 70px; }
+
+        .cloud-4 {
+            width: 120px;
+            height: 40px;
+            top: 45%;
+            animation-duration: 90s;
+            animation-delay: -60s;
+            opacity: 0.6;
+        }
+        .cloud-4::before { width: 50px; height: 50px; top: -25px; left: 15px; }
+        .cloud-4::after { width: 65px; height: 65px; top: -32px; left: 50px; }
+
+        @keyframes floatCloud {
+            from { left: -300px; }
+            to { left: 100vw; }
+        }
+
+        /* Horizon line */
+        .horizon {
+            position: fixed;
+            top: 55%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Cockpit panel texture overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(0, 255, 136, 0.03) 2px,
+                    rgba(0, 255, 136, 0.03) 4px
+                );
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        /* Ambient glow effects */
+        .ambient-glow {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .glow-1 {
+            width: 400px;
+            height: 400px;
+            background: #00ff88;
+            top: -100px;
+            left: -100px;
+        }
+
+        .glow-2 {
+            width: 300px;
+            height: 300px;
+            background: #00aaff;
+            bottom: -50px;
+            right: -50px;
+        }
+
+        .cockpit-wrapper {
+            max-width: 1600px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            gap: 20px;
+        }
+
+        /* Left control panel */
+        .control-panel-left {
+            width: 120px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding-top: 100px;
+        }
+
+        /* Right control panel */
+        .control-panel-right {
+            width: 120px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding-top: 100px;
+        }
+
+        /* Main content area */
+        .main-content {
+            flex: 1;
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            background: linear-gradient(180deg, #1a1a2e 0%, #0d0d15 100%);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 8px;
+            padding: 15px 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toggle-switch-label {
+            font-size: 0.6rem;
+            color: #666;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .toggle-track {
+            width: 30px;
+            height: 50px;
+            background: linear-gradient(180deg, #0a0a0f 0%, #1a1a2e 100%);
+            border-radius: 15px;
+            border: 2px solid #333;
+            position: relative;
+            cursor: pointer;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.5);
+        }
+
+        .toggle-handle {
+            width: 26px;
+            height: 26px;
+            background: linear-gradient(180deg, #4a4a5a 0%, #2a2a3a 100%);
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 50%;
+            transform: translateX(-50%);
+            transition: top 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+        }
+
+        .toggle-switch.on .toggle-handle {
+            top: 20px;
+        }
+
+        .toggle-switch.on .toggle-track {
+            border-color: #00ff88;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.5), 0 0 10px rgba(0, 255, 136, 0.3);
+        }
+
+        .toggle-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #333;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-switch.on .toggle-indicator {
+            background: #00ff88;
+            box-shadow: 0 0 10px #00ff88;
+        }
+
+        /* Rotary Knob */
+        .rotary-knob {
+            background: linear-gradient(180deg, #1a1a2e 0%, #0d0d15 100%);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 8px;
+            padding: 15px 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .rotary-knob-label {
+            font-size: 0.6rem;
+            color: #666;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .knob-outer {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(145deg, #2a2a3a 0%, #1a1a2a 100%);
+            border-radius: 50%;
+            border: 2px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+        }
+
+        .knob-inner {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(145deg, #3a3a4a 0%, #2a2a3a 100%);
+            border-radius: 50%;
+            position: relative;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .knob-indicator {
+            position: absolute;
+            top: 4px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 3px;
+            height: 10px;
+            background: #00ff88;
+            border-radius: 2px;
+            box-shadow: 0 0 6px #00ff88;
+        }
+
+        .knob-value {
+            font-size: 0.7rem;
+            color: #00aaff;
+            font-weight: 600;
+        }
+
+        /* Lever */
+        .lever-control {
+            background: linear-gradient(180deg, #1a1a2e 0%, #0d0d15 100%);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 8px;
+            padding: 15px 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .lever-label {
+            font-size: 0.6rem;
+            color: #666;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .lever-track {
+            width: 20px;
+            height: 80px;
+            background: linear-gradient(180deg, #0a0a0f 0%, #1a1a2e 100%);
+            border-radius: 10px;
+            border: 2px solid #333;
+            position: relative;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.5);
+        }
+
+        .lever-track::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 10px;
+            bottom: 10px;
+            width: 2px;
+            background: linear-gradient(180deg, #00ff88, #00aaff);
+            transform: translateX(-50%);
+            border-radius: 1px;
+            opacity: 0.5;
+        }
+
+        .lever-handle {
+            width: 36px;
+            height: 20px;
+            background: linear-gradient(180deg, #ff4444 0%, #aa2222 100%);
+            border-radius: 4px;
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            cursor: ns-resize;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.2);
+            border: 1px solid #ff6666;
+        }
+
+        .lever-handle::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 2px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 1px;
+        }
+
+        /* Push Button */
+        .push-button {
+            background: linear-gradient(180deg, #1a1a2e 0%, #0d0d15 100%);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 8px;
+            padding: 15px 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .push-button-label {
+            font-size: 0.6rem;
+            color: #666;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .button-outer {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(145deg, #1a1a2a 0%, #0a0a15 100%);
+            border-radius: 50%;
+            border: 3px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+        }
+
+        .button-inner {
+            width: 18px;
+            height: 18px;
+            background: linear-gradient(145deg, #00ff88 0%, #00aa55 100%);
+            border-radius: 50%;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.5), inset 0 2px 4px rgba(255,255,255,0.3);
+            transition: all 0.1s ease;
+        }
+
+        .button-inner:active {
+            transform: scale(0.95);
+            box-shadow: 0 0 8px rgba(0, 255, 136, 0.3), inset 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .button-inner.red {
+            background: linear-gradient(145deg, #ff4444 0%, #aa2222 100%);
+            box-shadow: 0 0 15px rgba(255, 68, 68, 0.5), inset 0 2px 4px rgba(255,255,255,0.3);
+        }
+
+        .button-inner.blue {
+            background: linear-gradient(145deg, #00aaff 0%, #0066aa 100%);
+            box-shadow: 0 0 15px rgba(0, 170, 255, 0.5), inset 0 2px 4px rgba(255,255,255,0.3);
+        }
+
+        .button-inner.yellow {
+            background: linear-gradient(145deg, #ffaa00 0%, #aa7700 100%);
+            box-shadow: 0 0 15px rgba(255, 170, 0, 0.5), inset 0 2px 4px rgba(255,255,255,0.3);
+        }
+
+        /* Indicator Lights */
+        .indicator-panel {
+            background: linear-gradient(180deg, #1a1a2e 0%, #0d0d15 100%);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 8px;
+            padding: 15px 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .indicator-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .indicator-light {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #222;
+            border: 1px solid #444;
+        }
+
+        .indicator-light.on-green {
+            background: #00ff88;
+            box-shadow: 0 0 8px #00ff88;
+        }
+
+        .indicator-light.on-red {
+            background: #ff4444;
+            box-shadow: 0 0 8px #ff4444;
+        }
+
+        .indicator-light.on-yellow {
+            background: #ffaa00;
+            box-shadow: 0 0 8px #ffaa00;
+        }
+
+        .indicator-light.on-blue {
+            background: #00aaff;
+            box-shadow: 0 0 8px #00aaff;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px 30px;
+            background: linear-gradient(180deg, rgba(30, 30, 50, 0.8) 0%, rgba(20, 20, 35, 0.9) 100%);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 12px;
+            box-shadow:
+                0 0 30px rgba(0, 255, 136, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        .header-top {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 8px;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            filter: drop-shadow(0 0 10px rgba(0, 255, 136, 0.5));
+        }
+
+        header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            letter-spacing: 8px;
+            text-transform: uppercase;
+            color: #00ff88;
+            text-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+            margin: 0;
+        }
+
+        header p {
+            color: #00aaff;
+            font-size: 1.08rem;
+            margin-top: 4px;
+            margin-bottom: 12px;
+            font-weight: 400;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+        }
+
+        /* Status indicators in header */
+        .status-bar {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(0, 255, 136, 0.2);
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            color: #888;
+            letter-spacing: 2px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #00ff88;
+            box-shadow: 0 0 10px #00ff88;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .status-dot.warning {
+            background: #ffaa00;
+            box-shadow: 0 0 10px #ffaa00;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Header readouts panel */
+        .header-readouts {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(0, 255, 136, 0.2);
+            gap: 20px;
+        }
+
+        .header-controls-left,
+        .header-controls-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Mini toggle for header */
+        .mini-toggle {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+        }
+
+        .mini-toggle-track {
+            width: 18px;
+            height: 28px;
+            background: linear-gradient(180deg, #0a0a0f 0%, #1a1a2e 100%);
+            border-radius: 9px;
+            border: 1px solid #333;
+            position: relative;
+            box-shadow: inset 0 1px 4px rgba(0,0,0,0.5);
+        }
+
+        .mini-toggle-handle {
+            width: 14px;
+            height: 14px;
+            background: linear-gradient(180deg, #4a4a5a 0%, #2a2a3a 100%);
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 50%;
+            transform: translateX(-50%);
+            transition: top 0.15s ease;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .mini-toggle.on .mini-toggle-handle {
+            top: 10px;
+        }
+
+        .mini-toggle.on .mini-toggle-track {
+            border-color: #00ff88;
+            box-shadow: inset 0 1px 4px rgba(0,0,0,0.5), 0 0 6px rgba(0, 255, 136, 0.3);
+        }
+
+        .mini-toggle-label {
+            font-size: 0.5rem;
+            color: #555;
+            letter-spacing: 1px;
+        }
+
+        .mini-toggle.on .mini-toggle-label {
+            color: #00ff88;
+        }
+
+        /* Mini knob for header */
+        .mini-knob {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .mini-knob-dial {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(145deg, #3a3a4a 0%, #2a2a3a 100%);
+            border-radius: 50%;
+            border: 2px solid #333;
+            position: relative;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+        }
+
+        .mini-knob-dot {
+            position: absolute;
+            top: 3px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 3px;
+            height: 6px;
+            background: #00ff88;
+            border-radius: 1px;
+            box-shadow: 0 0 4px #00ff88;
+        }
+
+        .mini-knob-label {
+            font-size: 0.5rem;
+            color: #555;
+            letter-spacing: 1px;
+        }
+
+        /* Mini indicators for header */
+        .mini-indicator-group {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .mini-ind {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #222;
+            border: 1px solid #333;
+        }
+
+        .mini-ind.on-green {
+            background: #00ff88;
+            box-shadow: 0 0 6px #00ff88;
+        }
+
+        .mini-ind.on-red {
+            background: #ff4444;
+            box-shadow: 0 0 6px #ff4444;
+        }
+
+        .footer-readout {
+            font-size: 1.44rem;
+            color: #666;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .station-readout {
+            margin-right: 190px;
+        }
+
+        .uptime-readout {
+            margin-left: 190px;
+        }
+
+        .footer-readout span {
+            color: #00ff88;
+            margin-left: 8px;
+        }
+
+        .clock {
+            font-size: 1.44rem;
+            color: #00aaff;
+            font-weight: 600;
+            letter-spacing: 2px;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .header-readouts {
+            position: relative;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 48px;
+        }
+
+        .card {
+            background: linear-gradient(145deg, rgba(25, 25, 40, 0.95) 0%, rgba(15, 15, 25, 0.98) 100%);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 16px;
+            padding: 0;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: default;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            height: 340px;
+            box-shadow:
+                0 4px 20px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .card-link {
+            cursor: pointer;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #00ff88, transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: rgba(0, 255, 136, 0.5);
+            transform: translateY(-4px);
+            box-shadow:
+                0 8px 40px rgba(0, 255, 136, 0.15),
+                0 4px 20px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        .card.empty {
+            opacity: 0.3;
+            cursor: default;
+            border-color: rgba(100, 100, 100, 0.2);
+        }
+
+        .card.empty:hover {
+            transform: none;
+            box-shadow:
+                0 4px 20px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            border-color: rgba(100, 100, 100, 0.2);
+        }
+
+        .card.empty::before {
+            display: none;
+        }
+
+        /* Gauge display area */
+        .card-gauge {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+            height: 240px;
+        }
+
+        .gauge-ring {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-icon {
+            font-size: 2.5rem;
+            filter: drop-shadow(0 0 8px rgba(0, 255, 136, 0.3));
+        }
+
+        /* Info panel at bottom of card */
+        .card-info {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 22px;
+            border-top: 1px solid rgba(0, 255, 136, 0.15);
+            height: 100px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .card-name {
+            font-size: 1.44rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #ffffff;
+            letter-spacing: 1px;
+        }
+
+        .card-port {
+            font-size: 1.02rem;
+            color: #00aaff;
+            font-weight: 400;
+            font-family: 'Courier New', monospace;
+            background: rgba(0, 170, 255, 0.1);
+            padding: 4px 12px;
+            border-radius: 4px;
+            display: inline-block;
+            border: 1px solid rgba(0, 170, 255, 0.2);
+        }
+
+        /* Status indicator on cards */
+        .card-status {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.78rem;
+            color: #00ff88;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .card-status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ff4444;
+            box-shadow: 0 0 8px #ff4444;
+            transition: all 0.3s ease;
+        }
+
+        .card-status-dot.online {
+            background: #00ff88;
+            box-shadow: 0 0 8px #00ff88;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .card-status-dot.building {
+            background: #ffaa00;
+            box-shadow: 0 0 8px #ffaa00;
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        .card-status-dot.offline {
+            background: #ff4444;
+            box-shadow: 0 0 8px #ff4444;
+            animation: none;
+        }
+
+        .card-status-text {
+            transition: color 0.3s ease;
+        }
+
+        .card-status-text.online {
+            color: #00ff88;
+        }
+
+        .card-status-text.building {
+            color: #ffaa00;
+        }
+
+        .card-status-text.offline {
+            color: #ff4444;
+        }
+
+        /* Start button */
+        .card-start-btn {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #1a1a2a 0%, #0a0a15 100%);
+            border: 2px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+        }
+
+        .card-start-btn:hover {
+            border-color: #00ff88;
+            box-shadow: 0 0 12px rgba(0, 255, 136, 0.3);
+        }
+
+        .card-start-btn:active {
+            transform: scale(0.95);
+        }
+
+        .card-start-btn svg {
+            width: 14px;
+            height: 14px;
+            fill: #00ff88;
+            transition: fill 0.2s ease;
+        }
+
+        .card-start-btn.running svg {
+            fill: #ff4444;
+        }
+
+        .card-start-btn.running {
+            border-color: #ff4444;
+        }
+
+        .card-start-btn.running:hover {
+            box-shadow: 0 0 12px rgba(255, 68, 68, 0.3);
+        }
+
+        /* Corner decorations */
+        .corner-bracket {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-color: rgba(0, 255, 136, 0.3);
+            border-style: solid;
+            border-width: 0;
+        }
+
+        .corner-bracket.top-left {
+            top: 8px;
+            left: 8px;
+            border-top-width: 2px;
+            border-left-width: 2px;
+        }
+
+        .corner-bracket.top-right {
+            top: 8px;
+            right: 8px;
+            border-top-width: 2px;
+            border-right-width: 2px;
+        }
+
+        .corner-bracket.bottom-left {
+            bottom: 8px;
+            left: 8px;
+            border-bottom-width: 2px;
+            border-left-width: 2px;
+        }
+
+        .corner-bracket.bottom-right {
+            bottom: 8px;
+            right: 8px;
+            border-bottom-width: 2px;
+            border-right-width: 2px;
+        }
+
+        /* Bottom control strip */
+        .bottom-controls {
+            margin-top: 30px;
+            padding: 12px 20px;
+            background: linear-gradient(180deg, rgba(30, 30, 50, 0.8) 0%, rgba(20, 20, 35, 0.9) 100%);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .throttle-group {
+            display: flex;
+            gap: 15px;
+            align-items: flex-end;
+        }
+
+        .throttle {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .throttle-label {
+            font-size: 0.65rem;
+            color: #666;
+            letter-spacing: 1px;
+        }
+
+        .throttle-slot {
+            width: 16px;
+            height: 50px;
+            background: linear-gradient(180deg, #0a0a0f 0%, #1a1a2e 100%);
+            border-radius: 12px;
+            border: 2px solid #333;
+            position: relative;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.5);
+        }
+
+        .throttle-slot::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 8px;
+            bottom: 8px;
+            width: 2px;
+            background: linear-gradient(180deg, #ff4444, #ffaa00, #00ff88);
+            transform: translateX(-50%);
+            border-radius: 1px;
+            opacity: 0.6;
+        }
+
+        .throttle-handle {
+            width: 26px;
+            height: 14px;
+            background: linear-gradient(180deg, #4a4a5a 0%, #2a2a3a 100%);
+            border-radius: 4px;
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            cursor: ns-resize;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+            border: 1px solid #555;
+        }
+
+        .throttle-handle::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 8px;
+            right: 8px;
+            height: 1px;
+            background: #666;
+            transform: translateY(-50%);
+        }
+
+        .throttle-handle::after {
+            content: '';
+            position: absolute;
+            top: calc(50% + 3px);
+            left: 8px;
+            right: 8px;
+            height: 1px;
+            background: #666;
+            transform: translateY(-50%);
+        }
+
+        .switch-bank {
+            display: flex;
+            gap: 15px;
+        }
+
+        .mini-switch {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .mini-switch-label {
+            font-size: 0.55rem;
+            color: #666;
+            letter-spacing: 1px;
+        }
+
+        .rocker {
+            width: 16px;
+            height: 24px;
+            background: linear-gradient(180deg, #2a2a3a 0%, #1a1a2a 100%);
+            border-radius: 4px;
+            border: 2px solid #333;
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .rocker-top, .rocker-bottom {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .rocker-top {
+            top: 0;
+            background: linear-gradient(180deg, #3a3a4a 0%, #2a2a3a 100%);
+            border-bottom: 1px solid #222;
+        }
+
+        .rocker-bottom {
+            bottom: 0;
+            background: linear-gradient(180deg, #2a2a3a 0%, #1a1a2a 100%);
+        }
+
+        .rocker.on .rocker-top {
+            background: linear-gradient(180deg, #2a2a3a 0%, #1a1a2a 100%);
+        }
+
+        .rocker.on .rocker-bottom {
+            background: linear-gradient(180deg, #00aa55 0%, #008844 100%);
+            box-shadow: inset 0 0 10px rgba(0, 255, 136, 0.3);
+        }
+
+        .gauge-cluster {
+            display: flex;
+            gap: 20px;
+        }
+
+        .mini-gauge {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .mini-gauge-label {
+            font-size: 0.55rem;
+            color: #666;
+            letter-spacing: 1px;
+        }
+
+        .gauge-dial {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(145deg, #1a1a2a 0%, #0a0a15 100%);
+            border-radius: 50%;
+            border: 3px solid #333;
+            position: relative;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.5);
+        }
+
+        .gauge-dial::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 6px;
+            height: 6px;
+            background: #444;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .gauge-needle {
+            position: absolute;
+            bottom: 50%;
+            left: 50%;
+            width: 2px;
+            height: 12px;
+            background: linear-gradient(180deg, #ff4444 0%, #aa2222 100%);
+            transform-origin: bottom center;
+            transform: translateX(-50%) rotate(-45deg);
+            border-radius: 1px;
+        }
+
+        .gauge-dial .gauge-marks {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        .gauge-value {
+            font-size: 0.6rem;
+            color: #00ff88;
+        }
+
+        @media (max-width: 1200px) {
+            .control-panel-left,
+            .control-panel-right {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            header h1 {
+                font-size: 2.16rem;
+                letter-spacing: 4px;
+            }
+            .status-bar {
+                flex-wrap: wrap;
+                gap: 20px;
+            }
+            .header-readouts {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            .bottom-controls {
+                flex-wrap: wrap;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            header h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Ambient glow effects -->
+    <div class="ambient-glow glow-1"></div>
+    <div class="ambient-glow glow-2"></div>
+
+    <div class="cockpit-wrapper">
+        <!-- Left Control Panel -->
+        <div class="control-panel-left">
+            <div class="toggle-switch on" onclick="this.classList.toggle('on')">
+                <div class="toggle-switch-label">MASTER</div>
+                <div class="toggle-track">
+                    <div class="toggle-handle"></div>
+                </div>
+                <div class="toggle-indicator"></div>
+            </div>
+
+            <div class="rotary-knob">
+                <div class="rotary-knob-label">GAIN</div>
+                <div class="knob-outer">
+                    <div class="knob-inner" style="transform: rotate(45deg);">
+                        <div class="knob-indicator"></div>
+                    </div>
+                </div>
+                <div class="knob-value">7.5</div>
+            </div>
+
+            <div class="lever-control">
+                <div class="lever-label">FLAPS</div>
+                <div class="lever-track">
+                    <div class="lever-handle"></div>
+                </div>
+            </div>
+
+            <div class="indicator-panel">
+                <div class="indicator-row">
+                    <div class="indicator-light on-green"></div>
+                    <div class="indicator-light on-green"></div>
+                </div>
+                <div class="indicator-row">
+                    <div class="indicator-light on-yellow"></div>
+                    <div class="indicator-light"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <header>
+                <div class="header-top">
+                    <div class="logo">🛩️</div>
+                    <h1>Flight Deck</h1>
+                </div>
+                <p>Local Development Command Center</p>
+                <div class="status-bar">
+                    <div class="status-item">
+                        <div class="status-dot"></div>
+                        SYSTEMS ONLINE
+                    </div>
+                    <div class="status-item">
+                        <div class="status-dot"></div>
+                        ALL SERVICES NOMINAL
+                    </div>
+                    <div class="status-item">
+                        <div class="status-dot warning"></div>
+                        DEV MODE ACTIVE
+                    </div>
+                </div>
+                <div class="header-readouts">
+                    <div class="header-controls-left">
+                        <div class="mini-toggle" onclick="this.classList.toggle('on')">
+                            <div class="mini-toggle-track"><div class="mini-toggle-handle"></div></div>
+                            <div class="mini-toggle-label">PWR</div>
+                        </div>
+                        <div class="mini-toggle on" onclick="this.classList.toggle('on')">
+                            <div class="mini-toggle-track"><div class="mini-toggle-handle"></div></div>
+                            <div class="mini-toggle-label">NET</div>
+                        </div>
+                    </div>
+                    <div class="footer-readout station-readout">
+                        STATION<span id="hostname">loading...</span>
+                    </div>
+                    <div class="clock" id="clock">00:00:00</div>
+                    <div class="footer-readout uptime-readout">
+                        UPTIME<span id="uptime">0h 0m</span>
+                    </div>
+                    <div class="header-controls-right">
+                        <div class="mini-knob">
+                            <div class="mini-knob-dial" style="transform: rotate(30deg);"><div class="mini-knob-dot"></div></div>
+                            <div class="mini-knob-label">VOL</div>
+                        </div>
+                        <div class="mini-indicator-group">
+                            <div class="mini-ind on-green"></div>
+                            <div class="mini-ind on-green"></div>
+                            <div class="mini-ind"></div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="grid" id="app-grid">
+                <!-- Grid will be populated by JavaScript -->
+            </div>
+
+            <!-- Bottom Control Strip -->
+            <div class="bottom-controls">
+                <div class="throttle-group">
+                    <div class="throttle">
+                        <div class="throttle-label">THR 1</div>
+                        <div class="throttle-slot">
+                            <div class="throttle-handle" style="bottom: 28px;"></div>
+                        </div>
+                    </div>
+                    <div class="throttle">
+                        <div class="throttle-label">THR 2</div>
+                        <div class="throttle-slot">
+                            <div class="throttle-handle" style="bottom: 24px;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="switch-bank">
+                    <div class="mini-switch">
+                        <div class="mini-switch-label">NAV</div>
+                        <div class="rocker on" onclick="this.classList.toggle('on')">
+                            <div class="rocker-top"></div>
+                            <div class="rocker-bottom"></div>
+                        </div>
+                    </div>
+                    <div class="mini-switch">
+                        <div class="mini-switch-label">COM</div>
+                        <div class="rocker on" onclick="this.classList.toggle('on')">
+                            <div class="rocker-top"></div>
+                            <div class="rocker-bottom"></div>
+                        </div>
+                    </div>
+                    <div class="mini-switch">
+                        <div class="mini-switch-label">XPDR</div>
+                        <div class="rocker" onclick="this.classList.toggle('on')">
+                            <div class="rocker-top"></div>
+                            <div class="rocker-bottom"></div>
+                        </div>
+                    </div>
+                    <div class="mini-switch">
+                        <div class="mini-switch-label">STRB</div>
+                        <div class="rocker on" onclick="this.classList.toggle('on')">
+                            <div class="rocker-top"></div>
+                            <div class="rocker-bottom"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="gauge-cluster">
+                    <div class="mini-gauge">
+                        <div class="mini-gauge-label">CPU</div>
+                        <div class="gauge-dial">
+                            <div class="gauge-needle" style="transform: translateX(-50%) rotate(30deg);"></div>
+                        </div>
+                        <div class="gauge-value">42%</div>
+                    </div>
+                    <div class="mini-gauge">
+                        <div class="mini-gauge-label">MEM</div>
+                        <div class="gauge-dial">
+                            <div class="gauge-needle" style="transform: translateX(-50%) rotate(60deg);"></div>
+                        </div>
+                        <div class="gauge-value">68%</div>
+                    </div>
+                </div>
+
+                <div class="switch-bank">
+                    <div class="push-button">
+                        <div class="button-outer">
+                            <div class="button-inner red"></div>
+                        </div>
+                        <div class="push-button-label">EMERG</div>
+                    </div>
+                    <div class="push-button">
+                        <div class="button-outer">
+                            <div class="button-inner blue"></div>
+                        </div>
+                        <div class="push-button-label">SYNC</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Control Panel -->
+        <div class="control-panel-right">
+            <div class="toggle-switch" onclick="this.classList.toggle('on')">
+                <div class="toggle-switch-label">AUTO</div>
+                <div class="toggle-track">
+                    <div class="toggle-handle"></div>
+                </div>
+                <div class="toggle-indicator"></div>
+            </div>
+
+            <div class="rotary-knob">
+                <div class="rotary-knob-label">FREQ</div>
+                <div class="knob-outer">
+                    <div class="knob-inner" style="transform: rotate(-30deg);">
+                        <div class="knob-indicator"></div>
+                    </div>
+                </div>
+                <div class="knob-value">121.5</div>
+            </div>
+
+            <div class="push-button">
+                <div class="push-button-label">ARM</div>
+                <div class="button-outer">
+                    <div class="button-inner yellow"></div>
+                </div>
+            </div>
+
+            <div class="indicator-panel">
+                <div class="indicator-row">
+                    <div class="indicator-light on-blue"></div>
+                    <div class="indicator-light on-green"></div>
+                </div>
+                <div class="indicator-row">
+                    <div class="indicator-light"></div>
+                    <div class="indicator-light on-red"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // SVG icon for cybercache (shield + book)
+        const cybercacheIcon = `
+            <svg viewBox="0 0 100 100" width="187" height="187" style="filter: drop-shadow(0 0 8px rgba(0, 170, 255, 0.3));">
+                <!-- Shield -->
+                <path d="M50 5 L90 20 L90 45 C90 70 70 90 50 95 C30 90 10 70 10 45 L10 20 Z"
+                      fill="none"
+                      stroke="#00aaff"
+                      stroke-width="3"
+                      stroke-linejoin="round"/>
+                <!-- Book -->
+                <g transform="translate(50, 47) scale(1.2)">
+                    <path d="M-15 -12 L0 -8 L15 -12 L15 12 L0 16 L-15 12 Z"
+                          fill="none"
+                          stroke="#00aaff"
+                          stroke-width="2.5"
+                          stroke-linejoin="round"/>
+                    <line x1="0" y1="-8" x2="0" y2="16" stroke="#00aaff" stroke-width="2"/>
+                </g>
+            </svg>
+        `;
+
+        // Backend API URL
+        const API_URL = 'http://localhost:5000';
+
+        // Configure your apps here
+        const apps = [
+            { id: "archer", name: "Archer", port: 8000, icon: "images/archer_new.png", isImage: true },
+            { id: "cybercache", name: "cybercache", port: 22243, icon: cybercacheIcon, isHtml: true },
+            { id: "rivendell", name: "rivendell", port: 5687, icon: "images/rivendell.png", isImage: true },
+            { id: "ancestree", name: "Ancestree", port: 8733, icon: "images/ancestree.png", isImage: true },
+            { id: "audiobookconstructor", name: "AudiobookConstructor", port: 8080, icon: "🎙️" },
+            { id: null, name: "App 6", port: 6000, icon: "❓" },
+        ];
+
+        // Track app statuses
+        const appStatuses = {};
+
+        function renderGrid() {
+            const grid = document.getElementById('app-grid');
+            grid.innerHTML = '';
+
+            apps.forEach((app, index) => {
+                if (app) {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.dataset.url = `http://localhost:${app.port}`;
+                    let iconContent;
+                    if (app.isHtml) {
+                        iconContent = app.icon;
+                    } else if (app.isImage) {
+                        const imgHeight = app.name === "Ancestree" ? 194 : 216;
+                        iconContent = `<img src="${app.icon}" alt="${app.name}" style="height: ${imgHeight}px; width: auto; object-fit: contain; border-radius: 8px;">`;
+                    } else {
+                        iconContent = `<span style="font-size: 7.15rem;">${app.icon}</span>`;
+                    }
+                    const status = appStatuses[app.id] || 'offline';
+                    const statusText = status === 'online' ? 'LIVE' : status === 'building' ? 'BUILDING' : 'OFFLINE';
+                    const isRunning = status === 'online';
+
+                    // Play icon SVG
+                    const playIcon = `<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`;
+                    // Stop icon SVG
+                    const stopIcon = `<svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12"/></svg>`;
+
+                    card.innerHTML = `
+                        <div class="corner-bracket top-left"></div>
+                        <div class="corner-bracket top-right"></div>
+                        ${app.id ? `<div class="card-start-btn ${isRunning ? 'running' : ''}" data-app-id="${app.id}">
+                            ${isRunning ? stopIcon : playIcon}
+                        </div>` : ''}
+                        <div class="card-status">
+                            <div class="card-status-dot ${status}"></div>
+                            <span class="card-status-text ${status}">${statusText}</span>
+                        </div>
+                        <div class="card-gauge card-link">
+                            <div class="gauge-ring">
+                                <div class="card-icon">${iconContent}</div>
+                            </div>
+                        </div>
+                        <div class="card-info card-link">
+                            <div class="card-name">${app.name}</div>
+                            <div class="card-port">localhost:${app.port}</div>
+                        </div>
+                    `;
+
+                    // Add click handler for the start button
+                    const startBtn = card.querySelector('.card-start-btn');
+                    if (startBtn) {
+                        startBtn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            toggleApp(app.id);
+                        });
+                    }
+
+                    // Add click handler for opening the app (clicking on card content)
+                    card.querySelectorAll('.card-link').forEach(el => {
+                        el.addEventListener('click', () => {
+                            window.open(`http://localhost:${app.port}`, '_blank');
+                        });
+                    });
+
+                    grid.appendChild(card);
+                } else {
+                    const div = document.createElement('div');
+                    div.className = 'card empty';
+                    div.innerHTML = `
+                        <div class="card-gauge">
+                            <div class="gauge-ring">
+                                <div class="card-icon">⬡</div>
+                            </div>
+                        </div>
+                        <div class="card-info">
+                            <div class="card-name">OFFLINE</div>
+                            <div class="card-port">Not configured</div>
+                        </div>
+                    `;
+                    grid.appendChild(div);
+                }
+            });
+        }
+
+        // Clock functionality
+        function updateClock() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds}`;
+        }
+
+        // Uptime tracker
+        const startTime = Date.now();
+        function updateUptime() {
+            const elapsed = Date.now() - startTime;
+            const hours = Math.floor(elapsed / (1000 * 60 * 60));
+            const minutes = Math.floor((elapsed % (1000 * 60 * 60)) / (1000 * 60));
+            document.getElementById('uptime').textContent = `${hours}h ${minutes}m`;
+        }
+
+        // Toggle app start/stop
+        async function toggleApp(appId) {
+            const status = appStatuses[appId];
+            const endpoint = status === 'online' ? 'stop' : 'start';
+
+            // Set to building while we wait
+            if (endpoint === 'start') {
+                appStatuses[appId] = 'building';
+                renderGrid();
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/api/${endpoint}/${appId}`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                if (data.status) {
+                    updateStatuses(data.status);
+                }
+            } catch (error) {
+                console.error('Error toggling app:', error);
+                // Revert on error
+                fetchStatuses();
+            }
+        }
+
+        // Update app statuses from API response
+        function updateStatuses(statusList) {
+            statusList.forEach(app => {
+                appStatuses[app.id] = app.running ? 'online' : 'offline';
+            });
+            renderGrid();
+        }
+
+        // Fetch current statuses from backend
+        async function fetchStatuses() {
+            try {
+                const response = await fetch(`${API_URL}/api/apps`);
+                const data = await response.json();
+                updateStatuses(data);
+            } catch (error) {
+                console.error('Error fetching statuses:', error);
+                // Set all to offline on error
+                apps.forEach(app => {
+                    if (app.id) appStatuses[app.id] = 'offline';
+                });
+                renderGrid();
+            }
+        }
+
+        // Check if app is responding by pinging its port
+        async function checkAppHealth(app) {
+            if (!app.id) return;
+            try {
+                const controller = new AbortController();
+                const timeout = setTimeout(() => controller.abort(), 2000);
+                await fetch(`http://localhost:${app.port}`, {
+                    mode: 'no-cors',
+                    signal: controller.signal
+                });
+                clearTimeout(timeout);
+                // If we get here without error, app might be running
+                // We still rely on backend for authoritative status
+            } catch (e) {
+                // App not responding
+            }
+        }
+
+        // Set hostname
+        function setHostname() {
+            document.getElementById('hostname').textContent = 'MACBOOK';
+        }
+
+        renderGrid();
+        updateClock();
+        setHostname();
+        fetchStatuses();
+        setInterval(updateClock, 1000);
+        setInterval(updateUptime, 60000);
+        setInterval(fetchStatuses, 5000); // Poll status every 5 seconds
+    </script>
+</body>
+</html>
