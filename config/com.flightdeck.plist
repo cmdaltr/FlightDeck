@@ -9,6 +9,8 @@
         <string>/bin/bash</string>
         <string>/Users/ben/Library/CloudStorage/OneDrive-Personal/Projects/GitHub/FlightDeck/start.sh</string>
     </array>
+    <key>WorkingDirectory</key>
+    <string>/Users/ben/Library/CloudStorage/OneDrive-Personal/Projects/GitHub/FlightDeck</string>
     <key>RunAtLoad</key>
     <true/>
     <key>KeepAlive</key>
@@ -17,5 +19,10 @@
     <string>/tmp/flightdeck.log</string>
     <key>StandardErrorPath</key>
     <string>/tmp/flightdeck.error.log</string>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/homebrew/bin</string>
+    </dict>
 </dict>
 </plist>

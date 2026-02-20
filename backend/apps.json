@@ -1,32 +1,71 @@
 [
   {
+    "id": "rehseepee",
+    "name": "rehseepee",
+    "script": "/Users/ben/Library/CloudStorage/OneDrive-Personal/Projects/GitHub/rehseepee/scripts/rehseepee.py",
+    "venv": "/Users/ben/Library/CloudStorage/OneDrive-Personal/Projects/GitHub/rehseepee/.venv",
+    "url": "http://localhost:2665",
+    "web_url": "http://localhost:2665",
+    "health_endpoint": null,
+    "launch_type": "python",
+    "launch_args": ["--web"],
+    "port": 2665
+  },
+  {
     "id": "archer",
     "name": "Archer",
-    "script": "../../archer/archer.py",
-    "url": "http://localhost:8000"
+    "script": "/Users/ben/Library/CloudStorage/OneDrive-Personal/Projects/GitHub/archer",
+    "venv": "/Users/ben/Library/CloudStorage/OneDrive-Personal/Projects/GitHub/archer/.venv",
+    "url": "http://localhost:8000",
+    "web_url": "http://localhost:8000",
+    "health_endpoint": "/health",
+    "launch_type": "uvicorn",
+    "uvicorn_app": "archer.app:app",
+    "port": 8000
   },
   {
     "id": "cybercache",
     "name": "CyberCache",
-    "script": "../../cybercache/backend/app.py",
-    "url": "http://localhost:22243"
+    "script": "/Users/ben/Library/CloudStorage/OneDrive-Personal/Projects/GitHub/cybercache/backend/app.py",
+    "venv": "/Users/ben/Library/CloudStorage/OneDrive-Personal/Projects/GitHub/cybercache/.venv",
+    "url": "http://localhost:22244",
+    "web_url": "http://localhost:22243",
+    "health_endpoint": "/api/health",
+    "launch_type": "python",
+    "port": 22244
   },
   {
     "id": "rivendell",
     "name": "Rivendell",
-    "script": "../../rivendell/src/web/backend/main.py",
-    "url": "http://localhost:5687"
+    "script": "/Users/ben/Library/CloudStorage/OneDrive-Personal/Projects/GitHub/rivendell/src/web/backend",
+    "venv": "/Users/ben/Library/CloudStorage/OneDrive-Personal/Projects/GitHub/rivendell/.venv",
+    "url": "http://localhost:5687",
+    "web_url": "http://localhost:5687",
+    "health_endpoint": null,
+    "launch_type": "uvicorn",
+    "uvicorn_app": "main:app",
+    "port": 5687
   },
   {
     "id": "ancestree",
     "name": "Ancestree",
-    "script": "../../ancestree/backend/run.py",
-    "url": "http://localhost:8733"
+    "script": "/Users/ben/Library/CloudStorage/OneDrive-Personal/Projects/GitHub/ancestree/backend/run.py",
+    "venv": "/Users/ben/Library/CloudStorage/OneDrive-Personal/Projects/GitHub/ancestree/.venv",
+    "url": "http://localhost:8733",
+    "web_url": "http://localhost:3000",
+    "health_endpoint": "/health",
+    "launch_type": "python",
+    "port": 8733
   },
   {
     "id": "audiobookconstructor",
     "name": "AudiobookConstructor",
-    "script": "../../AudiobookConstructor/AudiobookConstructor.py",
-    "url": "http://localhost:8080"
+    "script": "/Users/ben/Library/CloudStorage/OneDrive-Personal/Projects/GitHub/AudiobookConstructor",
+    "venv": "/Users/ben/Library/CloudStorage/OneDrive-Personal/Projects/GitHub/AudiobookConstructor/.venv",
+    "url": "http://localhost:2665",
+    "web_url": "http://localhost:2665",
+    "health_endpoint": null,
+    "launch_type": "docker",
+    "port": 2665
   }
 ]
