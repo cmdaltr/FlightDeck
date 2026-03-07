@@ -900,6 +900,18 @@
             animation: none;
         }
 
+        .card-status-dot.healthy {
+            background: #00ffcc;
+            box-shadow: 0 0 12px #00ffcc;
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        .card-status-dot.degraded {
+            background: #ff8800;
+            box-shadow: 0 0 8px #ff8800;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
         .card-status-text {
             transition: color 0.3s ease;
         }
@@ -914,6 +926,14 @@
 
         .card-status-text.offline {
             color: #ff4444;
+        }
+
+        .card-status-text.healthy {
+            color: #00ffcc;
+        }
+
+        .card-status-text.degraded {
+            color: #ff8800;
         }
 
         /* Start button */
@@ -1507,20 +1527,22 @@
         `;
 
         // Backend API URL
-        const API_URL = 'http://localhost:5000';
+        const API_URL = 'http://localhost:5050';
 
         // Configure your apps here
         const apps = [
             { id: "archer", name: "Archer", port: 8000, icon: "images/archer_new.png", isImage: true },
             { id: "cybercache", name: "cybercache", port: 22243, icon: cybercacheIcon, isHtml: true },
             { id: "rivendell", name: "rivendell", port: 5687, icon: "images/rivendell.png", isImage: true },
-            { id: "ancestree", name: "Ancestree", port: 8733, icon: "images/ancestree.png", isImage: true },
-            { id: "audiobookconstructor", name: "AudiobookConstructor", port: 8080, icon: "🎙️" },
-            { id: null, name: "App 6", port: 6000, icon: "❓" },
+            { id: "ancestree", name: "Ancestree", port: 3000, icon: "images/ancestree.png", isImage: true },
+            { id: "audiobookconstructor", name: "AudiobookConstructor", port: 2665, icon: "🎙️" },
+            { id: "rehseepee", name: "rehseepee", port: 2665, icon: "🥙" },
         ];
 
-        // Track app statuses
+        // Track app statuses, health, and web URLs
         const appStatuses = {};
+        const appHealth = {};
+        const appWebUrls = {};
 
         function renderGrid() {
             const grid = document.getElementById('app-grid');
@@ -1541,8 +1563,28 @@
                         iconContent = `<span style="font-size: 7.15rem;">${app.icon}</span>`;
                     }
                     const status = appStatuses[app.id] || 'offline';
-                    const statusText = status === 'online' ? 'LIVE' : status === 'building' ? 'BUILDING' : 'OFFLINE';
-                    const isRunning = status === 'online';
+                    const health = appHealth[app.id] || {};
+                    const isRunning = status === 'online' || status === 'building';
+                    const isHealthy = health.healthy === true;
+
+                    // Status logic: offline -> building -> online (process running) -> healthy (API responding)
+                    let statusText, statusClass;
+                    if (status === 'building') {
+                        statusText = 'BUILDING';
+                        statusClass = 'building';
+                    } else if (status === 'online' && isHealthy) {
+                        statusText = 'HEALTHY';
+                        statusClass = 'healthy';
+                    } else if (status === 'online' && !isHealthy && health.error) {
+                        statusText = 'DEGRADED';
+                        statusClass = 'degraded';
+                    } else if (status === 'online') {
+                        statusText = 'LIVE';
+                        statusClass = 'online';
+                    } else {
+                        statusText = 'OFFLINE';
+                        statusClass = 'offline';
+                    }
 
                     // Play icon SVG
                     const playIcon = `<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`;
@@ -1556,8 +1598,8 @@
                             ${isRunning ? stopIcon : playIcon}
                         </div>` : ''}
                         <div class="card-status">
-                            <div class="card-status-dot ${status}"></div>
-                            <span class="card-status-text ${status}">${statusText}</span>
+                            <div class="card-status-dot ${statusClass}"></div>
+                            <span class="card-status-text ${statusClass}">${statusText}</span>
                         </div>
                         <div class="card-gauge card-link">
                             <div class="gauge-ring">
@@ -1582,7 +1624,8 @@
                     // Add click handler for opening the app (clicking on card content)
                     card.querySelectorAll('.card-link').forEach(el => {
                         el.addEventListener('click', () => {
-                            window.open(`http://localhost:${app.port}`, '_blank');
+                            const webUrl = appWebUrls[app.id] || `http://localhost:${app.port}`;
+                            window.open(webUrl, '_blank');
                         });
                     });
 
@@ -1654,6 +1697,12 @@
         function updateStatuses(statusList) {
             statusList.forEach(app => {
                 appStatuses[app.id] = app.running ? 'online' : 'offline';
+                appHealth[app.id] = {
+                    healthy: app.healthy,
+                    error: app.health_error,
+                    endpoint: app.health_endpoint
+                };
+                appWebUrls[app.id] = app.web_url || app.url;
             });
             renderGrid();
         }

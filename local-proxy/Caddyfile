@@ -1,0 +1,23 @@
+{
+    # Enable HTTPS locally with a local CA
+    local_certs
+}
+
+# Generated from /Users/ben/Library/CloudStorage/OneDrive-Personal/Projects/GitHub/apps.conf
+# Maps <domain.app> → host.docker.internal:<port>
+
+flightdeck.app {
+    reverse_proxy host.docker.internal:3325
+}
+
+archer.app {
+    reverse_proxy host.docker.internal:8000
+}
+
+cybercache.app {
+    reverse_proxy host.docker.internal:22243
+}
+
+rivendell.app {
+    reverse_proxy host.docker.internal:5687
+}

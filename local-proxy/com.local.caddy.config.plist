@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+"http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>Label</key>
+    <string>com.local.caddy.config</string>
+
+    <key>RunAtLoad</key>
+    <true/>
+
+    <key>ProgramArguments</key>
+    <array>
+      <string>/Users/ben/Library/CloudStorage/OneDrive-Personal/Projects/GitHub/FlightDeck/local-proxy/local_apps.sh</string>
+    </array>
+
+    <key>StandardOutPath</key>
+    <string>/tmp/caddy-config.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>/tmp/caddy-config-error.log</string>
+  </dict>
+</plist>

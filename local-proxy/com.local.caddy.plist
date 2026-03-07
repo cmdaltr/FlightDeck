@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+"http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>Label</key>
+    <string>com.local.caddy</string>
+
+    <key>RunAtLoad</key>
+    <true/>
+
+    <key>ProgramArguments</key>
+    <array>
+      <string>/usr/local/bin/docker</string>
+      <string>compose</string>
+      <string>-f</string>
+      <string>/Users/ben/Library/CloudStorage/OneDrive-Personal/Projects/GitHub/FlightDeck/local-proxy/docker-compose.yml</string>
+      <string>up</string>
+      <string>-d</string>
+    </array>
+
+    <key>StandardOutPath</key>
+    <string>/tmp/caddy-start.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>/tmp/caddy-start-error.log</string>
+  </dict>
+</plist>
