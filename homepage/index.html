@@ -1276,6 +1276,571 @@
                 font-size: 1.8rem;
             }
         }
+
+        /* Docker badge */
+        .docker-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: linear-gradient(145deg, #0d1b2a 0%, #0a1520 100%);
+            border: 2px solid #1d6fa4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: default;
+            z-index: 10;
+        }
+
+        .docker-badge svg {
+            width: 26px;
+            height: 26px;
+        }
+
+        /* Tooltip */
+        .has-tooltip {
+            position: relative;
+        }
+
+        .tooltip {
+            visibility: hidden;
+            opacity: 0;
+            position: absolute;
+            bottom: calc(100% + 10px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: #0d1b2a;
+            border: 1px solid #1d6fa4;
+            color: #7ec8e3;
+            font-size: 0.72rem;
+            line-height: 1.5;
+            white-space: nowrap;
+            padding: 8px 12px;
+            border-radius: 6px;
+            pointer-events: none;
+            transition: opacity 0.15s ease;
+            z-index: 100;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+            letter-spacing: 0.5px;
+        }
+
+        .tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 5px solid transparent;
+            border-top-color: #1d6fa4;
+        }
+
+        .has-tooltip:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Repo button on card */
+        .repo-btn {
+            position: absolute;
+            bottom: 70px;
+            left: 12px;
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            background: transparent;
+            border: 1px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            z-index: 10;
+            font-size: 0.8rem;
+            color: #444;
+        }
+
+        .repo-btn:hover {
+            border-color: #00aaff;
+            color: #00aaff;
+        }
+
+        .repo-btn.dirty {
+            border-color: rgba(255, 170, 0, 0.4);
+            color: #ffaa00;
+        }
+
+        .repo-btn.ahead {
+            border-color: rgba(0, 170, 255, 0.4);
+            color: #00aaff;
+        }
+
+        /* Repo panel modal */
+        .repo-modal {
+            width: 640px;
+        }
+
+        .repo-modal h2 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .branch-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(0,170,255,0.1);
+            border: 1px solid rgba(0,170,255,0.3);
+            border-radius: 20px;
+            padding: 3px 10px;
+            font-size: 0.75rem;
+            color: #00aaff;
+            font-weight: normal;
+            letter-spacing: 0;
+            text-transform: none;
+        }
+
+        .sync-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            border-radius: 20px;
+            padding: 3px 10px;
+            font-size: 0.72rem;
+            font-weight: normal;
+            letter-spacing: 0;
+            text-transform: none;
+        }
+
+        .sync-pill.clean  { background: rgba(0,255,136,0.08); border: 1px solid rgba(0,255,136,0.2); color: #00ff88; }
+        .sync-pill.dirty  { background: rgba(255,170,0,0.08);  border: 1px solid rgba(255,170,0,0.2);  color: #ffaa00; }
+        .sync-pill.ahead  { background: rgba(0,170,255,0.08);  border: 1px solid rgba(0,170,255,0.2);  color: #00aaff; }
+        .sync-pill.behind { background: rgba(255,68,68,0.08);   border: 1px solid rgba(255,68,68,0.2);   color: #ff6666; }
+
+        .repo-tabs {
+            display: flex;
+            gap: 0;
+            border-bottom: 1px solid rgba(0,255,136,0.15);
+            margin-bottom: 20px;
+        }
+
+        .repo-tab {
+            padding: 8px 18px;
+            font-size: 0.72rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #555;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+            transition: all 0.2s;
+        }
+
+        .repo-tab:hover { color: #888; }
+
+        .repo-tab.active {
+            color: #00ff88;
+            border-bottom-color: #00ff88;
+        }
+
+        .repo-tab-content { display: none; }
+        .repo-tab-content.active { display: block; }
+
+        /* Git file list */
+        .file-list {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(0,255,136,0.1);
+            border-radius: 6px;
+            padding: 10px 12px;
+            max-height: 180px;
+            overflow-y: auto;
+            font-size: 0.78rem;
+            line-height: 1.8;
+        }
+
+        .file-list .file-M { color: #ffaa00; }
+        .file-list .file-A { color: #00ff88; }
+        .file-list .file-D { color: #ff6666; }
+        .file-list .file-? { color: #888; }
+
+        /* Hygiene check list */
+        .hygiene-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .hygiene-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 10px 12px;
+            background: rgba(0,0,0,0.25);
+            border-radius: 6px;
+            border: 1px solid rgba(255,255,255,0.04);
+            font-size: 0.8rem;
+        }
+
+        .hygiene-item .hi-icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+        .hygiene-item .hi-name { color: #ccc; flex: 1; }
+        .hygiene-item .hi-detail { color: #666; font-size: 0.72rem; margin-top: 3px; }
+        .hygiene-item.pass .hi-name { color: #aaa; }
+        .hygiene-item.fail { border-color: rgba(255,68,68,0.15); }
+        .hygiene-item.fail .hi-name { color: #ff8888; }
+
+        .btn-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .btn-repo {
+            padding: 9px 16px;
+            border-radius: 6px;
+            border: 1px solid;
+            font-family: 'Courier New', monospace;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-repo:disabled { opacity: 0.35; cursor: not-allowed; }
+
+        .btn-pull  { background: rgba(0,255,136,0.08); border-color: rgba(0,255,136,0.3); color: #00ff88; }
+        .btn-pull:hover:not(:disabled)  { background: rgba(0,255,136,0.18); }
+        .btn-push  { background: rgba(0,170,255,0.08); border-color: rgba(0,170,255,0.3); color: #00aaff; }
+        .btn-push:hover:not(:disabled)  { background: rgba(0,170,255,0.18); }
+        .btn-fix   { background: rgba(255,170,0,0.08);  border-color: rgba(255,170,0,0.3);  color: #ffaa00; }
+        .btn-fix:hover:not(:disabled)   { background: rgba(255,170,0,0.18); }
+        .btn-refresh { background: rgba(100,100,100,0.1); border-color: rgba(100,100,100,0.3); color: #888; }
+        .btn-refresh:hover:not(:disabled) { background: rgba(100,100,100,0.2); color: #aaa; }
+
+        .commit-area {
+            margin-top: 12px;
+        }
+
+        .commit-area input {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(0,255,136,0.2);
+            border-radius: 6px 0 0 6px;
+            color: #00ff88;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            padding: 10px 12px;
+            outline: none;
+            width: calc(100% - 110px);
+        }
+
+        .commit-area input:focus { border-color: rgba(0,255,136,0.5); }
+        .commit-area input::placeholder { color: #444; }
+
+        .btn-commit {
+            padding: 10px 16px;
+            border-radius: 0 6px 6px 0;
+            border: 1px solid rgba(0,255,136,0.3);
+            border-left: none;
+            background: rgba(0,255,136,0.1);
+            color: #00ff88;
+            font-family: 'Courier New', monospace;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-commit:hover:not(:disabled) { background: rgba(0,255,136,0.2); }
+        .btn-commit:disabled { opacity: 0.35; cursor: not-allowed; }
+
+        .repo-output {
+            margin-top: 12px;
+            padding: 10px 14px;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            font-family: 'Courier New', monospace;
+            display: none;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .repo-output.success { display: block; background: rgba(0,255,136,0.06); border: 1px solid rgba(0,255,136,0.2); color: #00cc77; }
+        .repo-output.error   { display: block; background: rgba(255,68,68,0.06);  border: 1px solid rgba(255,68,68,0.2);  color: #ff8888; }
+        .repo-output.info    { display: block; background: rgba(0,0,0,0.3);       border: 1px solid rgba(100,100,100,0.2); color: #888; }
+
+        .last-commit-line {
+            font-size: 0.72rem;
+            color: #555;
+            font-family: 'Courier New', monospace;
+            margin-bottom: 16px;
+            padding: 6px 10px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 4px;
+            border-left: 2px solid rgba(0,255,136,0.2);
+        }
+
+        /* Autostart toggle */
+        .autostart-btn {
+            position: absolute;
+            bottom: 70px;
+            right: 12px;
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            background: transparent;
+            border: 1px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            z-index: 10;
+            font-size: 0.85rem;
+            color: #444;
+        }
+
+        .autostart-btn:hover {
+            border-color: #ffaa00;
+            color: #ffaa00;
+        }
+
+        .autostart-btn.active {
+            border-color: #ffaa00;
+            color: #ffaa00;
+            background: rgba(255, 170, 0, 0.1);
+            box-shadow: 0 0 8px rgba(255, 170, 0, 0.2);
+        }
+
+        /* Add App card */
+        .card.add-app-card {
+            border: 2px dashed rgba(0, 255, 136, 0.2);
+            cursor: pointer;
+            opacity: 0.6;
+            transition: all 0.3s ease;
+        }
+
+        .card.add-app-card:hover {
+            opacity: 1;
+            border-color: rgba(0, 255, 136, 0.6);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 40px rgba(0, 255, 136, 0.15), 0 4px 20px rgba(0,0,0,0.5);
+        }
+
+        .card.add-app-card .add-icon {
+            font-size: 3rem;
+            color: rgba(0, 255, 136, 0.5);
+            line-height: 1;
+        }
+
+        .card.add-app-card:hover .add-icon {
+            color: #00ff88;
+        }
+
+        /* Modal overlay */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.75);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal {
+            background: linear-gradient(145deg, #13131f 0%, #0d0d18 100%);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 16px;
+            width: 580px;
+            max-width: 95vw;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8), 0 0 40px rgba(0,255,136,0.05);
+            padding: 32px;
+            position: relative;
+        }
+
+        .modal h2 {
+            font-size: 1.3rem;
+            color: #00ff88;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        .modal .modal-sub {
+            font-size: 0.78rem;
+            color: #555;
+            letter-spacing: 1px;
+            margin-bottom: 28px;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: none;
+            border: none;
+            color: #555;
+            font-size: 1.4rem;
+            cursor: pointer;
+            line-height: 1;
+            padding: 4px 8px;
+        }
+
+        .modal-close:hover { color: #00ff88; }
+
+        .field-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex: 1;
+        }
+
+        .field label {
+            font-size: 0.65rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #666;
+        }
+
+        .field input, .field select {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(0,255,136,0.2);
+            border-radius: 6px;
+            color: #00ff88;
+            font-family: 'Courier New', monospace;
+            font-size: 0.88rem;
+            padding: 10px 12px;
+            outline: none;
+            transition: border-color 0.2s;
+            width: 100%;
+        }
+
+        .field input:focus, .field select:focus {
+            border-color: rgba(0,255,136,0.6);
+        }
+
+        .field input::placeholder { color: #444; }
+
+        .field select option { background: #0d0d18; }
+
+        .dir-row {
+            display: flex;
+            gap: 8px;
+            align-items: flex-end;
+        }
+
+        .dir-row .field { flex: 1; }
+
+        .btn {
+            padding: 10px 18px;
+            border-radius: 6px;
+            border: 1px solid;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .btn-scan {
+            background: rgba(0,170,255,0.1);
+            border-color: rgba(0,170,255,0.4);
+            color: #00aaff;
+        }
+
+        .btn-scan:hover {
+            background: rgba(0,170,255,0.2);
+            border-color: #00aaff;
+        }
+
+        .btn-primary {
+            background: rgba(0,255,136,0.1);
+            border-color: rgba(0,255,136,0.5);
+            color: #00ff88;
+            width: 100%;
+            padding: 14px;
+            font-size: 0.9rem;
+            margin-top: 8px;
+        }
+
+        .btn-primary:hover {
+            background: rgba(0,255,136,0.2);
+            border-color: #00ff88;
+            box-shadow: 0 0 20px rgba(0,255,136,0.15);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .scan-notes {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(0,170,255,0.2);
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 20px;
+            font-size: 0.75rem;
+            color: #7ec8e3;
+            line-height: 1.7;
+            display: none;
+        }
+
+        .scan-notes.visible { display: block; }
+
+        .scan-notes .note-warn { color: #ffaa00; }
+
+        .modal-section-title {
+            font-size: 0.6rem;
+            letter-spacing: 2px;
+            color: #444;
+            text-transform: uppercase;
+            margin: 20px 0 12px;
+            border-bottom: 1px solid rgba(0,255,136,0.1);
+            padding-bottom: 6px;
+        }
+
+        .modal-status {
+            margin-top: 16px;
+            padding: 10px 14px;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            display: none;
+        }
+
+        .modal-status.success {
+            display: block;
+            background: rgba(0,255,136,0.08);
+            border: 1px solid rgba(0,255,136,0.3);
+            color: #00ff88;
+        }
+
+        .modal-status.error {
+            display: block;
+            background: rgba(255,68,68,0.08);
+            border: 1px solid rgba(255,68,68,0.3);
+            color: #ff6666;
+        }
     </style>
 </head>
 <body>
@@ -1504,255 +2069,718 @@
         </div>
     </div>
 
+    <!-- Repo Management Modal -->
+    <div class="modal-overlay" id="repoModal">
+        <div class="modal repo-modal">
+            <button class="modal-close" onclick="closeRepoModal()">&#x2715;</button>
+            <h2 id="repoModalTitle">Repo</h2>
+
+            <div id="repoLastCommit" class="last-commit-line" style="display:none"></div>
+
+            <div class="repo-tabs">
+                <div class="repo-tab active" onclick="switchRepoTab('status', this)">Status</div>
+                <div class="repo-tab" onclick="switchRepoTab('hygiene', this)">Hygiene</div>
+            </div>
+
+            <!-- Status tab -->
+            <div class="repo-tab-content active" id="repoTab-status">
+                <div class="btn-row">
+                    <button class="btn-repo btn-pull"    id="repoBtnPull"    onclick="repoPull()">⬇ Pull</button>
+                    <button class="btn-repo btn-push"    id="repoBtnPush"    onclick="repoPush()">⬆ Push</button>
+                    <button class="btn-repo btn-refresh" id="repoBtnRefresh" onclick="repoRefreshStatus()">↺ Refresh</button>
+                </div>
+
+                <div id="repoDirtySection" style="display:none">
+                    <div class="modal-section-title">Uncommitted Changes</div>
+                    <div class="file-list" id="repoFileList"></div>
+                    <div class="commit-area" style="display:flex;margin-top:10px">
+                        <input type="text" id="repoCommitMsg" placeholder="Commit message…" />
+                        <button class="btn-commit" id="repoBtnCommit" onclick="repoCommit()">Commit</button>
+                    </div>
+                </div>
+
+                <div class="repo-output" id="repoStatusOutput"></div>
+            </div>
+
+            <!-- Hygiene tab -->
+            <div class="repo-tab-content" id="repoTab-hygiene">
+                <div class="btn-row">
+                    <button class="btn-repo btn-refresh" id="repoBtnHygieneRefresh" onclick="repoRunHygiene()">↺ Run Checks</button>
+                    <button class="btn-repo btn-fix" id="repoBtnFix" onclick="repoFixHygiene()" style="display:none">⚙ Fix .gitignore</button>
+                </div>
+                <div class="hygiene-list" id="hygieneList">
+                    <div style="color:#555;font-size:0.8rem">Click "Run Checks" to scan this repo.</div>
+                </div>
+                <div class="repo-output" id="hygieneOutput"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add App Modal -->
+    <div class="modal-overlay" id="addAppModal">
+        <div class="modal">
+            <button class="modal-close" onclick="closeModal()">&#x2715;</button>
+            <h2>&#x2795; Add App</h2>
+            <p class="modal-sub">Point to a project directory — FlightDeck will read the codebase and suggest a configuration.</p>
+
+            <div class="dir-row">
+                <div class="field">
+                    <label>Project Directory</label>
+                    <input type="text" id="addAppPath" placeholder="/Users/ben/Projects/GitHub/myapp" />
+                </div>
+                <button class="btn btn-scan" onclick="scanDirectory()">Scan</button>
+            </div>
+
+            <div class="scan-notes" id="scanNotes"></div>
+
+            <div class="modal-section-title">Configuration</div>
+
+            <div class="field-group">
+                <div class="field">
+                    <label>App ID</label>
+                    <input type="text" id="addAppId" placeholder="myapp" />
+                </div>
+                <div class="field">
+                    <label>Display Name</label>
+                    <input type="text" id="addAppName" placeholder="My App" />
+                </div>
+            </div>
+
+            <div class="field-group">
+                <div class="field">
+                    <label>Launch Type</label>
+                    <select id="addAppLaunchType" onchange="onLaunchTypeChange()">
+                        <option value="python">python</option>
+                        <option value="uvicorn">uvicorn</option>
+                        <option value="static">static</option>
+                        <option value="docker">docker</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>Port</label>
+                    <input type="number" id="addAppPort" placeholder="8080" />
+                </div>
+            </div>
+
+            <div id="scriptField" class="field" style="margin-bottom:16px">
+                <label id="scriptLabel">Script / Working Directory</label>
+                <input type="text" id="addAppScript" placeholder="/path/to/script.py or /path/to/dir" />
+            </div>
+
+            <div id="uvicornField" class="field" style="margin-bottom:16px; display:none">
+                <label>Uvicorn App Module</label>
+                <input type="text" id="addAppUvicornApp" placeholder="main:app" />
+            </div>
+
+            <div class="field-group">
+                <div class="field">
+                    <label>Venv Path (optional)</label>
+                    <input type="text" id="addAppVenv" placeholder="/path/to/.venv" />
+                </div>
+                <div class="field">
+                    <label>Health Endpoint (optional)</label>
+                    <input type="text" id="addAppHealth" placeholder="/health" />
+                </div>
+            </div>
+
+            <div id="webUrlField" class="field" style="margin-bottom:16px">
+                <label>Web URL (if different from backend)</label>
+                <input type="text" id="addAppWebUrl" placeholder="http://localhost:3000" />
+            </div>
+
+            <button class="btn btn-primary" id="addAppSubmit" onclick="submitApp()">Add to FlightDeck</button>
+            <div class="modal-status" id="modalStatus"></div>
+        </div>
+    </div>
+
     <script>
-        // SVG icon for cybercache (shield + book)
+        // ── Icons ────────────────────────────────────────────────────────────────
         const cybercacheIcon = `
             <svg viewBox="0 0 100 100" width="187" height="187" style="filter: drop-shadow(0 0 8px rgba(0, 170, 255, 0.3));">
-                <!-- Shield -->
                 <path d="M50 5 L90 20 L90 45 C90 70 70 90 50 95 C30 90 10 70 10 45 L10 20 Z"
-                      fill="none"
-                      stroke="#00aaff"
-                      stroke-width="3"
-                      stroke-linejoin="round"/>
-                <!-- Book -->
+                      fill="none" stroke="#00aaff" stroke-width="3" stroke-linejoin="round"/>
                 <g transform="translate(50, 47) scale(1.2)">
                     <path d="M-15 -12 L0 -8 L15 -12 L15 12 L0 16 L-15 12 Z"
-                          fill="none"
-                          stroke="#00aaff"
-                          stroke-width="2.5"
-                          stroke-linejoin="round"/>
+                          fill="none" stroke="#00aaff" stroke-width="2.5" stroke-linejoin="round"/>
                     <line x1="0" y1="-8" x2="0" y2="16" stroke="#00aaff" stroke-width="2"/>
                 </g>
-            </svg>
-        `;
+            </svg>`;
 
-        // Backend API URL
+        const dockerIcon = `
+            <svg viewBox="0 0 100 80" width="28" height="22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="5" y="30" width="14" height="12" rx="2" stroke="#2496ed" stroke-width="3"/>
+                <rect x="22" y="30" width="14" height="12" rx="2" stroke="#2496ed" stroke-width="3"/>
+                <rect x="39" y="30" width="14" height="12" rx="2" stroke="#2496ed" stroke-width="3"/>
+                <rect x="22" y="15" width="14" height="12" rx="2" stroke="#2496ed" stroke-width="3"/>
+                <rect x="39" y="15" width="14" height="12" rx="2" stroke="#2496ed" stroke-width="3"/>
+                <rect x="39" y="0" width="14" height="12" rx="2" stroke="#2496ed" stroke-width="3"/>
+                <path d="M56 36 C62 36 72 32 75 25 C78 28 85 28 88 24" stroke="#2496ed" stroke-width="3" stroke-linecap="round"/>
+                <circle cx="88" cy="21" r="3" fill="#2496ed"/>
+                <path d="M4 48 C10 55 20 58 30 56 L85 56 C92 56 97 50 97 44" stroke="#2496ed" stroke-width="3" stroke-linecap="round"/>
+            </svg>`;
+
+        // Per-app icon overrides — keyed by app id
+        const iconOverrides = {
+            archer:               { src: "images/archer_new.png", type: "image" },
+            cybercache:           { src: cybercacheIcon,          type: "html"  },
+            rivendell:            { src: "images/rivendell.png",  type: "image" },
+            ancestree:            { src: "images/ancestree.png",  type: "image", height: 194 },
+            audiobookconstructor: { src: "🎙️",                   type: "emoji" },
+            rehseepee:            { src: "🥙",                   type: "emoji" },
+            ciphr:                { src: "🔐",                   type: "emoji" },
+            promptvault:          { src: "📚",                   type: "emoji" },
+            "property-tracker":   { src: "🏠",                   type: "emoji" },
+        };
+
+        // ── State ────────────────────────────────────────────────────────────────
         const API_URL = 'http://localhost:5050';
+        let appList = [];   // driven by backend
+        const appStatuses   = {};
+        const appHealth     = {};
+        const appWebUrls    = {};
+        const appTypes      = {};   // launch_type per app
+        const appAutostart  = {};   // autostart flag per app
 
-        // Configure your apps here
-        const apps = [
-            { id: "archer", name: "Archer", port: 8000, icon: "images/archer_new.png", isImage: true },
-            { id: "cybercache", name: "cybercache", port: 22243, icon: cybercacheIcon, isHtml: true },
-            { id: "rivendell", name: "rivendell", port: 5687, icon: "images/rivendell.png", isImage: true },
-            { id: "ancestree", name: "Ancestree", port: 3000, icon: "images/ancestree.png", isImage: true },
-            { id: "audiobookconstructor", name: "AudiobookConstructor", port: 2665, icon: "🎙️" },
-            { id: "rehseepee", name: "rehseepee", port: 2665, icon: "🥙" },
-        ];
-
-        // Track app statuses, health, and web URLs
-        const appStatuses = {};
-        const appHealth = {};
-        const appWebUrls = {};
+        // ── Render ───────────────────────────────────────────────────────────────
+        function getIconContent(appId, appName) {
+            const override = iconOverrides[appId];
+            if (!override) return `<span style="font-size:3.5rem;">${appName.charAt(0).toUpperCase()}</span>`;
+            if (override.type === 'image') {
+                const h = override.height || 216;
+                return `<img src="${override.src}" alt="${appName}" style="height:${h}px;width:auto;object-fit:contain;border-radius:8px;">`;
+            }
+            if (override.type === 'html') return override.src;
+            return `<span style="font-size:7.15rem;">${override.src}</span>`;
+        }
 
         function renderGrid() {
             const grid = document.getElementById('app-grid');
             grid.innerHTML = '';
 
-            apps.forEach((app, index) => {
-                if (app) {
-                    const card = document.createElement('div');
-                    card.className = 'card';
-                    card.dataset.url = `http://localhost:${app.port}`;
-                    let iconContent;
-                    if (app.isHtml) {
-                        iconContent = app.icon;
-                    } else if (app.isImage) {
-                        const imgHeight = app.name === "Ancestree" ? 194 : 216;
-                        iconContent = `<img src="${app.icon}" alt="${app.name}" style="height: ${imgHeight}px; width: auto; object-fit: contain; border-radius: 8px;">`;
-                    } else {
-                        iconContent = `<span style="font-size: 7.15rem;">${app.icon}</span>`;
-                    }
-                    const status = appStatuses[app.id] || 'offline';
-                    const health = appHealth[app.id] || {};
-                    const isRunning = status === 'online' || status === 'building';
-                    const isHealthy = health.healthy === true;
+            appList.forEach(app => {
+                const card = document.createElement('div');
+                card.className = 'card';
 
-                    // Status logic: offline -> building -> online (process running) -> healthy (API responding)
-                    let statusText, statusClass;
-                    if (status === 'building') {
-                        statusText = 'BUILDING';
-                        statusClass = 'building';
-                    } else if (status === 'online' && isHealthy) {
-                        statusText = 'HEALTHY';
-                        statusClass = 'healthy';
-                    } else if (status === 'online' && !isHealthy && health.error) {
-                        statusText = 'DEGRADED';
-                        statusClass = 'degraded';
-                    } else if (status === 'online') {
-                        statusText = 'LIVE';
-                        statusClass = 'online';
-                    } else {
-                        statusText = 'OFFLINE';
-                        statusClass = 'offline';
-                    }
+                const status      = appStatuses[app.id] || 'offline';
+                const health      = appHealth[app.id]   || {};
+                const isRunning   = status === 'online' || status === 'building';
+                const isDocker    = appTypes[app.id] === 'docker';
+                const isAutostart = appAutostart[app.id] || false;
+                const iconContent = getIconContent(app.id, app.name);
 
-                    // Play icon SVG
-                    const playIcon = `<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`;
-                    // Stop icon SVG
-                    const stopIcon = `<svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12"/></svg>`;
+                let statusText, statusClass;
+                if (status === 'building')                          { statusText = 'BUILDING'; statusClass = 'building'; }
+                else if (status === 'online' && health.healthy)     { statusText = 'HEALTHY';  statusClass = 'healthy';  }
+                else if (status === 'online' && health.error)       { statusText = 'DEGRADED'; statusClass = 'degraded'; }
+                else if (status === 'online')                       { statusText = 'LIVE';     statusClass = 'online';   }
+                else                                                { statusText = 'OFFLINE';  statusClass = 'offline';  }
 
-                    card.innerHTML = `
-                        ${app.id ? '' : '<div class="corner-bracket top-left"></div>'}
-                        <div class="corner-bracket top-right"></div>
-                        ${app.id ? `<div class="card-start-btn ${isRunning ? 'running' : ''}" data-app-id="${app.id}">
-                            ${isRunning ? stopIcon : playIcon}
-                        </div>` : ''}
-                        <div class="card-status">
-                            <div class="card-status-dot ${statusClass}"></div>
-                            <span class="card-status-text ${statusClass}">${statusText}</span>
+                const playIcon = `<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`;
+                const stopIcon = `<svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12"/></svg>`;
+
+                // Docker badge with tooltip instead of start/stop button
+                const appDirName = app.id.replace(/-/g, '');
+                const dockerBadgeHtml = `
+                    <div class="docker-badge has-tooltip">
+                        ${dockerIcon}
+                        <div class="tooltip">Docker-managed — FlightDeck monitors port only<br>
+                            Start: <strong>docker compose up -d</strong><br>
+                            Stop: &nbsp;<strong>docker compose down</strong><br>
+                            Dir: &nbsp;&nbsp;~/Projects/GitHub/${app.id}/
                         </div>
-                        <div class="card-gauge card-link">
-                            <div class="gauge-ring">
-                                <div class="card-icon">${iconContent}</div>
-                            </div>
-                        </div>
-                        <div class="card-info card-link">
-                            <div class="card-name">${app.name}</div>
-                            <div class="card-port">localhost:${app.port}</div>
-                        </div>
-                    `;
+                    </div>`;
 
-                    // Add click handler for the start button
-                    const startBtn = card.querySelector('.card-start-btn');
-                    if (startBtn) {
-                        startBtn.addEventListener('click', (e) => {
-                            e.stopPropagation();
-                            toggleApp(app.id);
-                        });
-                    }
+                const startBtnHtml = `
+                    <div class="card-start-btn ${isRunning ? 'running' : ''}" data-app-id="${app.id}">
+                        ${isRunning ? stopIcon : playIcon}
+                    </div>`;
 
-                    // Add click handler for opening the app (clicking on card content)
-                    card.querySelectorAll('.card-link').forEach(el => {
-                        el.addEventListener('click', () => {
-                            const webUrl = appWebUrls[app.id] || `http://localhost:${app.port}`;
-                            window.open(webUrl, '_blank');
-                        });
+                const autostartBtnHtml = !isDocker ? `
+                    <div class="autostart-btn has-tooltip ${isAutostart ? 'active' : ''}" data-app-id="${app.id}">
+                        ⚡
+                        <div class="tooltip">${isAutostart ? 'Autostart ON — click to disable' : 'Autostart OFF — click to enable'}</div>
+                    </div>` : '';
+
+                const repoBtnHtml = `
+                    <div class="repo-btn has-tooltip" data-app-id="${app.id}">
+                        ⎇
+                        <div class="tooltip">Repo — status, pull, push, hygiene</div>
+                    </div>`;
+
+                card.innerHTML = `
+                    <div class="corner-bracket top-right"></div>
+                    ${isDocker ? dockerBadgeHtml : startBtnHtml}
+                    ${autostartBtnHtml}
+                    ${repoBtnHtml}
+                    <div class="card-status">
+                        <div class="card-status-dot ${statusClass}"></div>
+                        <span class="card-status-text ${statusClass}">${statusText}</span>
+                    </div>
+                    <div class="card-gauge card-link">
+                        <div class="gauge-ring">
+                            <div class="card-icon">${iconContent}</div>
+                        </div>
+                    </div>
+                    <div class="card-info card-link">
+                        <div class="card-name">${app.name}</div>
+                        <div class="card-port">localhost:${app.port}</div>
+                    </div>
+                `;
+
+                if (!isDocker) {
+                    card.querySelector('.card-start-btn').addEventListener('click', e => {
+                        e.stopPropagation();
+                        toggleApp(app.id);
                     });
-
-                    grid.appendChild(card);
-                } else {
-                    const div = document.createElement('div');
-                    div.className = 'card empty';
-                    div.innerHTML = `
-                        <div class="card-gauge">
-                            <div class="gauge-ring">
-                                <div class="card-icon">⬡</div>
-                            </div>
-                        </div>
-                        <div class="card-info">
-                            <div class="card-name">OFFLINE</div>
-                            <div class="card-port">Not configured</div>
-                        </div>
-                    `;
-                    grid.appendChild(div);
+                    card.querySelector('.autostart-btn').addEventListener('click', e => {
+                        e.stopPropagation();
+                        toggleAutostart(app.id);
+                    });
                 }
-            });
-        }
 
-        // Clock functionality
-        function updateClock() {
-            const now = new Date();
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            const seconds = String(now.getSeconds()).padStart(2, '0');
-            document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds}`;
-        }
-
-        // Uptime tracker
-        const startTime = Date.now();
-        function updateUptime() {
-            const elapsed = Date.now() - startTime;
-            const hours = Math.floor(elapsed / (1000 * 60 * 60));
-            const minutes = Math.floor((elapsed % (1000 * 60 * 60)) / (1000 * 60));
-            document.getElementById('uptime').textContent = `${hours}h ${minutes}m`;
-        }
-
-        // Toggle app start/stop
-        async function toggleApp(appId) {
-            const status = appStatuses[appId];
-            const endpoint = status === 'online' ? 'stop' : 'start';
-
-            // Set to building while we wait
-            if (endpoint === 'start') {
-                appStatuses[appId] = 'building';
-                renderGrid();
-            }
-
-            try {
-                const response = await fetch(`${API_URL}/api/${endpoint}/${appId}`, {
-                    method: 'POST'
+                card.querySelector('.repo-btn').addEventListener('click', e => {
+                    e.stopPropagation();
+                    openRepoModal(app.id, app.name);
                 });
-                const data = await response.json();
-                if (data.status) {
-                    updateStatuses(data.status);
-                }
-            } catch (error) {
-                console.error('Error toggling app:', error);
-                // Revert on error
-                fetchStatuses();
-            }
+
+                card.querySelectorAll('.card-link').forEach(el => {
+                    el.addEventListener('click', () => {
+                        window.open(appWebUrls[app.id] || `http://localhost:${app.port}`, '_blank');
+                    });
+                });
+
+                grid.appendChild(card);
+            });
+
+            // Add App card at the end
+            const addCard = document.createElement('div');
+            addCard.className = 'card add-app-card';
+            addCard.innerHTML = `
+                <div class="card-gauge" style="flex-direction:column;gap:12px;">
+                    <div class="add-icon">+</div>
+                </div>
+                <div class="card-info">
+                    <div class="card-name" style="color:#00ff88;opacity:0.7;">Add App</div>
+                    <div class="card-port" style="color:#444;">register new service</div>
+                </div>
+            `;
+            addCard.addEventListener('click', openModal);
+            grid.appendChild(addCard);
         }
 
-        // Update app statuses from API response
+        // ── Status management ────────────────────────────────────────────────────
         function updateStatuses(statusList) {
-            statusList.forEach(app => {
-                appStatuses[app.id] = app.running ? 'online' : 'offline';
-                appHealth[app.id] = {
-                    healthy: app.healthy,
-                    error: app.health_error,
-                    endpoint: app.health_endpoint
-                };
-                appWebUrls[app.id] = app.web_url || app.url;
+            appList = statusList.map(a => ({ id: a.id, name: a.name, port: a.port }));
+
+            statusList.forEach(a => {
+                appStatuses[a.id]   = a.running ? 'online' : 'offline';
+                appHealth[a.id]     = { healthy: a.healthy, error: a.health_error, endpoint: a.health_endpoint };
+                appWebUrls[a.id]    = a.web_url || a.url;
+                appTypes[a.id]      = a.launch_type || 'python';
+                appAutostart[a.id]  = a.autostart || false;
             });
             renderGrid();
         }
 
-        // Fetch current statuses from backend
         async function fetchStatuses() {
             try {
-                const response = await fetch(`${API_URL}/api/apps`);
-                const data = await response.json();
+                const data = await fetch(`${API_URL}/api/apps`).then(r => r.json());
                 updateStatuses(data);
-            } catch (error) {
-                console.error('Error fetching statuses:', error);
-                // Set all to offline on error
-                apps.forEach(app => {
-                    if (app.id) appStatuses[app.id] = 'offline';
-                });
+            } catch (e) {
+                console.error('Error fetching statuses:', e);
                 renderGrid();
             }
         }
 
-        // Check if app is responding by pinging its port
-        async function checkAppHealth(app) {
-            if (!app.id) return;
+        async function toggleAutostart(appId) {
             try {
-                const controller = new AbortController();
-                const timeout = setTimeout(() => controller.abort(), 2000);
-                await fetch(`http://localhost:${app.port}`, {
-                    mode: 'no-cors',
-                    signal: controller.signal
-                });
-                clearTimeout(timeout);
-                // If we get here without error, app might be running
-                // We still rely on backend for authoritative status
+                const data = await fetch(`${API_URL}/api/apps/${appId}/autostart`, { method: 'POST' }).then(r => r.json());
+                if (data.status) updateStatuses(data.status);
             } catch (e) {
-                // App not responding
+                console.error('Error toggling autostart:', e);
             }
         }
 
-        // Set hostname
-        function setHostname() {
-            document.getElementById('hostname').textContent = 'MACBOOK';
+        async function toggleApp(appId) {
+            const status   = appStatuses[appId];
+            const endpoint = status === 'online' ? 'stop' : 'start';
+            if (endpoint === 'start') { appStatuses[appId] = 'building'; renderGrid(); }
+            try {
+                const data = await fetch(`${API_URL}/api/${endpoint}/${appId}`, { method: 'POST' }).then(r => r.json());
+                if (data.status) updateStatuses(data.status);
+            } catch (e) {
+                console.error('Error toggling app:', e);
+                fetchStatuses();
+            }
         }
 
+        // ── Clock / uptime ───────────────────────────────────────────────────────
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock').textContent =
+                [now.getHours(), now.getMinutes(), now.getSeconds()]
+                    .map(n => String(n).padStart(2, '0')).join(':');
+        }
+
+        const startTime = Date.now();
+        function updateUptime() {
+            const ms = Date.now() - startTime;
+            const h  = Math.floor(ms / 3600000);
+            const m  = Math.floor((ms % 3600000) / 60000);
+            document.getElementById('uptime').textContent = `${h}h ${m}m`;
+        }
+
+        // ── Repo Modal ───────────────────────────────────────────────────────────
+        let currentRepoApp = null;
+
+        function openRepoModal(appId, appName) {
+            currentRepoApp = appId;
+            document.getElementById('repoModalTitle').innerHTML =
+                `${appName} <span class="branch-pill" id="repoBranch">loading…</span>`;
+            document.getElementById('repoLastCommit').style.display = 'none';
+            document.getElementById('repoDirtySection').style.display = 'none';
+            document.getElementById('repoStatusOutput').className = 'repo-output';
+            document.getElementById('hygieneOutput').className = 'repo-output';
+            document.getElementById('hygieneList').innerHTML =
+                '<div style="color:#555;font-size:0.8rem">Click "Run Checks" to scan this repo.</div>';
+            document.getElementById('repoBtnFix').style.display = 'none';
+            switchRepoTab('status', document.querySelector('.repo-tab'));
+            document.getElementById('repoModal').classList.add('open');
+            repoRefreshStatus();
+        }
+
+        function closeRepoModal() {
+            document.getElementById('repoModal').classList.remove('open');
+            currentRepoApp = null;
+        }
+
+        document.getElementById('repoModal').addEventListener('click', e => {
+            if (e.target === e.currentTarget) closeRepoModal();
+        });
+
+        function switchRepoTab(name, el) {
+            document.querySelectorAll('.repo-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.repo-tab-content').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+            document.getElementById(`repoTab-${name}`).classList.add('active');
+        }
+
+        function setRepoOutput(elId, msg, type) {
+            const el = document.getElementById(elId);
+            el.className = `repo-output ${type}`;
+            el.textContent = msg;
+        }
+
+        function setBtnsDisabled(disabled) {
+            ['repoBtnPull','repoBtnPush','repoBtnRefresh','repoBtnCommit',
+             'repoBtnHygieneRefresh','repoBtnFix'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.disabled = disabled;
+            });
+        }
+
+        async function repoRefreshStatus() {
+            if (!currentRepoApp) return;
+            setBtnsDisabled(true);
+            document.getElementById('repoBranch').textContent = 'loading…';
+
+            try {
+                const data = await fetch(`${API_URL}/api/repo/${currentRepoApp}`).then(r => r.json());
+                if (data.error) { setRepoOutput('repoStatusOutput', data.error, 'error'); return; }
+
+                // Branch pill
+                const branchEl = document.getElementById('repoBranch');
+                branchEl.textContent = `⎇ ${data.branch}`;
+
+                // Sync pills
+                const pills = [];
+                if (data.dirty)        pills.push(`<span class="sync-pill dirty">● ${data.dirty_count} changed</span>`);
+                else                   pills.push(`<span class="sync-pill clean">✓ clean</span>`);
+                if (data.ahead > 0)    pills.push(`<span class="sync-pill ahead">↑ ${data.ahead} ahead</span>`);
+                if (data.behind > 0)   pills.push(`<span class="sync-pill behind">↓ ${data.behind} behind</span>`);
+
+                document.getElementById('repoModalTitle').innerHTML =
+                    `${appNameFor(currentRepoApp)} <span class="branch-pill" id="repoBranch">⎇ ${data.branch}</span> ${pills.join(' ')}`;
+
+                // Last commit
+                if (data.last_commit) {
+                    const lc = document.getElementById('repoLastCommit');
+                    lc.textContent = `Last commit: ${data.last_commit}`;
+                    lc.style.display = 'block';
+                }
+
+                // Dirty files
+                const dirtySection = document.getElementById('repoDirtySection');
+                if (data.dirty && data.dirty_files.length > 0) {
+                    dirtySection.style.display = 'block';
+                    const fileList = document.getElementById('repoFileList');
+                    fileList.innerHTML = data.dirty_files.map(f => {
+                        const st = f.substring(0,2).trim();
+                        const cls = st === 'M' ? 'file-M' : st === 'A' ? 'file-A' :
+                                    st === 'D' ? 'file-D' : 'file-?';
+                        return `<div class="${cls}">${f}</div>`;
+                    }).join('');
+                } else {
+                    dirtySection.style.display = 'none';
+                }
+
+                document.getElementById('repoStatusOutput').className = 'repo-output';
+            } catch (e) {
+                setRepoOutput('repoStatusOutput', `Could not reach backend: ${e.message}`, 'error');
+            } finally {
+                setBtnsDisabled(false);
+            }
+        }
+
+        function appNameFor(appId) {
+            const a = appList.find(x => x.id === appId);
+            return a ? a.name : appId;
+        }
+
+        async function repoPull() {
+            if (!currentRepoApp) return;
+            setBtnsDisabled(true);
+            setRepoOutput('repoStatusOutput', 'Pulling…', 'info');
+            try {
+                const data = await fetch(`${API_URL}/api/repo/${currentRepoApp}/pull`, { method: 'POST' }).then(r => r.json());
+                setRepoOutput('repoStatusOutput', data.message || data.error, data.error ? 'error' : 'success');
+                if (!data.error) repoRefreshStatus();
+            } catch (e) {
+                setRepoOutput('repoStatusOutput', e.message, 'error');
+            } finally {
+                setBtnsDisabled(false);
+            }
+        }
+
+        async function repoPush() {
+            if (!currentRepoApp) return;
+            setBtnsDisabled(true);
+            setRepoOutput('repoStatusOutput', 'Pushing…', 'info');
+            try {
+                const data = await fetch(`${API_URL}/api/repo/${currentRepoApp}/push`, { method: 'POST' }).then(r => r.json());
+                setRepoOutput('repoStatusOutput', data.message || data.error, data.error ? 'error' : 'success');
+                if (!data.error) repoRefreshStatus();
+            } catch (e) {
+                setRepoOutput('repoStatusOutput', e.message, 'error');
+            } finally {
+                setBtnsDisabled(false);
+            }
+        }
+
+        async function repoCommit() {
+            if (!currentRepoApp) return;
+            const msg = document.getElementById('repoCommitMsg').value.trim();
+            if (!msg) { document.getElementById('repoCommitMsg').focus(); return; }
+            setBtnsDisabled(true);
+            setRepoOutput('repoStatusOutput', 'Committing…', 'info');
+            try {
+                const data = await fetch(`${API_URL}/api/repo/${currentRepoApp}/commit`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: msg, files: ['-A'] })
+                }).then(r => r.json());
+                setRepoOutput('repoStatusOutput', data.message || data.error, data.error ? 'error' : 'success');
+                if (!data.error) {
+                    document.getElementById('repoCommitMsg').value = '';
+                    repoRefreshStatus();
+                }
+            } catch (e) {
+                setRepoOutput('repoStatusOutput', e.message, 'error');
+            } finally {
+                setBtnsDisabled(false);
+            }
+        }
+
+        async function repoRunHygiene() {
+            if (!currentRepoApp) return;
+            const listEl   = document.getElementById('hygieneList');
+            const outputEl = document.getElementById('hygieneOutput');
+            const fixBtn   = document.getElementById('repoBtnFix');
+            listEl.innerHTML = '<div style="color:#555;font-size:0.8rem">Running checks…</div>';
+            outputEl.className = 'repo-output';
+            fixBtn.style.display = 'none';
+            document.getElementById('repoBtnHygieneRefresh').disabled = true;
+
+            try {
+                const data = await fetch(`${API_URL}/api/repo/${currentRepoApp}/hygiene`).then(r => r.json());
+                if (data.error) { listEl.innerHTML = `<div style="color:#ff8888">${data.error}</div>`; return; }
+
+                listEl.innerHTML = data.checks.map(c => `
+                    <div class="hygiene-item ${c.passed ? 'pass' : 'fail'}">
+                        <span class="hi-icon">${c.passed ? '✓' : '✗'}</span>
+                        <div>
+                            <div class="hi-name">${c.name}</div>
+                            ${c.detail ? `<div class="hi-detail">${c.detail}</div>` : ''}
+                        </div>
+                    </div>`).join('');
+
+                const score = `${data.passed}/${data.total} checks passed`;
+                outputEl.className = data.passed === data.total ? 'repo-output success' : 'repo-output info';
+                outputEl.textContent = score;
+
+                if (data.fix_available) {
+                    fixBtn.style.display = '';
+                    fixBtn.dataset.missing = JSON.stringify(data.missing_gitignore);
+                }
+            } catch (e) {
+                listEl.innerHTML = `<div style="color:#ff8888">${e.message}</div>`;
+            } finally {
+                document.getElementById('repoBtnHygieneRefresh').disabled = false;
+            }
+        }
+
+        async function repoFixHygiene() {
+            if (!currentRepoApp) return;
+            document.getElementById('repoBtnFix').disabled = true;
+            setRepoOutput('hygieneOutput', 'Applying fix and committing…', 'info');
+            try {
+                const data = await fetch(`${API_URL}/api/repo/${currentRepoApp}/hygiene/fix`, { method: 'POST' }).then(r => r.json());
+                if (data.error) {
+                    setRepoOutput('hygieneOutput', data.error, 'error');
+                } else {
+                    setRepoOutput('hygieneOutput', `Fixed and committed: ${(data.patterns || []).join(', ')}`, 'success');
+                    document.getElementById('repoBtnFix').style.display = 'none';
+                    repoRunHygiene();
+                }
+            } catch (e) {
+                setRepoOutput('hygieneOutput', e.message, 'error');
+            } finally {
+                document.getElementById('repoBtnFix').disabled = false;
+            }
+        }
+
+        // ── Add App Modal ────────────────────────────────────────────────────────
+        function openModal() {
+            document.getElementById('addAppModal').classList.add('open');
+            document.getElementById('addAppPath').focus();
+        }
+
+        function closeModal() {
+            document.getElementById('addAppModal').classList.remove('open');
+            document.getElementById('modalStatus').className = 'modal-status';
+        }
+
+        document.getElementById('addAppModal').addEventListener('click', e => {
+            if (e.target === e.currentTarget) closeModal();
+        });
+
+        function onLaunchTypeChange() {
+            const type = document.getElementById('addAppLaunchType').value;
+            document.getElementById('uvicornField').style.display = type === 'uvicorn' ? '' : 'none';
+            document.getElementById('scriptField').style.display  = type === 'docker'  ? 'none' : '';
+            const scriptLabel = document.getElementById('scriptLabel');
+            if (type === 'uvicorn') scriptLabel.textContent = 'Working Directory';
+            else if (type === 'static') scriptLabel.textContent = 'Directory containing index.html';
+            else scriptLabel.textContent = 'Script Path';
+        }
+
+        async function scanDirectory() {
+            const path = document.getElementById('addAppPath').value.trim();
+            if (!path) return;
+
+            const notesEl = document.getElementById('scanNotes');
+            notesEl.className = 'scan-notes visible';
+            notesEl.textContent = 'Scanning…';
+
+            try {
+                const res  = await fetch(`${API_URL}/api/apps/analyze`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ path })
+                });
+                const data = await res.json();
+
+                if (data.error) {
+                    notesEl.innerHTML = `<span class="note-warn">&#9888; ${data.error}</span>`;
+                    return;
+                }
+
+                // Populate fields
+                document.getElementById('addAppId').value          = data.id          || '';
+                document.getElementById('addAppName').value        = data.name        || '';
+                document.getElementById('addAppPort').value        = data.port        || '';
+                document.getElementById('addAppScript').value      = data.script      || '';
+                document.getElementById('addAppVenv').value        = data.venv        || '';
+                document.getElementById('addAppHealth').value      = data.health_endpoint || '';
+                document.getElementById('addAppWebUrl').value      = data.web_url     || '';
+                document.getElementById('addAppUvicornApp').value  = data.uvicorn_app || '';
+
+                const lt = data.launch_type || 'python';
+                document.getElementById('addAppLaunchType').value = lt;
+                onLaunchTypeChange();
+
+                // Show notes
+                if (data.notes && data.notes.length) {
+                    notesEl.innerHTML = data.notes.map(n =>
+                        n.startsWith('WARNING')
+                            ? `<span class="note-warn">&#9888; ${n}</span>`
+                            : `&#10003; ${n}`
+                    ).join('<br>');
+                } else {
+                    notesEl.textContent = 'Scan complete — review fields below.';
+                }
+            } catch (e) {
+                notesEl.innerHTML = `<span class="note-warn">&#9888; Could not reach backend: ${e.message}</span>`;
+            }
+        }
+
+        async function submitApp() {
+            const statusEl = document.getElementById('modalStatus');
+            statusEl.className = 'modal-status';
+
+            const payload = {
+                id:              document.getElementById('addAppId').value.trim(),
+                name:            document.getElementById('addAppName').value.trim(),
+                launch_type:     document.getElementById('addAppLaunchType').value,
+                port:            parseInt(document.getElementById('addAppPort').value) || null,
+                script:          document.getElementById('addAppScript').value.trim()  || null,
+                venv:            document.getElementById('addAppVenv').value.trim()    || null,
+                health_endpoint: document.getElementById('addAppHealth').value.trim()  || null,
+                web_url:         document.getElementById('addAppWebUrl').value.trim()  || null,
+                uvicorn_app:     document.getElementById('addAppUvicornApp').value.trim() || null,
+            };
+
+            if (!payload.id || !payload.name || !payload.port || !payload.launch_type) {
+                statusEl.className = 'modal-status error';
+                statusEl.textContent = 'ID, name, port and launch type are required.';
+                return;
+            }
+
+            document.getElementById('addAppSubmit').disabled = true;
+
+            try {
+                const res  = await fetch(`${API_URL}/api/apps/add`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+
+                if (!res.ok) {
+                    statusEl.className = 'modal-status error';
+                    statusEl.textContent = data.error || 'Failed to add app.';
+                } else {
+                    statusEl.className = 'modal-status success';
+                    statusEl.textContent = `'${payload.name}' added to FlightDeck.`;
+                    if (data.status) updateStatuses(data.status);
+                    setTimeout(closeModal, 1800);
+                }
+            } catch (e) {
+                statusEl.className = 'modal-status error';
+                statusEl.textContent = `Could not reach backend: ${e.message}`;
+            } finally {
+                document.getElementById('addAppSubmit').disabled = false;
+            }
+        }
+
+        // ── Init ─────────────────────────────────────────────────────────────────
+        document.getElementById('hostname').textContent = 'MACBOOK';
         renderGrid();
         updateClock();
-        setHostname();
         fetchStatuses();
-        setInterval(updateClock, 1000);
-        setInterval(updateUptime, 60000);
-        setInterval(fetchStatuses, 5000); // Poll status every 5 seconds
+        setInterval(updateClock,    1000);
+        setInterval(updateUptime,  60000);
+        setInterval(fetchStatuses,  5000);
     </script>
 </body>
 </html>

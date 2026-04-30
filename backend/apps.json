@@ -9,7 +9,8 @@
     "health_endpoint": null,
     "launch_type": "python",
     "launch_args": ["--web"],
-    "port": 2665
+    "port": 2665,
+    "autostart": true
   },
   {
     "id": "archer",
@@ -21,7 +22,8 @@
     "health_endpoint": "/health",
     "launch_type": "uvicorn",
     "uvicorn_app": "archer.app:app",
-    "port": 8000
+    "port": 8000,
+    "autostart": true
   },
   {
     "id": "cybercache",
@@ -32,7 +34,8 @@
     "web_url": "http://localhost:22243",
     "health_endpoint": "/api/health",
     "launch_type": "python",
-    "port": 22244
+    "port": 22244,
+    "autostart": true
   },
   {
     "id": "rivendell",
@@ -44,7 +47,8 @@
     "health_endpoint": null,
     "launch_type": "uvicorn",
     "uvicorn_app": "main:app",
-    "port": 5687
+    "port": 5687,
+    "autostart": true
   },
   {
     "id": "ancestree",
@@ -55,17 +59,55 @@
     "web_url": "http://localhost:3000",
     "health_endpoint": "/health",
     "launch_type": "python",
-    "port": 8733
+    "port": 8733,
+    "autostart": true
   },
   {
     "id": "audiobookconstructor",
     "name": "AudiobookConstructor",
-    "script": "/Users/ben/Library/CloudStorage/OneDrive-Personal/Projects/GitHub/AudiobookConstructor",
-    "venv": "/Users/ben/Library/CloudStorage/OneDrive-Personal/Projects/GitHub/AudiobookConstructor/.venv",
-    "url": "http://localhost:2665",
-    "web_url": "http://localhost:2665",
+    "script": null,
+    "venv": null,
+    "url": "http://localhost:26657",
+    "web_url": "http://localhost:26657",
     "health_endpoint": null,
     "launch_type": "docker",
-    "port": 2665
+    "port": 26657,
+    "autostart": false
+  },
+  {
+    "id": "ciphr",
+    "name": "Ciphr",
+    "script": null,
+    "venv": null,
+    "url": "http://localhost:24747",
+    "web_url": "http://localhost:24747",
+    "health_endpoint": null,
+    "launch_type": "docker",
+    "port": 24747,
+    "autostart": false
+  },
+  {
+    "id": "promptvault",
+    "name": "PromptVault",
+    "script": "/Users/ben/Library/CloudStorage/OneDrive-Personal/Projects/GitHub/promptvault/server.py",
+    "venv": null,
+    "url": "http://localhost:4242",
+    "web_url": "http://localhost:4242",
+    "health_endpoint": null,
+    "launch_type": "python",
+    "port": 4242,
+    "autostart": true
+  },
+  {
+    "id": "property-tracker",
+    "name": "Property Tracker",
+    "script": "/Users/ben/Library/CloudStorage/OneDrive-Personal/Projects/GitHub/property-tracker/dist/server.py",
+    "venv": null,
+    "url": "http://localhost:3737",
+    "web_url": "http://localhost:3737",
+    "health_endpoint": null,
+    "launch_type": "python",
+    "port": 3737,
+    "autostart": true
   }
 ]
