@@ -1585,6 +1585,79 @@
         }
 
         /* Autostart toggle */
+        /* ── Fleet toolbar ─────────────────────────────────── */
+        .fleet-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 28px;
+            padding: 10px 18px;
+            background: rgba(0,0,0,0.35);
+            border: 1px solid rgba(0,255,136,0.12);
+            border-radius: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .fleet-count {
+            font-size: 0.72rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #555;
+        }
+
+        .fleet-count span {
+            color: #00ff88;
+            margin: 0 2px;
+        }
+
+        .fleet-btns {
+            display: flex;
+            gap: 10px;
+        }
+
+        .fleet-btn {
+            padding: 7px 18px;
+            border-radius: 6px;
+            border: 1px solid;
+            font-family: 'Courier New', monospace;
+            font-size: 0.72rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .fleet-btn-start {
+            background: rgba(0,255,136,0.08);
+            border-color: rgba(0,255,136,0.35);
+            color: #00ff88;
+        }
+
+        .fleet-btn-start:hover {
+            background: rgba(0,255,136,0.18);
+            border-color: #00ff88;
+            box-shadow: 0 0 12px rgba(0,255,136,0.15);
+        }
+
+        .fleet-btn-stop {
+            background: rgba(255,68,68,0.07);
+            border-color: rgba(255,68,68,0.3);
+            color: #ff6666;
+        }
+
+        .fleet-btn-stop:hover {
+            background: rgba(255,68,68,0.16);
+            border-color: #ff4444;
+            box-shadow: 0 0 12px rgba(255,68,68,0.15);
+        }
+
+        .fleet-btn:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
         .autostart-btn {
             position: absolute;
             bottom: 70px;
@@ -1942,6 +2015,16 @@
                     </div>
                 </div>
             </header>
+
+            <div class="fleet-toolbar">
+                <div class="fleet-count">
+                    FLEET &nbsp;·&nbsp; <span id="fleetRunning">—</span> running / <span id="fleetTotal">—</span> apps
+                </div>
+                <div class="fleet-btns">
+                    <button class="fleet-btn fleet-btn-start" id="fleetStartAll" onclick="fleetStartAll()">▶ Start All</button>
+                    <button class="fleet-btn fleet-btn-stop"  id="fleetStopAll"  onclick="fleetStopAll()">■ Stop All</button>
+                </div>
+            </div>
 
             <div class="grid" id="app-grid">
                 <!-- Grid will be populated by JavaScript -->
@@ -2379,6 +2462,12 @@
                 appTypes[a.id]      = a.launch_type || 'python';
                 appAutostart[a.id]  = a.autostart || false;
             });
+
+            const manageable = statusList.filter(a => a.launch_type !== 'docker');
+            const running    = manageable.filter(a => a.running).length;
+            document.getElementById('fleetRunning').textContent = running;
+            document.getElementById('fleetTotal').textContent   = manageable.length;
+
             renderGrid();
         }
 
@@ -2398,6 +2487,39 @@
                 if (data.status) updateStatuses(data.status);
             } catch (e) {
                 console.error('Error toggling autostart:', e);
+            }
+        }
+
+        // ── Fleet start/stop all ─────────────────────────────────────────────────
+        async function fleetStartAll() {
+            const btn = document.getElementById('fleetStartAll');
+            btn.disabled = true;
+            btn.textContent = '▶ Starting…';
+            try {
+                const data = await fetch(`${API_URL}/api/start`, { method: 'POST' }).then(r => r.json());
+                if (data.status) updateStatuses(data.status);
+            } catch (e) {
+                console.error('fleetStartAll error:', e);
+                fetchStatuses();
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '▶ Start All';
+            }
+        }
+
+        async function fleetStopAll() {
+            const btn = document.getElementById('fleetStopAll');
+            btn.disabled = true;
+            btn.textContent = '■ Stopping…';
+            try {
+                const data = await fetch(`${API_URL}/api/stop`, { method: 'POST' }).then(r => r.json());
+                if (data.status) updateStatuses(data.status);
+            } catch (e) {
+                console.error('fleetStopAll error:', e);
+                fetchStatuses();
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '■ Stop All';
             }
         }
 

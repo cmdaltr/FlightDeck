@@ -456,6 +456,55 @@ def stop_app(app_id):
     return jsonify({"message": "Stopped", "status": statuses}), 200
 
 
+@app.route("/api/start", methods=["POST"])
+def start_all():
+    started, skipped, errors = [], [], []
+    for app_cfg in APPS:
+        app_id = app_cfg.get("id")
+        if app_cfg.get("launch_type") == "docker":
+            skipped.append(app_id)
+            continue
+        existing = running_processes.get(app_id)
+        if existing and existing.poll() is None:
+            skipped.append(app_id)
+            continue
+        port = app_cfg.get("port")
+        if port and is_port_in_use(port):
+            skipped.append(app_id)
+            continue
+        try:
+            proc = start_subprocess(app_cfg)
+            running_processes[app_id] = proc
+            started.append(app_id)
+        except Exception as e:
+            errors.append(f"{app_id}: {e}")
+    statuses = format_status()
+    socketio.emit("status_update", {"apps": statuses})
+    return jsonify({"started": started, "skipped": skipped, "errors": errors, "status": statuses})
+
+
+@app.route("/api/stop", methods=["POST"])
+def stop_all():
+    stopped, skipped, errors = [], [], []
+    for app_id, proc in list(running_processes.items()):
+        if proc.poll() is not None:
+            running_processes.pop(app_id, None)
+            continue
+        try:
+            stop_process_group(proc)
+            proc.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+        except Exception as e:
+            errors.append(f"{app_id}: {e}")
+            continue
+        running_processes.pop(app_id, None)
+        stopped.append(app_id)
+    statuses = format_status()
+    socketio.emit("status_update", {"apps": statuses})
+    return jsonify({"stopped": stopped, "skipped": skipped, "errors": errors, "status": statuses})
+
+
 @app.route("/api/apps/analyze", methods=["POST"])
 def analyze_app():
     """Analyze a directory and return a suggested app config."""
