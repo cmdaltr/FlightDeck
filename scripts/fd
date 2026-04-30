@@ -12,7 +12,7 @@ set -euo pipefail
 API="${FLIGHTDECK_API:-http://localhost:5050}"
 
 # ── Colours ──────────────────────────────────────────────────────────────────
-GREEN='\033[0;32m'; RED='\033[0;31m'; YELLOW='\033[1;33m'
+GREEN='\033[0;32m'; RED='\033[0;31m'; PALEGREEN='\033[2;32m'
 CYAN='\033[0;36m';  DIM='\033[2m';    BOLD='\033[1m'; RESET='\033[0m'
 
 die()  { echo -e "${RED}error:${RESET} $*" >&2; exit 1; }
@@ -49,7 +49,7 @@ cmd_status() {
         elif [[ "$running" == "yes" && "$healthy" == "no" ]]; then
             col="${RED}"
         elif [[ "$running" == "yes" ]]; then
-            col="${YELLOW}"
+            col="${PALEGREEN}"
         else
             col="${DIM}"
         fi
