@@ -41,11 +41,13 @@ cmd_status() {
 
     echo "$apps" | jq -r '.[] | [.id, .launch_type, (.port|tostring),
         (.running|if . then "yes" else "no" end),
-        (.healthy|if . then "yes" else "—" end),
+        (if .health_endpoint == null then "—" elif .healthy then "yes" else "no" end),
         (.web_url // .url)] | @tsv' \
     | while IFS=$'\t' read -r id type port running healthy url; do
         if   [[ "$running" == "yes" && "$healthy" == "yes" ]]; then
             col="${GREEN}"
+        elif [[ "$running" == "yes" && "$healthy" == "no" ]]; then
+            col="${RED}"
         elif [[ "$running" == "yes" ]]; then
             col="${YELLOW}"
         else
@@ -142,6 +144,7 @@ ${BOLD}USAGE${RESET}
   fd stop  --all          stop all running apps
   fd restart <id>         stop then start an app
   fd open   <id>          open app URL in browser
+  fd reload               reload apps.json without restarting FlightDeck
 
 ${BOLD}ENV${RESET}
   FLIGHTDECK_API          API base URL (default: http://localhost:5050)
@@ -158,6 +161,7 @@ case "$CMD" in
     stop)    cmd_stop   "$@" ;;
     restart) cmd_restart "$@" ;;
     open)    cmd_open   "$@" ;;
+    reload) info "Reloading apps.json…"; api POST /api/apps/reload | jq -r '.message' ;;
     help|--help|-h) cmd_help ;;
     *) die "Unknown command '${CMD}'. Run 'fd help' for usage." ;;
 esac

@@ -15,15 +15,14 @@
   {
     "id": "archer",
     "name": "Archer",
-    "script": "/Users/ben/Library/CloudStorage/OneDrive-Personal/Projects/GitHub/archer",
-    "venv": "/Users/ben/Library/CloudStorage/OneDrive-Personal/Projects/GitHub/archer/.venv",
+    "script": null,
+    "venv": null,
     "url": "http://localhost:8000",
     "web_url": "http://localhost:8000",
-    "health_endpoint": "/health",
-    "launch_type": "uvicorn",
-    "uvicorn_app": "archer.app:app",
+    "health_endpoint": null,
+    "launch_type": "docker",
     "port": 8000,
-    "autostart": true
+    "autostart": false
   },
   {
     "id": "cybercache",

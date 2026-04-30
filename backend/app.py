@@ -456,6 +456,16 @@ def stop_app(app_id):
     return jsonify({"message": "Stopped", "status": statuses}), 200
 
 
+@app.route("/api/apps/reload", methods=["POST"])
+def reload_apps():
+    """Reload apps.json from disk without restarting."""
+    global APPS
+    APPS = load_apps()
+    statuses = format_status()
+    socketio.emit("status_update", {"apps": statuses})
+    return jsonify({"message": f"Reloaded {len(APPS)} apps", "status": statuses})
+
+
 @app.route("/api/start", methods=["POST"])
 def start_all():
     started, skipped, errors = [], [], []
