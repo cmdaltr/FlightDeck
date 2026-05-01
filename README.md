@@ -142,8 +142,10 @@ Both servers bind to `0.0.0.0`, so they are reachable over Tailscale without any
 
 | | URL |
 |---|---|
-| Web UI | `http://100.91.82.73:3325` |
-| Backend API | `http://100.91.82.73:5050` |
+| Web UI | `http://<tailscale-ip>:3325` |
+| Backend API | `http://<tailscale-ip>:5050` |
+
+Get your Mac Mini's Tailscale IP: `tailscale ip -4`
 
 ---
 
