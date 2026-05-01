@@ -2,6 +2,7 @@ import atexit
 import json
 import os
 import re
+import shutil
 import signal
 import socket
 import subprocess
@@ -35,10 +36,21 @@ def load_apps() -> List[dict]:
         return json.load(f)
 
 
+BACKUP_DIR = os.path.join(BASE_DIR, "backups")
+
+
 def save_apps(apps_list: List[dict]) -> None:
+    # Timestamped backup before every write; keep the 10 most recent
+    if os.path.isfile(APPS_PATH):
+        os.makedirs(BACKUP_DIR, exist_ok=True)
+        ts = time.strftime("%Y%m%d_%H%M%S")
+        shutil.copy2(APPS_PATH, os.path.join(BACKUP_DIR, f"apps.{ts}.json"))
+        kept = sorted(f for f in os.listdir(BACKUP_DIR) if f.startswith("apps.") and f.endswith(".json"))
+        for old in kept[:-10]:
+            os.remove(os.path.join(BACKUP_DIR, old))
+
     with open(APPS_PATH, "w") as f:
         json.dump(apps_list, f, indent=2)
-    # Reload global
     global APPS
     APPS = apps_list
 
@@ -515,6 +527,59 @@ def stop_all():
     return jsonify({"stopped": stopped, "skipped": skipped, "errors": errors, "status": statuses})
 
 
+def validate_app_dir(path: str) -> tuple[bool, str]:
+    """Return (valid, reason) — a valid app dir has README.md + a .py/.sh/index.html."""
+    try:
+        files = os.listdir(path)
+    except PermissionError:
+        return False, "Permission denied"
+    if "README.md" not in files:
+        return False, "Missing README.md"
+    has_code = any(
+        f.endswith(".py") or f.endswith(".sh") or f == "index.html"
+        for f in files
+    )
+    if not has_code:
+        return False, "No .py, .sh, or index.html found"
+    return True, ""
+
+
+@app.route("/api/browse", methods=["GET"])
+def browse_directory():
+    path = request.args.get("path", "").strip()
+    if not path:
+        path = GITHUB_BASE
+    path = os.path.abspath(os.path.expanduser(path))
+    if not os.path.isdir(path):
+        return jsonify({"error": f"Not a directory: {path}"}), 400
+
+    parent = os.path.dirname(path)
+    if parent == path:
+        parent = None  # filesystem root
+
+    try:
+        entries = []
+        for name in sorted(os.listdir(path)):
+            if name.startswith("."):
+                continue
+            full = os.path.join(path, name)
+            if not os.path.isdir(full):
+                continue
+            valid, reason = validate_app_dir(full)
+            entries.append({"name": name, "path": full, "valid": valid, "reason": reason})
+    except PermissionError:
+        return jsonify({"error": "Permission denied"}), 403
+
+    current_valid, current_reason = validate_app_dir(path)
+    return jsonify({
+        "path": path,
+        "parent": parent,
+        "valid": current_valid,
+        "reason": current_reason,
+        "dirs": entries,
+    })
+
+
 @app.route("/api/apps/analyze", methods=["POST"])
 def analyze_app():
     """Analyze a directory and return a suggested app config."""
@@ -544,10 +609,19 @@ def add_app():
         return jsonify({"error": f"App '{app_id}' already exists"}), 409
 
     port = int(data["port"])
-    # Check port conflict
+    force = bool(data.get("force", False))
+
+    # Check port conflict in apps.json
     for existing in APPS:
         if existing.get("port") == port:
             return jsonify({"error": f"Port {port} already used by '{existing['id']}'"}), 409
+
+    # Check live port usage (external process)
+    if not force and is_port_in_use(port):
+        return jsonify({
+            "error": f"Port {port} is currently in use by an external process",
+            "port_in_use": True,
+        }), 409
 
     launch_type = data["launch_type"]
 
@@ -979,6 +1053,100 @@ def pull_repo(app_id):
     if rc != 0:
         return jsonify({"error": err or out}), 400
     return jsonify({"message": out or "Already up to date."})
+
+
+@app.route("/api/repo/pull-all", methods=["POST"])
+def pull_all_repos():
+    results = []
+    seen_repos = {}  # repo_path -> app_id (dedup)
+    for app_cfg in APPS:
+        app_id = app_cfg["id"]
+        repo = get_repo_root(app_cfg)
+        if not repo or not os.path.isdir(os.path.join(repo, ".git")):
+            results.append({"app_id": app_id, "skipped": True, "reason": "no git repo"})
+            continue
+        if repo in seen_repos:
+            results.append({"app_id": app_id, "skipped": True, "reason": f"same repo as {seen_repos[repo]}"})
+            continue
+        seen_repos[repo] = app_id
+        try:
+            rc, out, err = _git(repo, "pull", "--ff-only", timeout=30)
+            if rc != 0:
+                results.append({"app_id": app_id, "repo": repo, "error": err or out})
+            else:
+                results.append({"app_id": app_id, "repo": repo, "message": out or "Already up to date."})
+        except subprocess.TimeoutExpired:
+            results.append({"app_id": app_id, "repo": repo, "error": "Timed out"})
+
+    pulled  = [r["app_id"] for r in results if "message" in r]
+    skipped = [r["app_id"] for r in results if r.get("skipped")]
+    errors  = [f"{r['app_id']}: {r['error']}" for r in results if "error" in r and not r.get("skipped")]
+    return jsonify({"results": results, "pulled": pulled, "skipped": skipped, "errors": errors})
+
+
+@app.route("/api/repo/push-all", methods=["POST"])
+def push_all_repos():
+    results = []
+    seen_repos = {}
+    for app_cfg in APPS:
+        app_id = app_cfg["id"]
+        repo = get_repo_root(app_cfg)
+        if not repo or not os.path.isdir(os.path.join(repo, ".git")):
+            results.append({"app_id": app_id, "skipped": True, "reason": "no git repo"})
+            continue
+        if repo in seen_repos:
+            results.append({"app_id": app_id, "skipped": True, "reason": f"same repo as {seen_repos[repo]}"})
+            continue
+        seen_repos[repo] = app_id
+        try:
+            rc, out, err = _git(repo, "push", "origin", "HEAD", timeout=30)
+            if rc != 0:
+                results.append({"app_id": app_id, "repo": repo, "error": err or out})
+            else:
+                results.append({"app_id": app_id, "repo": repo, "message": out or "Pushed."})
+        except subprocess.TimeoutExpired:
+            results.append({"app_id": app_id, "repo": repo, "error": "Timed out"})
+
+    pushed  = [r["app_id"] for r in results if "message" in r]
+    skipped = [r["app_id"] for r in results if r.get("skipped")]
+    errors  = [f"{r['app_id']}: {r['error']}" for r in results if "error" in r and not r.get("skipped")]
+    return jsonify({"results": results, "pushed": pushed, "skipped": skipped, "errors": errors})
+
+
+@app.route("/api/repo/commit-all", methods=["POST"])
+def commit_all_repos():
+    data = request.get_json(silent=True) or {}
+    message = (data.get("message") or "").strip()
+    if not message:
+        return jsonify({"error": "commit message is required"}), 400
+
+    results = []
+    seen_repos = {}
+    for app_cfg in APPS:
+        app_id = app_cfg["id"]
+        repo = get_repo_root(app_cfg)
+        if not repo or not os.path.isdir(os.path.join(repo, ".git")):
+            results.append({"app_id": app_id, "skipped": True, "reason": "no git repo"})
+            continue
+        if repo in seen_repos:
+            results.append({"app_id": app_id, "skipped": True, "reason": f"same repo as {seen_repos[repo]}"})
+            continue
+        seen_repos[repo] = app_id
+        _git(repo, "add", "-A")
+        rc, out, err = _git(repo, "commit", "-m", message)
+        if rc != 0:
+            # "nothing to commit" is not a real error
+            if "nothing to commit" in (out + err):
+                results.append({"app_id": app_id, "repo": repo, "skipped": True, "reason": "nothing to commit"})
+            else:
+                results.append({"app_id": app_id, "repo": repo, "error": err or out})
+        else:
+            results.append({"app_id": app_id, "repo": repo, "message": out.splitlines()[0] if out else "Committed."})
+
+    committed = [r["app_id"] for r in results if "message" in r]
+    skipped   = [r["app_id"] for r in results if r.get("skipped")]
+    errors    = [f"{r['app_id']}: {r['error']}" for r in results if "error" in r and not r.get("skipped")]
+    return jsonify({"results": results, "committed": committed, "skipped": skipped, "errors": errors})
 
 
 @app.route("/api/repo/<app_id>/push", methods=["POST"])

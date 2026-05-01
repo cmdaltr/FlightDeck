@@ -1653,10 +1653,95 @@
             box-shadow: 0 0 12px rgba(255,68,68,0.15);
         }
 
+        .fleet-btn-pull {
+            background: rgba(0,255,136,0.07);
+            border-color: rgba(0,255,136,0.3);
+            color: #00ff88;
+        }
+
+        .fleet-btn-pull:hover {
+            background: rgba(0,255,136,0.17);
+            border-color: #00ff88;
+            box-shadow: 0 0 12px rgba(0,255,136,0.15);
+        }
+
+        .fleet-btn-push {
+            background: rgba(0,170,255,0.07);
+            border-color: rgba(0,170,255,0.3);
+            color: #00aaff;
+        }
+
+        .fleet-btn-push:hover {
+            background: rgba(0,170,255,0.17);
+            border-color: #00aaff;
+            box-shadow: 0 0 12px rgba(0,170,255,0.15);
+        }
+
+        .fleet-btn-commit {
+            background: rgba(255,170,0,0.07);
+            border-color: rgba(255,170,0,0.3);
+            color: #ffaa00;
+        }
+
+        .fleet-btn-commit:hover {
+            background: rgba(255,170,0,0.17);
+            border-color: #ffaa00;
+            box-shadow: 0 0 12px rgba(255,170,0,0.15);
+        }
+
+        .fleet-btn-reload {
+            background: rgba(100,100,100,0.07);
+            border-color: rgba(100,100,100,0.3);
+            color: #888;
+        }
+
+        .fleet-btn-reload:hover {
+            background: rgba(100,100,100,0.17);
+            border-color: #aaa;
+        }
+
         .fleet-btn:disabled {
             opacity: 0.35;
             cursor: not-allowed;
             box-shadow: none;
+        }
+
+        .commit-all-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+
+        .commit-all-row:last-child { border-bottom: none; }
+
+        .commit-all-label {
+            width: 140px;
+            min-width: 140px;
+            font-size: 0.78rem;
+            color: #888;
+            letter-spacing: 1px;
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .commit-all-input {
+            flex: 1;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 6px;
+            color: #e8e8f0;
+            padding: 6px 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.78rem;
+        }
+
+        .commit-all-input:focus {
+            outline: none;
+            border-color: rgba(255,170,0,0.4);
         }
 
         .autostart-btn {
@@ -1884,6 +1969,101 @@
 
         .scan-notes .note-warn { color: #ffaa00; }
 
+        .btn-browse {
+            background: rgba(255,170,0,0.08);
+            border-color: rgba(255,170,0,0.35);
+            color: #ffaa00;
+        }
+
+        .btn-browse:hover { background: rgba(255,170,0,0.18); border-color: #ffaa00; }
+        .btn-browse.active { background: rgba(255,170,0,0.2); border-color: #ffaa00; }
+
+        .folder-browser {
+            display: none;
+            margin: 6px 0 16px;
+            border: 1px solid rgba(255,170,0,0.2);
+            border-radius: 8px;
+            overflow: hidden;
+            background: rgba(0,0,0,0.25);
+        }
+
+        .folder-browser.open { display: block; }
+
+        .folder-browser-nav {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: rgba(0,0,0,0.3);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .browser-path-text {
+            flex: 1;
+            font-size: 0.7rem;
+            color: #888;
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            direction: rtl;
+            text-align: left;
+        }
+
+        .browser-nav-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 4px;
+            color: #888;
+            font-size: 0.75rem;
+            padding: 3px 8px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .browser-nav-btn:hover:not(:disabled) { color: #ccc; background: rgba(255,255,255,0.1); }
+        .browser-nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        .browser-select-btn {
+            background: rgba(0,255,136,0.1);
+            border: 1px solid rgba(0,255,136,0.35);
+            border-radius: 4px;
+            color: #00ff88;
+            font-size: 0.75rem;
+            padding: 3px 10px;
+            cursor: pointer;
+            white-space: nowrap;
+            font-family: 'Courier New', monospace;
+        }
+
+        .browser-select-btn:hover:not(:disabled) { background: rgba(0,255,136,0.2); }
+        .browser-select-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        .folder-browser-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .folder-item {
+            display: flex;
+            align-items: center;
+            padding: 6px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            font-size: 0.78rem;
+            font-family: 'Courier New', monospace;
+            transition: background 0.12s;
+            gap: 8px;
+        }
+
+        .folder-item:hover { background: rgba(255,255,255,0.05); }
+        .folder-item:last-child { border-bottom: none; }
+
+        .folder-item-icon { color: #666; font-size: 0.85rem; flex-shrink: 0; }
+        .folder-item-name { flex: 1; color: #bbb; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .folder-item-badge-ok  { font-size: 0.65rem; color: #00ff88; flex-shrink: 0; }
+        .folder-item-badge-bad { font-size: 0.65rem; color: #444;    flex-shrink: 0; }
+
         .modal-section-title {
             font-size: 0.6rem;
             letter-spacing: 2px;
@@ -2024,6 +2204,10 @@
                 <div class="fleet-btns">
                     <button class="fleet-btn fleet-btn-start" id="fleetStartAll" onclick="fleetStartAll()">▶ Start All</button>
                     <button class="fleet-btn fleet-btn-stop"  id="fleetStopAll"  onclick="fleetStopAll()">■ Stop All</button>
+                    <button class="fleet-btn fleet-btn-pull"   id="fleetPullAll"    onclick="fleetPullAll()">⬇ Pull All</button>
+                    <button class="fleet-btn fleet-btn-push"   id="fleetPushAll"    onclick="fleetPushAll()">⬆ Push All</button>
+                    <button class="fleet-btn fleet-btn-commit" id="fleetCommitAll"  onclick="openCommitAllModal()">✎ Commit All</button>
+                    <button class="fleet-btn fleet-btn-reload" id="fleetReload"     onclick="fleetReload()">↺ Reload</button>
                 </div>
             </div>
 
@@ -2212,7 +2396,20 @@
                     <label>Project Directory</label>
                     <input type="text" id="addAppPath" placeholder="/Users/ben/Projects/GitHub/myapp" />
                 </div>
+                <button class="btn btn-browse" id="btnBrowse" onclick="toggleFolderBrowser()">Browse</button>
                 <button class="btn btn-scan" onclick="scanDirectory()">Scan</button>
+            </div>
+
+            <!-- Inline folder browser -->
+            <div class="folder-browser" id="folderBrowser">
+                <div class="folder-browser-nav">
+                    <button class="browser-nav-btn" id="browserUpBtn" onclick="browserGoUp()">↑ Up</button>
+                    <span class="browser-path-text" id="browserPathText">/</span>
+                    <button class="browser-select-btn" id="browserSelectBtn" onclick="selectBrowserFolder()" disabled>Use This Folder</button>
+                </div>
+                <div class="folder-browser-list" id="browserList">
+                    <div style="color:#555;padding:12px;font-size:0.78rem">Loading…</div>
+                </div>
             </div>
 
             <div class="scan-notes" id="scanNotes"></div>
@@ -2274,6 +2471,23 @@
 
             <button class="btn btn-primary" id="addAppSubmit" onclick="submitApp()">Add to FlightDeck</button>
             <div class="modal-status" id="modalStatus"></div>
+        </div>
+    </div>
+
+    <!-- Commit All Modal -->
+    <div class="modal-overlay" id="commitAllModal">
+        <div class="modal">
+            <button class="modal-close" onclick="closeCommitAllModal()">&#x2715;</button>
+            <h2>&#x270e; Commit All</h2>
+            <p class="modal-sub">Enter a commit message for each repo. Leave blank to skip.</p>
+            <div id="commitAllList">
+                <div style="color:#555;font-size:0.8rem">Loading apps…</div>
+            </div>
+            <div style="margin-top:20px;display:flex;justify-content:flex-end;gap:10px;">
+                <button class="btn-repo btn-refresh" onclick="closeCommitAllModal()">Cancel</button>
+                <button class="btn-repo btn-pull" id="commitAllSubmit" onclick="submitCommitAll()">&#x270e; Commit</button>
+            </div>
+            <div class="repo-output" id="commitAllOutput"></div>
         </div>
     </div>
 
@@ -2522,6 +2736,135 @@
             } finally {
                 btn.disabled = false;
                 btn.textContent = '■ Stop All';
+            }
+        }
+
+        async function fleetPullAll() {
+            const btn = document.getElementById('fleetPullAll');
+            btn.disabled = true;
+            btn.textContent = '⬇ Pulling…';
+            try {
+                const data = await fetch(`${API_URL}/api/repo/pull-all`, { method: 'POST' }).then(r => r.json());
+                const pulled  = data.pulled  || [];
+                const errors  = data.errors  || [];
+                const skipped = data.skipped || [];
+                let parts = [];
+                if (pulled.length)  parts.push(`${pulled.length} pulled`);
+                if (errors.length)  parts.push(`${errors.length} failed`);
+                if (skipped.length) parts.push(`${skipped.length} skipped`);
+                btn.textContent = parts.length ? `⬇ ${parts.join(', ')}` : '⬇ Up to date';
+                setTimeout(() => { btn.textContent = '⬇ Pull All'; }, 4000);
+            } catch (e) {
+                console.error('fleetPullAll error:', e);
+                btn.textContent = '⬇ Pull All';
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        async function fleetPushAll() {
+            const btn = document.getElementById('fleetPushAll');
+            btn.disabled = true;
+            btn.textContent = '⬆ Pushing…';
+            try {
+                const data = await fetch(`${API_URL}/api/repo/push-all`, { method: 'POST' }).then(r => r.json());
+                const pushed  = data.pushed  || [];
+                const errors  = data.errors  || [];
+                const skipped = data.skipped || [];
+                let parts = [];
+                if (pushed.length)  parts.push(`${pushed.length} pushed`);
+                if (errors.length)  parts.push(`${errors.length} failed`);
+                if (skipped.length) parts.push(`${skipped.length} skipped`);
+                btn.textContent = parts.length ? `⬆ ${parts.join(', ')}` : '⬆ Nothing to push';
+                setTimeout(() => { btn.textContent = '⬆ Push All'; }, 4000);
+            } catch (e) {
+                console.error('fleetPushAll error:', e);
+                btn.textContent = '⬆ Push All';
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        // ── Commit All Modal ─────────────────────────────────────────────────────
+        async function openCommitAllModal() {
+            document.getElementById('commitAllModal').classList.add('open');
+            document.getElementById('commitAllOutput').className = 'repo-output';
+            document.getElementById('commitAllList').innerHTML =
+                '<div style="color:#555;font-size:0.8rem">Loading apps…</div>';
+            try {
+                const apps = await fetch(`${API_URL}/api/apps`).then(r => r.json());
+                const managed = apps.filter(a => a.launch_type !== 'docker');
+                document.getElementById('commitAllList').innerHTML = managed.map(a => `
+                    <div class="commit-all-row">
+                        <span class="commit-all-label">${a.id}</span>
+                        <input type="text" class="commit-all-input" id="cam-${a.id}"
+                               placeholder="Commit message (blank to skip)…" />
+                    </div>
+                `).join('');
+            } catch (e) {
+                document.getElementById('commitAllList').innerHTML =
+                    `<div style="color:#ff8888;font-size:0.8rem">Could not load apps: ${e.message}</div>`;
+            }
+        }
+
+        function closeCommitAllModal() {
+            document.getElementById('commitAllModal').classList.remove('open');
+        }
+
+        document.getElementById('commitAllModal').addEventListener('click', e => {
+            if (e.target === document.getElementById('commitAllModal')) closeCommitAllModal();
+        });
+
+        async function submitCommitAll() {
+            const btn = document.getElementById('commitAllSubmit');
+            btn.disabled = true;
+            btn.textContent = 'Committing…';
+
+            const apps = appList.filter(a => a.launch_type !== 'docker');
+            const results = [];
+
+            for (const app of apps) {
+                const input = document.getElementById(`cam-${app.id}`);
+                if (!input) continue;
+                const msg = input.value.trim();
+                if (!msg) continue;
+                try {
+                    const data = await fetch(`${API_URL}/api/repo/${app.id}/commit`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ message: msg })
+                    }).then(r => r.json());
+                    results.push({ id: app.id, ok: !data.error, text: data.message || data.error });
+                } catch (e) {
+                    results.push({ id: app.id, ok: false, text: e.message });
+                }
+            }
+
+            if (results.length === 0) {
+                setRepoOutput('commitAllOutput', 'No messages entered — nothing committed.', 'info');
+            } else {
+                const lines = results.map(r => `${r.ok ? '✓' : '✗'} ${r.id}: ${r.text}`).join('\n');
+                setRepoOutput('commitAllOutput', lines, results.every(r => r.ok) ? 'success' : 'error');
+            }
+            btn.disabled = false;
+            btn.textContent = '✎ Commit';
+        }
+
+        // ── Fleet reload ─────────────────────────────────────────────────────────
+        async function fleetReload() {
+            const btn = document.getElementById('fleetReload');
+            btn.disabled = true;
+            btn.textContent = '↺ Reloading…';
+            try {
+                await fetch(`${API_URL}/api/apps/reload`, { method: 'POST' });
+                await fetchStatuses();
+                btn.textContent = '↺ Reloaded';
+                setTimeout(() => { btn.textContent = '↺ Reload'; }, 2000);
+            } catch (e) {
+                console.error('fleetReload error:', e);
+                btn.textContent = '↺ Reload';
+            } finally {
+                btn.disabled = false;
             }
         }
 
@@ -2774,6 +3117,79 @@
         }
 
         // ── Add App Modal ────────────────────────────────────────────────────────
+        // ── Folder Browser ───────────────────────────────────────────────────────
+        let _browserParent = null;
+
+        function toggleFolderBrowser() {
+            const browser = document.getElementById('folderBrowser');
+            const btn = document.getElementById('btnBrowse');
+            if (browser.classList.contains('open')) {
+                browser.classList.remove('open');
+                btn.classList.remove('active');
+            } else {
+                browser.classList.add('open');
+                btn.classList.add('active');
+                const currentPath = document.getElementById('addAppPath').value.trim();
+                browseDir(currentPath || '');
+            }
+        }
+
+        async function browseDir(path) {
+            document.getElementById('browserList').innerHTML =
+                '<div style="color:#555;padding:12px;font-size:0.78rem">Loading…</div>';
+            try {
+                const url = `${API_URL}/api/browse` + (path ? `?path=${encodeURIComponent(path)}` : '');
+                const data = await fetch(url).then(r => r.json());
+                if (data.error) {
+                    document.getElementById('browserList').innerHTML =
+                        `<div style="color:#ff8888;padding:12px;font-size:0.78rem">${data.error}</div>`;
+                    return;
+                }
+                _browserParent = data.parent;
+                document.getElementById('browserPathText').textContent = data.path;
+                document.getElementById('browserUpBtn').disabled = !data.parent;
+
+                const selectBtn = document.getElementById('browserSelectBtn');
+                selectBtn.disabled = !data.valid;
+                selectBtn.title = data.valid ? 'Select this folder as the app directory' : data.reason;
+
+                if (data.dirs.length === 0) {
+                    document.getElementById('browserList').innerHTML =
+                        '<div style="color:#555;padding:12px;font-size:0.78rem">No subdirectories</div>';
+                } else {
+                    document.getElementById('browserList').innerHTML = data.dirs.map(d => `
+                        <div class="folder-item" data-path="${d.path.replace(/"/g, '&quot;')}">
+                            <span class="folder-item-icon">▶</span>
+                            <span class="folder-item-name">${d.name}</span>
+                            ${d.valid
+                                ? `<span class="folder-item-badge-ok" title="Valid app directory">✓</span>`
+                                : `<span class="folder-item-badge-bad" title="${d.reason}">—</span>`}
+                        </div>
+                    `).join('');
+                }
+            } catch (e) {
+                document.getElementById('browserList').innerHTML =
+                    `<div style="color:#ff8888;padding:12px;font-size:0.78rem">Error: ${e.message}</div>`;
+            }
+        }
+
+        document.getElementById('browserList').addEventListener('click', e => {
+            const item = e.target.closest('.folder-item');
+            if (item) browseDir(item.dataset.path);
+        });
+
+        function browserGoUp() {
+            if (_browserParent) browseDir(_browserParent);
+        }
+
+        function selectBrowserFolder() {
+            const path = document.getElementById('browserPathText').textContent;
+            document.getElementById('addAppPath').value = path;
+            document.getElementById('folderBrowser').classList.remove('open');
+            document.getElementById('btnBrowse').classList.remove('active');
+            scanDirectory();
+        }
+
         function openModal() {
             document.getElementById('addAppModal').classList.add('open');
             document.getElementById('addAppPath').focus();
@@ -2782,6 +3198,8 @@
         function closeModal() {
             document.getElementById('addAppModal').classList.remove('open');
             document.getElementById('modalStatus').className = 'modal-status';
+            document.getElementById('folderBrowser').classList.remove('open');
+            document.getElementById('btnBrowse').classList.remove('active');
         }
 
         document.getElementById('addAppModal').addEventListener('click', e => {
@@ -2848,7 +3266,7 @@
             }
         }
 
-        async function submitApp() {
+        async function submitApp(force = false) {
             const statusEl = document.getElementById('modalStatus');
             statusEl.className = 'modal-status';
 
@@ -2863,6 +3281,7 @@
                 web_url:         document.getElementById('addAppWebUrl').value.trim()  || null,
                 uvicorn_app:     document.getElementById('addAppUvicornApp').value.trim() || null,
             };
+            if (force) payload.force = true;
 
             if (!payload.id || !payload.name || !payload.port || !payload.launch_type) {
                 statusEl.className = 'modal-status error';
@@ -2881,8 +3300,16 @@
                 const data = await res.json();
 
                 if (!res.ok) {
-                    statusEl.className = 'modal-status error';
-                    statusEl.textContent = data.error || 'Failed to add app.';
+                    if (data.port_in_use) {
+                        statusEl.className = 'modal-status error';
+                        statusEl.innerHTML = `${data.error} &nbsp;`
+                            + `<button onclick="submitApp(true)" style="background:rgba(255,170,0,0.15);`
+                            + `border:1px solid rgba(255,170,0,0.5);color:#ffaa00;border-radius:4px;`
+                            + `padding:2px 8px;cursor:pointer;font-size:0.75rem;">Add Anyway</button>`;
+                    } else {
+                        statusEl.className = 'modal-status error';
+                        statusEl.textContent = data.error || 'Failed to add app.';
+                    }
                 } else {
                     statusEl.className = 'modal-status success';
                     statusEl.textContent = `'${payload.name}' added to FlightDeck.`;

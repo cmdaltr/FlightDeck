@@ -7,7 +7,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 echo "🛩️  Starting Flight Deck..."
 
 # Start the backend API server
-echo "   Starting backend API on port 5000..."
+echo "   Starting backend API on port 5050..."
 cd "$SCRIPT_DIR/backend"
 python app.py &
 BACKEND_PID=$!
@@ -21,10 +21,12 @@ cd "$SCRIPT_DIR/homepage"
 python server.py &
 HOMEPAGE_PID=$!
 
-# Wait a moment then open browser
-sleep 1
-echo "   Opening Flight Deck in browser..."
-open "http://localhost:3325"
+# Open browser unless suppressed (e.g. when launched by launchd at login)
+if [[ "${FLIGHTDECK_NO_BROWSER:-0}" != "1" ]]; then
+    sleep 1
+    echo "   Opening Flight Deck in browser..."
+    open "http://localhost:3325"
+fi
 
 echo ""
 echo "✅ Flight Deck is running!"
