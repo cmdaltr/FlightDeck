@@ -142,10 +142,8 @@ Both servers bind to `0.0.0.0`, so they are reachable over Tailscale without any
 
 | | URL |
 |---|---|
-| Web UI | `http://100.91.79.68:3325` |
-| Backend API | `http://100.91.79.68:5050` |
-
-Replace `100.91.79.68` with your current Tailscale IP (`tailscale ip -4`).
+| Web UI | `http://100.91.82.73:3325` |
+| Backend API | `http://100.91.82.73:5050` |
 
 ---
 
