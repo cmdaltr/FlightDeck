@@ -95,10 +95,10 @@ cmd_start() {
         FLIGHTDECK_NO_BROWSER=1 nohup "$FD_ROOT/flightdeck-start.sh" >> /tmp/flightdeck.log 2>&1 &
         local fd_pid=$!
         echo -e "${DIM}Waiting for services to start…${RESET}"
-        sleep 4
+        sleep 8
         local be_pid hp_pid
-        be_pid=$(lsof -ti :5050 2>/dev/null || true)
-        hp_pid=$(lsof -ti :3325 2>/dev/null || true)
+        be_pid=$(lsof -ti :5050 2>/dev/null | head -1 || true)
+        hp_pid=$(lsof -ti :3325 2>/dev/null | head -1 || true)
         [[ -n "$be_pid" ]] && echo -e "  ${GREEN}✓${RESET}  Backend API   → http://localhost:5050  (PID ${be_pid})"  || echo -e "  ${RED}✗${RESET}  Backend API   failed to start — check /tmp/flightdeck-backend.log"
         [[ -n "$hp_pid" ]] && echo -e "  ${GREEN}✓${RESET}  Homepage      → http://localhost:3325  (PID ${hp_pid})" || echo -e "  ${RED}✗${RESET}  Homepage      failed to start — check /tmp/flightdeck-homepage.log"
         return
