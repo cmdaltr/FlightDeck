@@ -137,8 +137,10 @@ cmd_stop() {
                 ((killed++)) || true
             fi
         done
-        [[ $killed -eq 0 ]] && echo -e "${DIM}FlightDeck was not running${RESET}"
-        return
+        if [[ $killed -eq 0 ]]; then
+            echo -e "${DIM}FlightDeck was not running${RESET}"
+        fi
+        return 0
     fi
 
     if [[ "$target" == "--all" ]]; then
@@ -343,8 +345,8 @@ cmd_repo() {
     printf "  ${BOLD}%-12s${RESET} ${GREEN}%s${RESET}\n"   "branch"      "$branch"
     printf "  ${BOLD}%-12s${RESET} ${DIM}%s${RESET}\n"     "remote"      "$remote"
     printf "  ${BOLD}%-12s${RESET} ${DIM}%s${RESET}\n"     "last commit" "$last_commit"
-    [[ "$ahead"  -gt 0 ]] && printf "  ${BOLD}%-12s${RESET} ${CYAN}%s${RESET}\n" "ahead"  "${ahead} commit(s) to push"
-    [[ "$behind" -gt 0 ]] && printf "  ${BOLD}%-12s${RESET} ${RED}%s${RESET}\n"  "behind" "${behind} commit(s) to pull"
+    [[ "$ahead"  -gt 0 ]] && printf "  ${BOLD}%-12s${RESET} ${CYAN}%s${RESET}\n" "ahead"  "${ahead} commit(s) to push" || true
+    [[ "$behind" -gt 0 ]] && printf "  ${BOLD}%-12s${RESET} ${RED}%s${RESET}\n"  "behind" "${behind} commit(s) to pull" || true
     if [[ "$dirty_count" -gt 0 ]]; then
         printf "  ${BOLD}%-12s${RESET} ${RED}%s file(s)${RESET}\n" "dirty" "$dirty_count"
         echo "$data" | jq -r '.dirty_files[]?' | while IFS= read -r f; do
@@ -400,7 +402,7 @@ cmd_hygiene() {
         echo -e "${GREEN}${passed}/${total} checks passed${RESET}"
     else
         echo -e "${RED}${passed}/${total} checks passed${RESET}"
-        [[ "$fix_avail" == "true" ]] && echo -e "${DIM}Run 'fd hygiene ${target} fix' to auto-fix .gitignore${RESET}"
+        [[ "$fix_avail" == "true" ]] && echo -e "${DIM}Run 'fd hygiene ${target} fix' to auto-fix .gitignore${RESET}" || true
     fi
 }
 
