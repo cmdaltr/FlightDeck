@@ -2642,7 +2642,7 @@
                     </div>
                     <div class="card-info card-link">
                         <div class="card-name">${app.name}</div>
-                        <div class="card-port">localhost:${app.port}</div>
+                        <div class="card-port">${window.location.hostname}:${app.port}</div>
                     </div>
                 `;
 
@@ -2664,7 +2664,7 @@
 
                 card.querySelectorAll('.card-link').forEach(el => {
                     el.addEventListener('click', () => {
-                        window.open(appWebUrls[app.id] || `http://localhost:${app.port}`, '_blank');
+                        window.open(appWebUrls[app.id] || `http://${window.location.hostname}:${app.port}`, '_blank');
                     });
                 });
 
@@ -2694,7 +2694,8 @@
             statusList.forEach(a => {
                 appStatuses[a.id]   = a.running ? 'online' : 'offline';
                 appHealth[a.id]     = { healthy: a.healthy, error: a.health_error, endpoint: a.health_endpoint };
-                appWebUrls[a.id]    = a.web_url || a.url;
+                const fixHost = url => url ? url.replace('localhost', window.location.hostname) : url;
+                appWebUrls[a.id]    = fixHost(a.web_url || a.url);
                 appTypes[a.id]      = a.launch_type || 'python';
                 appAutostart[a.id]  = a.autostart || false;
             });
