@@ -4,16 +4,30 @@
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# Ensure common tool paths are available (Homebrew, Docker Desktop, pyenv, etc.)
+export PATH="/usr/local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
+
+# Resolve python3
+PYTHON=$(command -v python3 || command -v python)
+if [[ -z "$PYTHON" ]]; then
+    echo "❌ Python not found. Install Python 3 and try again."
+    exit 1
+fi
+
 echo "🛩️  Starting Flight Deck..."
 
 # Start Caddy reverse proxy (enables port 80 access by IP, e.g. Tailscale)
 echo "   Starting Caddy reverse proxy on port 80..."
-docker compose -f "$SCRIPT_DIR/local-proxy/docker-compose.yml" up -d
+if command -v docker &>/dev/null; then
+    docker compose -f "$SCRIPT_DIR/local-proxy/docker-compose.yml" up -d
+else
+    echo "   ⚠️  docker not found — skipping Caddy (port 80 unavailable, use :3325 directly)"
+fi
 
 # Start the backend API server
 echo "   Starting backend API on port 5050..."
 cd "$SCRIPT_DIR/backend"
-python app.py &
+$PYTHON app.py &
 BACKEND_PID=$!
 
 # Wait a moment for backend to initialize
@@ -22,7 +36,7 @@ sleep 2
 # Start the homepage server
 echo "   Starting homepage server on port 3325..."
 cd "$SCRIPT_DIR/homepage"
-python server.py &
+$PYTHON server.py &
 HOMEPAGE_PID=$!
 
 # Open browser unless suppressed (e.g. when launched by launchd at login)
