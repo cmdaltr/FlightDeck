@@ -15,7 +15,7 @@
   {
     "id": "archer",
     "name": "Archer",
-    "script": null,
+    "script": "/Users/ben/Library/CloudStorage/OneDrive-Personal/Projects/GitHub/archer",
     "venv": null,
     "url": "http://localhost:8000",
     "web_url": "http://localhost:8000",
@@ -64,7 +64,7 @@
   {
     "id": "audiobookconstructor",
     "name": "AudiobookConstructor",
-    "script": null,
+    "script": "/Users/ben/Library/CloudStorage/OneDrive-Personal/Projects/GitHub/audiobookconstructor",
     "venv": null,
     "url": "http://localhost:26657",
     "web_url": "http://localhost:26657",
@@ -76,7 +76,7 @@
   {
     "id": "ciphr",
     "name": "Ciphr",
-    "script": null,
+    "script": "/Users/ben/Library/CloudStorage/OneDrive-Personal/Projects/GitHub/ciphr",
     "venv": null,
     "url": "http://localhost:24747",
     "web_url": "http://localhost:24747",

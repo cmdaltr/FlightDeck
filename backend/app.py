@@ -175,6 +175,43 @@ def _find_requirements(app_cfg: dict) -> Optional[str]:
     return None
 
 
+def get_docker_compose_dir(app_cfg: dict) -> Optional[str]:
+    """Return the directory containing docker-compose.yml for a docker app."""
+    script = app_cfg.get("script")
+    if script and os.path.isdir(script):
+        base = script
+    else:
+        app_id = app_cfg.get("id", "").lower()
+        base = None
+        try:
+            for name in os.listdir(GITHUB_BASE):
+                if name.lower() == app_id and os.path.isdir(os.path.join(GITHUB_BASE, name)):
+                    base = os.path.join(GITHUB_BASE, name)
+                    break
+        except OSError:
+            pass
+    if not base:
+        return None
+    for fname in ("docker-compose.yml", "docker-compose.yaml"):
+        if os.path.isfile(os.path.join(base, fname)):
+            return base
+    return None
+
+
+def _docker_compose(docker_dir: str, *args, timeout: int = 120) -> tuple[int, str]:
+    """Run docker compose <args> in docker_dir; return (returncode, combined output)."""
+    try:
+        r = subprocess.run(
+            ["docker", "compose", *args],
+            cwd=docker_dir, capture_output=True, text=True, timeout=timeout,
+        )
+        return r.returncode, (r.stderr or r.stdout).strip()
+    except FileNotFoundError:
+        return 1, "docker not found — is Docker installed and running?"
+    except subprocess.TimeoutExpired:
+        return 1, f"docker compose {' '.join(args)} timed out"
+
+
 def start_subprocess(app_cfg: dict) -> subprocess.Popen:
     launch_type = app_cfg.get("launch_type", "python")
     script = app_cfg["script"]
@@ -481,7 +518,17 @@ def start_app(app_id):
         return jsonify({"error": "App not found"}), 404
 
     if app_cfg.get("launch_type") == "docker":
-        return jsonify({"error": "Docker-managed app — start with: docker compose up -d"}), 400
+        if is_port_in_use(app_cfg.get("port", 0)):
+            return jsonify({"message": "Already running", "status": format_status()}), 200
+        docker_dir = get_docker_compose_dir(app_cfg)
+        if not docker_dir:
+            return jsonify({"error": f"docker-compose.yml not found for '{app_id}'"}), 500
+        rc, out = _docker_compose(docker_dir, "up", "-d", "--remove-orphans")
+        if rc != 0:
+            return jsonify({"error": out, "status": format_status()}), 500
+        statuses = format_status()
+        socketio.emit("status_update", {"apps": statuses})
+        return jsonify({"message": "Started", "status": statuses}), 200
 
     existing = running_processes.get(app_id)
     if existing and existing.poll() is None:
@@ -501,7 +548,15 @@ def start_app(app_id):
 def stop_app(app_id):
     app_cfg = get_app(app_id)
     if app_cfg and app_cfg.get("launch_type") == "docker":
-        return jsonify({"error": "Docker-managed app — stop with: docker compose down"}), 400
+        docker_dir = get_docker_compose_dir(app_cfg)
+        if not docker_dir:
+            return jsonify({"error": f"docker-compose.yml not found for '{app_id}'"}), 500
+        rc, out = _docker_compose(docker_dir, "down", timeout=60)
+        if rc != 0:
+            return jsonify({"error": out, "status": format_status()}), 500
+        statuses = format_status()
+        socketio.emit("status_update", {"apps": statuses})
+        return jsonify({"message": "Stopped", "status": statuses}), 200
 
     proc = running_processes.get(app_id)
     if not proc or proc.poll() is not None:
@@ -583,14 +638,27 @@ def start_all():
     started, skipped, errors = [], [], []
     for app_cfg in APPS:
         app_id = app_cfg.get("id")
+        port = app_cfg.get("port")
+
         if app_cfg.get("launch_type") == "docker":
-            skipped.append(app_id)
+            if port and is_port_in_use(port):
+                skipped.append(app_id)
+                continue
+            docker_dir = get_docker_compose_dir(app_cfg)
+            if not docker_dir:
+                errors.append(f"{app_id}: docker-compose.yml not found")
+                continue
+            rc, out = _docker_compose(docker_dir, "up", "-d", "--remove-orphans")
+            if rc != 0:
+                errors.append(f"{app_id}: {out}")
+            else:
+                started.append(app_id)
             continue
+
         existing = running_processes.get(app_id)
         if existing and existing.poll() is None:
             skipped.append(app_id)
             continue
-        port = app_cfg.get("port")
         if port and is_port_in_use(port):
             skipped.append(app_id)
             continue
@@ -622,6 +690,23 @@ def stop_all():
             continue
         running_processes.pop(app_id, None)
         stopped.append(app_id)
+
+    for app_cfg in APPS:
+        if app_cfg.get("launch_type") != "docker":
+            continue
+        app_id = app_cfg.get("id")
+        port = app_cfg.get("port")
+        if port and not is_port_in_use(port):
+            continue
+        docker_dir = get_docker_compose_dir(app_cfg)
+        if not docker_dir:
+            continue
+        rc, out = _docker_compose(docker_dir, "down", timeout=60)
+        if rc != 0:
+            errors.append(f"{app_id}: {out}")
+        else:
+            stopped.append(app_id)
+
     statuses = format_status()
     socketio.emit("status_update", {"apps": statuses})
     return jsonify({"stopped": stopped, "skipped": skipped, "errors": errors, "status": statuses})
