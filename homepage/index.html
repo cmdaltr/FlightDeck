@@ -2115,36 +2115,56 @@
             border: 1px solid rgba(255,68,68,0.3);
             color: #ff6666;
         }
-        /* Toast notifications */
-        .toast {
-            position: fixed;
-            bottom: 24px;
-            left: 50%;
-            transform: translateX(-50%) translateY(20px);
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-family: 'Courier New', monospace;
+        /* Error banner */
+        #error-banner {
+            display: none;
+            margin-bottom: 16px;
+        }
+        #error-banner.error-banner-visible {
+            display: block;
+        }
+        .error-banner-inner {
+            background: rgba(30, 5, 5, 0.97);
+            border: 2px solid #ff4444;
+            border-radius: 10px;
+            padding: 20px 24px;
+            box-shadow: 0 0 30px rgba(255, 68, 68, 0.3), inset 0 0 20px rgba(255, 68, 68, 0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .error-banner-title {
             font-size: 0.85rem;
-            letter-spacing: 1px;
-            opacity: 0;
-            transition: opacity 0.3s ease, transform 0.3s ease;
-            z-index: 9999;
-            max-width: 90vw;
-            text-align: center;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #ff4444;
+            font-weight: 700;
         }
-        .toast-visible {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
+        .error-banner-title span {
+            color: #ffffff;
         }
-        .toast-error {
-            background: rgba(20, 5, 5, 0.95);
+        .error-banner-msg {
+            font-size: 0.95rem;
+            color: #ffaaaa;
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+            line-height: 1.5;
+        }
+        .error-banner-close {
+            align-self: flex-end;
+            background: transparent;
             border: 1px solid #ff4444;
-            color: #ff8888;
+            color: #ff6666;
+            padding: 6px 16px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.2s;
         }
-        .toast-info {
-            background: rgba(5, 15, 20, 0.95);
-            border: 1px solid #00aaff;
-            color: #7ec8e3;
+        .error-banner-close:hover {
+            background: rgba(255, 68, 68, 0.15);
         }
     </style>
 </head>
@@ -2259,6 +2279,14 @@
                     <button class="fleet-btn fleet-btn-push"   id="fleetPushAll"    onclick="fleetPushAll()">⬆ Push All</button>
                     <button class="fleet-btn fleet-btn-commit" id="fleetCommitAll"  onclick="openCommitAllModal()">✎ Commit All</button>
                     <button class="fleet-btn fleet-btn-reload" id="fleetReload"     onclick="fleetReload()">↺ Reload</button>
+                </div>
+            </div>
+
+            <div id="error-banner">
+                <div class="error-banner-inner">
+                    <div class="error-banner-title">⚠ FAILED TO START <span id="error-banner-app"></span></div>
+                    <div class="error-banner-msg" id="error-banner-msg"></div>
+                    <button class="error-banner-close" onclick="document.getElementById('error-banner').classList.remove('error-banner-visible')">✕ Dismiss</button>
                 </div>
             </div>
 
@@ -2925,26 +2953,33 @@
             const endpoint = status === 'online' ? 'stop' : 'start';
             if (endpoint === 'start') { appStatuses[appId] = 'building'; renderGrid(); }
             try {
-                const r    = await fetch(`${API_URL}/api/${endpoint}/${appId}`, { method: 'POST' });
-                const data = await r.json();
+                const r = await fetch(`${API_URL}/api/${endpoint}/${appId}`, { method: 'POST' });
+                let data;
+                try { data = await r.json(); } catch {
+                    showError(appId, `Server error (HTTP ${r.status}) — check /tmp/flightdeck-${appId}.error.log`);
+                    fetchStatuses();
+                    return;
+                }
                 if (data.status) updateStatuses(data.status);
-                if (data.error) showToast(`${appId}: ${data.error}`, 'error');
+                if (data.error) showError(appId, data.error);
             } catch (e) {
                 console.error('Error toggling app:', e);
-                showToast(`Could not ${endpoint} ${appId}`, 'error');
+                showError(appId, e.message || `Could not reach FlightDeck backend`);
                 fetchStatuses();
             }
         }
 
-        // ── Clock / uptime ───────────────────────────────────────────────────────
-        function showToast(msg, type = 'info') {
-            const t = document.createElement('div');
-            t.className = `toast toast-${type}`;
-            t.textContent = msg;
-            document.body.appendChild(t);
-            setTimeout(() => t.classList.add('toast-visible'), 10);
-            setTimeout(() => { t.classList.remove('toast-visible'); setTimeout(() => t.remove(), 400); }, 4000);
+        // ── Error banner ─────────────────────────────────────────────────────────
+        function showError(appId, message) {
+            document.getElementById('error-banner-app').textContent = appId;
+            document.getElementById('error-banner-msg').textContent = message;
+            const banner = document.getElementById('error-banner');
+            banner.classList.add('error-banner-visible');
+            clearTimeout(banner._hide);
+            banner._hide = setTimeout(() => banner.classList.remove('error-banner-visible'), 8000);
         }
+
+        // ── Clock / uptime ───────────────────────────────────────────────────────
 
         function updateClock() {
             const now = new Date();
