@@ -2531,7 +2531,7 @@
         };
 
         // ── State ────────────────────────────────────────────────────────────────
-        const API_URL = 'http://localhost:5050';
+        const API_URL = `http://${window.location.hostname}:5050`;
         let appList = [];   // driven by backend
         const appStatuses   = {};
         const appHealth     = {};
