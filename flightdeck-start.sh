@@ -1,6 +1,5 @@
 #!/bin/bash
 # FlightDeck Startup Script
-# Starts both the backend API and homepage server
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
@@ -16,6 +15,14 @@ fi
 
 echo "🛩️  Starting Flight Deck..."
 
+# Install backend dependencies if missing
+echo "   Checking backend dependencies..."
+if ! "$PYTHON" -c "import flask, flask_cors, flask_socketio, eventlet, requests" &>/dev/null; then
+    echo "   Installing backend dependencies..."
+    "$PYTHON" -m pip install -q --break-system-packages -r "$SCRIPT_DIR/backend/requirements.txt" \
+        || "$PYTHON" -m pip install -q -r "$SCRIPT_DIR/backend/requirements.txt"
+fi
+
 # Start Caddy reverse proxy (enables port 80 access by IP, e.g. Tailscale)
 echo "   Starting Caddy reverse proxy on port 80..."
 if command -v docker &>/dev/null; then
@@ -27,33 +34,45 @@ fi
 # Start the backend API server
 echo "   Starting backend API on port 5050..."
 cd "$SCRIPT_DIR/backend"
-$PYTHON app.py &
+$PYTHON app.py > /tmp/flightdeck-backend.log 2>&1 &
 BACKEND_PID=$!
 
-# Wait a moment for backend to initialize
-sleep 2
+# Verify backend came up
+sleep 3
+if ! kill -0 "$BACKEND_PID" 2>/dev/null; then
+    echo "❌ Backend failed to start. Last error:"
+    tail -20 /tmp/flightdeck-backend.log
+    exit 1
+fi
+echo "   ✓ Backend running (PID $BACKEND_PID)"
 
 # Start the homepage server
 echo "   Starting homepage server on port 3325..."
 cd "$SCRIPT_DIR/homepage"
-$PYTHON server.py &
+$PYTHON server.py > /tmp/flightdeck-homepage.log 2>&1 &
 HOMEPAGE_PID=$!
+
+sleep 1
+if ! kill -0 "$HOMEPAGE_PID" 2>/dev/null; then
+    echo "❌ Homepage server failed to start. Last error:"
+    tail -10 /tmp/flightdeck-homepage.log
+    exit 1
+fi
+echo "   ✓ Homepage running (PID $HOMEPAGE_PID)"
 
 # Open browser unless suppressed (e.g. when launched by launchd at login)
 if [[ "${FLIGHTDECK_NO_BROWSER:-0}" != "1" ]]; then
-    sleep 1
-    echo "   Opening Flight Deck in browser..."
     open "http://localhost:3325"
 fi
 
 echo ""
 echo "✅ Flight Deck is running!"
-echo "   Homepage: http://localhost (port 80 via Caddy) or http://localhost:3325 direct"
+echo "   Homepage:    http://localhost:3325"
 echo "   Backend API: http://localhost:5050"
+echo "   Logs:        /tmp/flightdeck-backend.log  /tmp/flightdeck-homepage.log"
 echo ""
 echo "   Press Ctrl+C to stop all services"
 
-# Handle shutdown
 cleanup() {
     echo ""
     echo "🛬 Shutting down Flight Deck..."
@@ -64,5 +83,4 @@ cleanup() {
 
 trap cleanup SIGINT SIGTERM
 
-# Keep script running
 wait
