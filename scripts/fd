@@ -39,6 +39,22 @@ api() {
 
 # ── status ───────────────────────────────────────────────────────────────────
 cmd_status() {
+    # FlightDeck own status
+    local be_pid hp_pid
+    be_pid=$(lsof -ti :5050 2>/dev/null || true)
+    hp_pid=$(lsof -ti :3325 2>/dev/null || true)
+    echo ""
+    if [[ -n "$be_pid" && -n "$hp_pid" ]]; then
+        echo -e "  ${GREEN}●${RESET}  FlightDeck        ${GREEN}running${RESET}  backend PID ${be_pid}  homepage PID ${hp_pid}"
+    elif [[ -n "$be_pid" ]]; then
+        echo -e "  ${YELLOW}●${RESET}  FlightDeck        ${YELLOW}partial${RESET}  backend PID ${be_pid}  homepage ${RED}not running${RESET}"
+    elif [[ -n "$hp_pid" ]]; then
+        echo -e "  ${YELLOW}●${RESET}  FlightDeck        ${YELLOW}partial${RESET}  backend ${RED}not running${RESET}  homepage PID ${hp_pid}"
+    else
+        echo -e "  ${RED}●${RESET}  FlightDeck        ${RED}stopped${RESET}"
+    fi
+    echo ""
+
     local apps
     apps=$(api GET /api/apps)
 
@@ -140,7 +156,13 @@ cmd_stop() {
 # ── restart ───────────────────────────────────────────────────────────────────
 cmd_restart() {
     local target="${1:-}"
-    [[ -z "$target" ]] && { echo "Usage: fd restart <id>"; exit 1; }
+    if [[ -z "$target" ]]; then
+        info "Restarting FlightDeck…"
+        cmd_stop
+        sleep 1
+        cmd_start
+        return
+    fi
     cmd_stop "$target"
     sleep 1
     cmd_start "$target"
@@ -542,13 +564,15 @@ cmd_help() {
 ${BOLD}fd${RESET} — FlightDeck CLI
 
 ${BOLD}USAGE${RESET}
-  fd status               list all apps with status
+  fd status               FlightDeck status + all apps
   fd start                start FlightDeck itself
   fd start <id>           start a single app
   fd start --all          start all manageable apps
   fd stop                 stop FlightDeck itself
   fd stop  <id>           stop a single app
   fd stop  --all          stop all running apps
+  fd restart              restart FlightDeck itself
+  fd restart <id>         restart a single app
   fd restart <id>         stop then start an app
   fd open   <id>          open app URL in browser
   fd repo   <id>          show git repo status (branch, ahead/behind, dirty)
