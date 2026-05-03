@@ -15,12 +15,19 @@ fi
 
 echo "🛩️  Starting Flight Deck..."
 
-# Install backend dependencies if missing
+# Create venv if it doesn't exist
+VENV="$SCRIPT_DIR/backend/.venv"
+if [[ ! -d "$VENV" ]]; then
+    echo "   Creating virtual environment..."
+    "$PYTHON" -m venv "$VENV"
+fi
+PYTHON="$VENV/bin/python"
+
+# Install/sync backend dependencies
 echo "   Checking backend dependencies..."
 if ! "$PYTHON" -c "import flask, flask_cors, flask_socketio, eventlet, requests" &>/dev/null; then
     echo "   Installing backend dependencies..."
-    "$PYTHON" -m pip install -q --break-system-packages -r "$SCRIPT_DIR/backend/requirements.txt" \
-        || "$PYTHON" -m pip install -q -r "$SCRIPT_DIR/backend/requirements.txt"
+    "$PYTHON" -m pip install -q -r "$SCRIPT_DIR/backend/requirements.txt"
 fi
 
 # Start Caddy reverse proxy (enables port 80 access by IP, e.g. Tailscale)
