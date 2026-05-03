@@ -6,7 +6,6 @@
     <title>Flight Deck</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2300ff88'%3E%3Cpath d='M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z'/%3E%3C/svg%3E">
     <link rel="shortcut icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2300ff88'%3E%3Cpath d='M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z'/%3E%3C/svg%3E">
-    <meta name="viewport" content="width=device-width, initial-scale=0.8">
     <style>
         * {
             margin: 0;
@@ -1248,34 +1247,55 @@
         }
 
         @media (max-width: 768px) {
-            .grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            header h1 {
-                font-size: 2.16rem;
-                letter-spacing: 4px;
-            }
-            .status-bar {
-                flex-wrap: wrap;
-                gap: 20px;
-            }
-            .header-readouts {
-                flex-direction: column;
-                gap: 15px;
-                text-align: center;
-            }
-            .bottom-controls {
-                flex-wrap: wrap;
-            }
+            .grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+            header h1 { font-size: 2rem; letter-spacing: 4px; }
+            .status-bar { flex-wrap: wrap; gap: 12px; justify-content: center; }
+            .header-readouts { flex-wrap: wrap; justify-content: center; gap: 12px; }
+            .station-readout { margin-right: 0; }
+            .uptime-readout { margin-left: 0; }
+            .clock { position: static; transform: none; }
+            .bottom-controls { flex-wrap: wrap; }
         }
 
         @media (max-width: 480px) {
-            .grid {
-                grid-template-columns: 1fr;
-            }
-            header h1 {
-                font-size: 1.8rem;
-            }
+            body { padding: 10px; }
+
+            /* Compact header */
+            .logo { font-size: 1.8rem; }
+            header h1 { font-size: 1.5rem; letter-spacing: 2px; }
+            header p { display: none; }
+            .status-bar { display: none; }
+            .header-controls-left, .header-controls-right { display: none; }
+            .header-readouts { gap: 8px; padding-top: 8px; margin-top: 6px; }
+            .station-readout, .uptime-readout { display: none; }
+            .clock { font-size: 1.1rem; }
+
+            /* Fleet toolbar — stack count above wrapping buttons */
+            .fleet-toolbar { flex-direction: column; gap: 8px; padding: 8px 10px; margin-bottom: 14px; }
+            .fleet-count { text-align: center; }
+            .fleet-btns { flex-wrap: wrap; gap: 5px; }
+            .fleet-btn { flex: 1 1 30%; padding: 10px 4px; font-size: 0.58rem; letter-spacing: 0.5px; }
+
+            /* Single column grid */
+            .grid { grid-template-columns: 1fr; gap: 10px; }
+
+            /* Compact cards */
+            .card { height: 200px; }
+            .card-gauge { padding: 10px; }
+            .card-info { height: 70px; padding: 10px 16px; }
+            .card-name { font-size: 1rem; margin-bottom: 3px; }
+            .card-port { font-size: 0.75rem; padding: 2px 8px; }
+            .card-icon { font-size: 1.8rem; }
+            .card-icon img { max-height: 80px !important; width: auto; }
+            .card-icon svg { max-height: 80px !important; width: auto !important; }
+            .repo-btn { bottom: 76px; }
+            .autostart-btn { bottom: 76px; }
+            .card-start-btn { width: 44px; height: 44px; top: 8px; left: 8px; }
+            .card-start-btn svg { width: 20px; height: 20px; }
+            .card:hover { transform: none; }
+
+            /* Hide decorative cockpit strip */
+            .bottom-controls { display: none; }
         }
 
         /* Docker badge */
