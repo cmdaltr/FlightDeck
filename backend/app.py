@@ -19,6 +19,7 @@ from flask_socketio import SocketIO, emit
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 APPS_PATH = os.path.join(BASE_DIR, "apps.json")
+VENV_CACHE_DIR = os.path.expanduser("~/.local/share/flightdeck-venvs")
 
 app = Flask(__name__)
 CORS(app)
@@ -137,6 +138,43 @@ def format_status() -> List[dict]:
     return status
 
 
+def _is_valid_python_binary(path: str) -> bool:
+    """Return True if path is an actual executable binary, not an OneDrive-mangled symlink text file."""
+    if not os.path.isfile(path) or not os.access(path, os.X_OK):
+        return False
+    try:
+        with open(path, "rb") as f:
+            hdr = f.read(4)
+        return hdr in (
+            b"\x7fELF",           # ELF (Linux)
+            b"\xcf\xfa\xed\xfe",  # Mach-O 64-bit LE
+            b"\xce\xfa\xed\xfe",  # Mach-O 32-bit LE
+            b"\xfe\xed\xfa\xcf",  # Mach-O 64-bit BE
+            b"\xfe\xed\xfa\xce",  # Mach-O 32-bit BE
+            b"\xca\xfe\xba\xbe",  # Mach-O fat binary
+        )
+    except OSError:
+        return False
+
+
+def _find_requirements(app_cfg: dict) -> Optional[str]:
+    """Walk up from the app's script directory looking for requirements.txt."""
+    script = app_cfg.get("script")
+    if not script:
+        return None
+    base = script if os.path.isdir(script) else os.path.dirname(script)
+    current = os.path.abspath(base)
+    for _ in range(3):
+        req = os.path.join(current, "requirements.txt")
+        if os.path.isfile(req):
+            return req
+        parent = os.path.dirname(current)
+        if parent == current:
+            break
+        current = parent
+    return None
+
+
 def start_subprocess(app_cfg: dict) -> subprocess.Popen:
     launch_type = app_cfg.get("launch_type", "python")
     script = app_cfg["script"]
@@ -149,8 +187,18 @@ def start_subprocess(app_cfg: dict) -> subprocess.Popen:
 
     if venv:
         python_exe = os.path.join(venv, "bin", "python")
-        if not os.path.exists(python_exe):
-            python_exe = sys.executable
+        if not _is_valid_python_binary(python_exe):
+            # Venv python is missing or a text file (OneDrive corrupts symlinks).
+            # Fall back to machine-local venv cache outside OneDrive.
+            cached = os.path.join(VENV_CACHE_DIR, app_id, "bin", "python")
+            if _is_valid_python_binary(cached):
+                python_exe = cached
+            else:
+                raise RuntimeError(
+                    f"venv Python at '{python_exe}' is not executable "
+                    f"(OneDrive likely corrupted the symlink). "
+                    f"Run: fd setup {app_id}"
+                )
     else:
         python_exe = sys.executable
 
@@ -479,6 +527,55 @@ def reload_apps():
     statuses = format_status()
     socketio.emit("status_update", {"apps": statuses})
     return jsonify({"message": f"Reloaded {len(APPS)} apps", "status": statuses})
+
+
+@app.route("/api/apps/<app_id>/setup", methods=["POST"])
+def setup_app_venv(app_id):
+    """Create a machine-local venv (outside OneDrive) and install requirements."""
+    app_cfg = get_app(app_id)
+    if not app_cfg:
+        return jsonify({"error": "App not found"}), 404
+    if app_cfg.get("launch_type") == "docker":
+        return jsonify({"error": "Docker apps do not need venv setup"}), 400
+
+    venv_dir = os.path.join(VENV_CACHE_DIR, app_id)
+    try:
+        os.makedirs(VENV_CACHE_DIR, exist_ok=True)
+        r = subprocess.run(
+            [sys.executable, "-m", "venv", venv_dir, "--clear"],
+            capture_output=True, text=True, timeout=60,
+        )
+        if r.returncode != 0:
+            return jsonify({"error": f"venv creation failed: {r.stderr or r.stdout}"}), 500
+    except subprocess.TimeoutExpired:
+        return jsonify({"error": "venv creation timed out"}), 500
+    except Exception as e:
+        return jsonify({"error": f"venv creation failed: {e}"}), 500
+
+    req = _find_requirements(app_cfg)
+    if not req:
+        return jsonify({
+            "message": f"venv created at {venv_dir} (no requirements.txt found — start manually)",
+            "venv": venv_dir,
+        })
+
+    python_exe = os.path.join(venv_dir, "bin", "python")
+    try:
+        r = subprocess.run(
+            [python_exe, "-m", "pip", "install", "-q", "-r", req],
+            capture_output=True, text=True, timeout=300,
+        )
+        if r.returncode != 0:
+            return jsonify({"error": f"pip install failed: {(r.stderr or r.stdout)[-500:]}"}), 500
+    except subprocess.TimeoutExpired:
+        return jsonify({"error": "pip install timed out (>5 min)"}), 500
+    except Exception as e:
+        return jsonify({"error": f"pip install failed: {e}"}), 500
+
+    return jsonify({
+        "message": f"Ready — installed requirements from {os.path.relpath(req, os.path.dirname(req))}",
+        "venv": venv_dir,
+    })
 
 
 @app.route("/api/start", methods=["POST"])
