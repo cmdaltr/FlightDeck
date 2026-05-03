@@ -2115,6 +2115,37 @@
             border: 1px solid rgba(255,68,68,0.3);
             color: #ff6666;
         }
+        /* Toast notifications */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            opacity: 0;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            z-index: 9999;
+            max-width: 90vw;
+            text-align: center;
+        }
+        .toast-visible {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        .toast-error {
+            background: rgba(20, 5, 5, 0.95);
+            border: 1px solid #ff4444;
+            color: #ff8888;
+        }
+        .toast-info {
+            background: rgba(5, 15, 20, 0.95);
+            border: 1px solid #00aaff;
+            color: #7ec8e3;
+        }
     </style>
 </head>
 <body>
@@ -2894,15 +2925,27 @@
             const endpoint = status === 'online' ? 'stop' : 'start';
             if (endpoint === 'start') { appStatuses[appId] = 'building'; renderGrid(); }
             try {
-                const data = await fetch(`${API_URL}/api/${endpoint}/${appId}`, { method: 'POST' }).then(r => r.json());
+                const r    = await fetch(`${API_URL}/api/${endpoint}/${appId}`, { method: 'POST' });
+                const data = await r.json();
                 if (data.status) updateStatuses(data.status);
+                if (data.error) showToast(`${appId}: ${data.error}`, 'error');
             } catch (e) {
                 console.error('Error toggling app:', e);
+                showToast(`Could not ${endpoint} ${appId}`, 'error');
                 fetchStatuses();
             }
         }
 
         // ── Clock / uptime ───────────────────────────────────────────────────────
+        function showToast(msg, type = 'info') {
+            const t = document.createElement('div');
+            t.className = `toast toast-${type}`;
+            t.textContent = msg;
+            document.body.appendChild(t);
+            setTimeout(() => t.classList.add('toast-visible'), 10);
+            setTimeout(() => { t.classList.remove('toast-visible'); setTimeout(() => t.remove(), 400); }, 4000);
+        }
+
         function updateClock() {
             const now = new Date();
             document.getElementById('clock').textContent =

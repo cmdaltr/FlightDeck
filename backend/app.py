@@ -439,7 +439,10 @@ def start_app(app_id):
     if existing and existing.poll() is None:
         return jsonify({"message": "Already running", "status": format_status()}), 200
 
-    proc = start_subprocess(app_cfg)
+    try:
+        proc = start_subprocess(app_cfg)
+    except Exception as e:
+        return jsonify({"error": str(e), "status": format_status()}), 500
     running_processes[app_id] = proc
     statuses = format_status()
     socketio.emit("status_update", {"apps": statuses})
