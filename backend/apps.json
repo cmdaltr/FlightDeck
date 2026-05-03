@@ -47,7 +47,11 @@
     "launch_type": "uvicorn",
     "uvicorn_app": "main:app",
     "port": 5687,
-    "autostart": true
+    "autostart": true,
+    "docker_deps": {
+      "compose_dir": "/Users/ben/Library/CloudStorage/OneDrive-Personal/Projects/GitHub/rivendell",
+      "services": ["postgres", "redis"]
+    }
   },
   {
     "id": "ancestree",

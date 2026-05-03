@@ -124,6 +124,7 @@ def format_status() -> List[dict]:
         status.append({
             "id": app_id,
             "name": app_cfg.get("name"),
+            "script": app_cfg.get("script"),
             "url": app_cfg.get("url"),
             "web_url": app_cfg.get("web_url") or app_cfg.get("url"),
             "port": app_cfg.get("port"),
@@ -172,6 +173,22 @@ def _find_requirements(app_cfg: dict) -> Optional[str]:
         if parent == current:
             break
         current = parent
+    return None
+
+
+def _start_docker_deps(app_cfg: dict) -> Optional[str]:
+    """Start Docker service dependencies listed in app_cfg['docker_deps'].
+    Returns an error string on failure, None on success."""
+    deps = app_cfg.get("docker_deps")
+    if not deps:
+        return None
+    compose_dir = deps.get("compose_dir", "")
+    services = deps.get("services", [])
+    if not compose_dir or not services:
+        return None
+    rc, out = _docker_compose(compose_dir, "up", "-d", "--remove-orphans", *services)
+    if rc != 0:
+        return out
     return None
 
 
@@ -534,6 +551,10 @@ def start_app(app_id):
     if existing and existing.poll() is None:
         return jsonify({"message": "Already running", "status": format_status()}), 200
 
+    dep_err = _start_docker_deps(app_cfg)
+    if dep_err:
+        return jsonify({"error": f"Failed to start Docker dependencies: {dep_err}"}), 500
+
     try:
         proc = start_subprocess(app_cfg)
     except Exception as e:
@@ -591,7 +612,18 @@ def setup_app_venv(app_id):
     if not app_cfg:
         return jsonify({"error": "App not found"}), 404
     if app_cfg.get("launch_type") == "docker":
-        return jsonify({"error": "Docker apps do not need venv setup"}), 400
+        return jsonify({"error": "Docker builds run locally — use: fd setup <id>"}), 400
+
+    # Skip if the app's own venv is valid (not corrupted by OneDrive).
+    # Only create a cache venv when the original is broken.
+    original_venv = app_cfg.get("venv")
+    if original_venv:
+        original_python = os.path.join(original_venv, "bin", "python")
+        if _is_valid_python_binary(original_python):
+            return jsonify({
+                "message": f"Original venv is healthy — no cache needed ({original_venv})",
+                "venv": original_venv,
+            })
 
     venv_dir = os.path.join(VENV_CACHE_DIR, app_id)
     try:
@@ -939,6 +971,10 @@ def launch_autostart_apps() -> None:
             print(f"[autostart] {app_id} already running on port {port}, skipping")
             continue
         try:
+            dep_err = _start_docker_deps(app_cfg)
+            if dep_err:
+                print(f"[autostart] docker deps failed for {app_id}: {dep_err}", file=sys.stderr)
+                continue
             print(f"[autostart] starting {app_id}…")
             proc = start_subprocess(app_cfg)
             running_processes[app_id] = proc
@@ -1404,8 +1440,9 @@ def fix_hygiene(app_id):
     return jsonify(result)
 
 
-# Launch autostart apps before starting threads
-launch_autostart_apps()
+# Launch autostart apps in a background thread so Docker deps don't block Flask startup
+autostart_thread = threading.Thread(target=launch_autostart_apps, daemon=True)
+autostart_thread.start()
 
 health_thread = threading.Thread(target=background_health_checker, daemon=True)
 health_thread.start()

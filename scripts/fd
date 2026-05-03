@@ -41,8 +41,8 @@ api() {
 cmd_status() {
     # FlightDeck own status
     local be_pid hp_pid
-    be_pid=$(lsof -ti :5050 2>/dev/null || true)
-    hp_pid=$(lsof -ti :3325 2>/dev/null || true)
+    be_pid=$(lsof -ti :5050 2>/dev/null | head -1 || true)
+    hp_pid=$(lsof -ti :3325 2>/dev/null | head -1 || true)
     echo ""
     if [[ -n "$be_pid" && -n "$hp_pid" ]]; then
         echo -e "  ${GREEN}●${RESET}  FlightDeck        ${GREEN}running${RESET}  backend PID ${be_pid}  homepage PID ${hp_pid}"
@@ -412,12 +412,12 @@ cmd_setup() {
     local target="${1:-}"
     [[ -z "$target" ]] && { echo "Usage: fd setup <id>|--all"; exit 1; }
 
-    _run_setup() {
+    _setup_python() {
         local id="$1"
         info "Setting up ${id}…"
         echo -e "${DIM}Creating venv and installing requirements (may take a minute)…${RESET}"
         local result msg
-        result=$(curl -sf --max-time 360 -X POST "${API}/api/apps/${id}/setup" \
+        result=$(curl -s --max-time 360 -X POST "${API}/api/apps/${id}/setup" \
                  -H 'Content-Type: application/json' 2>/dev/null) \
             || result='{"error":"request failed or timed out"}'
         msg=$(echo "$result" | jq -r '.message // .error')
@@ -428,14 +428,41 @@ cmd_setup() {
         fi
     }
 
+    _setup_docker() {
+        local id="$1" compose_dir="$2"
+        info "Setting up ${id} (Docker)…"
+        echo -e "${DIM}Building Docker images — live output below (may take several minutes)…${RESET}"
+        local compose_file="${compose_dir}/docker-compose.yml"
+        [[ -f "$compose_file" ]] || compose_file="${compose_dir}/docker-compose.yaml"
+        if [[ ! -f "$compose_file" ]]; then
+            echo -e "  ${RED}✗${RESET}  docker-compose.yml not found in ${compose_dir}"; return
+        fi
+        if docker compose -f "$compose_file" build; then
+            echo -e "  ${GREEN}✓${RESET}  Docker images built"
+        else
+            echo -e "  ${RED}✗${RESET}  docker compose build failed (see output above)"
+        fi
+    }
+
     if [[ "$target" == "--all" ]]; then
-        info "Setting up all non-docker apps…"
-        api GET /api/apps | jq -r '.[] | select(.launch_type != "docker") | .id' \
-        | while IFS= read -r id; do
-            _run_setup "$id"
-        done
+        info "Setting up all apps…"
+        while IFS=$'\t' read -r id launch_type script; do
+            if [[ "$launch_type" == "docker" ]]; then
+                _setup_docker "$id" "$script"
+            else
+                _setup_python "$id"
+            fi
+        done < <(api GET /api/apps | jq -r '.[] | [.id, .launch_type, .script] | @tsv')
     else
-        _run_setup "$target"
+        local app_info launch_type script
+        app_info=$(api GET /api/apps | jq -r --arg id "$target" \
+            '.[] | select(.id == $id) | [.launch_type, .script] | @tsv')
+        IFS=$'\t' read -r launch_type script <<< "$app_info"
+        if [[ "$launch_type" == "docker" ]]; then
+            _setup_docker "$target" "$script"
+        else
+            _setup_python "$target"
+        fi
     fi
 }
 
@@ -626,8 +653,8 @@ ${BOLD}USAGE${RESET}
   fd push   --all         git push all app repos
   fd hygiene <id>         run hygiene checks for one repo
   fd hygiene <id> fix     auto-fix .gitignore issues
-  fd setup  <id>          create local venv + install requirements (fixes OneDrive-broken venvs)
-  fd setup  --all         set up all non-docker apps
+  fd setup  <id>          create local venv + install requirements (python) or build images (docker)
+  fd setup  --all         set up all apps
   fd autostart <id>       toggle autostart for one app
   fd add    <path>        analyze a directory and add it as a new app
   fd add -y <path>        add without confirmation prompt (non-interactive)

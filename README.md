@@ -60,7 +60,13 @@ Hygiene checks: `.gitignore` coverage · no secret files tracked · no credentia
 fd add <path>                  # analyze a directory and register it as a new app
 fd add -y <path>               # same, without confirmation prompt (scriptable)
 fd autostart <id>              # toggle autostart on/off for one app
+fd setup  <id>                 # create/repair local venv (python) or build image (docker)
+fd setup  --all                # set up all apps
 ```
+
+`fd setup` solves two problems:
+- **OneDrive venv corruption** — OneDrive mangles Python venv symlinks into plain text files. `fd setup` creates a machine-local venv at `~/.local/share/flightdeck-venvs/<id>/` outside OneDrive and installs requirements there. Skipped automatically if the app's own venv is healthy.
+- **Docker image builds** — for `launch_type: docker` apps, runs `docker compose build` with live output. Run this before starting a Docker app for the first time.
 
 `fd add` shows the current app registry, runs the directory analyzer, displays the suggested config, then prompts for confirmation. If the port is already in use by an external process, it warns and offers to force-add.
 
@@ -261,17 +267,24 @@ Each entry in `backend/apps.json`:
   "health_endpoint": "/health",
   "launch_type": "python",
   "port": 8080,
-  "autostart": false
+  "autostart": false,
+  "docker_deps": {
+    "compose_dir": "/path/to/repo",
+    "services": ["postgres", "redis"]
+  }
 }
 ```
 
+`docker_deps` is optional. Use it when an app (typically `uvicorn` or `python`) needs Docker services running first — for example, a FastAPI backend that connects to a Postgres container. FlightDeck starts the listed services with `docker compose up -d` before launching the app process, both on autostart and on manual start.
+
 | Field | Values | Notes |
 |---|---|---|
-| `launch_type` | `python` `uvicorn` `static` `docker` | Docker apps are monitored only, not managed |
+| `launch_type` | `python` `uvicorn` `static` `docker` | Docker apps managed via `docker compose up/down` |
 | `uvicorn_app` | `"main:app"` | Required for `uvicorn` type |
 | `launch_args` | `["--flag", "value"]` | Extra args for `python` type |
 | `health_endpoint` | `"/health"` or `null` | Polled every 10 s; `null` = no health check |
 | `autostart` | `true` / `false` | Start automatically when FlightDeck starts |
+| `docker_deps` | `{"compose_dir": "...", "services": ["postgres"]}` | Docker services to start before this app (e.g. database) |
 
 Edit `apps.json` manually and run `fd reload` (or click ↺ Reload) to apply without restarting FlightDeck.
 
@@ -323,6 +336,7 @@ curl -s -X POST http://localhost:5050/api/apps/analyze \
 | `POST` | `/api/apps/analyze` | Analyze a directory, return suggested config |
 | `POST` | `/api/apps/add` | Add a new app (pass `"force": true` to override live port check) |
 | `POST` | `/api/apps/<id>/autostart` | Toggle autostart flag |
+| `POST` | `/api/apps/<id>/setup` | Create/repair local venv (python) — skips if venv healthy |
 
 ### Git / repo
 | Method | Path | Description |
