@@ -133,7 +133,8 @@ cmd_stop() {
             local pid
             pid=$(lsof -ti ":${port}" 2>/dev/null || true)
             if [[ -n "$pid" ]]; then
-                kill "$pid" 2>/dev/null && echo -e "${RED}stopped port ${port} (PID ${pid})${RESET}"
+                # shellcheck disable=SC2086  # intentional word-split for multiple PIDs
+                kill $pid 2>/dev/null && echo -e "${RED}stopped port ${port} (PID $(echo $pid | tr '\n' ' '))${RESET}"
                 ((killed++)) || true
             fi
         done

@@ -214,6 +214,7 @@ def _docker_compose(docker_dir: str, *args, timeout: int = 120) -> tuple[int, st
 
 def start_subprocess(app_cfg: dict) -> subprocess.Popen:
     launch_type = app_cfg.get("launch_type", "python")
+    app_id = app_cfg.get("id", "unknown")
     script = app_cfg["script"]
     venv = app_cfg.get("venv")
 
@@ -249,7 +250,6 @@ def start_subprocess(app_cfg: dict) -> subprocess.Popen:
     else:
         preexec_fn = os.setsid
 
-    app_id = app_cfg.get("id", "unknown")
     log_dir = "/tmp"
     stdout_log = open(os.path.join(log_dir, f"flightdeck-{app_id}.log"), "a")
     stderr_log = open(os.path.join(log_dir, f"flightdeck-{app_id}.error.log"), "a")
