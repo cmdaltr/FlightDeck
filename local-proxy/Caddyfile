@@ -3,6 +3,11 @@
     local_certs
 }
 
+# Default HTTP site — serves FlightDeck for plain IP access (e.g. Tailscale IP on port 80)
+:80 {
+    reverse_proxy host.docker.internal:3325
+}
+
 # Generated from /Users/ben/Library/CloudStorage/OneDrive-Personal/Projects/GitHub/apps.conf
 # Maps <domain.app> → host.docker.internal:<port>
 

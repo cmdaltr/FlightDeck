@@ -7,7 +7,7 @@ A cockpit-style local dashboard for managing, monitoring, and maintaining your d
 ## Quick Start
 
 ```bash
-./start.sh          # start FlightDeck manually (opens browser)
+./flightdeck-start.sh          # start FlightDeck manually (opens browser)
 ```
 
 - Homepage: **http://localhost:3325**
@@ -111,6 +111,101 @@ If the port is in use by an external process, an **Add Anyway** button appears.
 
 ---
 
+## Setup on Other Systems
+
+### macOS (recommended)
+
+Start manually:
+```bash
+./flightdeck-start.sh
+```
+
+Start Caddy (port 80 proxy):
+```bash
+docker compose -f local-proxy/docker-compose.yml up -d
+```
+
+Auto-start at login via `fd`:
+```bash
+fd config start-at-login on
+```
+
+Or manually install the LaunchAgent:
+```bash
+cp config/com.flightdeck.plist ~/Library/LaunchAgents/
+launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.flightdeck.plist
+```
+
+---
+
+### Linux
+
+Start manually:
+```bash
+./flightdeck-start.sh
+```
+
+Start Caddy (port 80 proxy):
+```bash
+docker compose -f local-proxy/docker-compose.yml up -d
+```
+
+Auto-start at login with systemd:
+
+1. Create the service file:
+```bash
+mkdir -p ~/.config/systemd/user
+cat > ~/.config/systemd/user/flightdeck.service << EOF
+[Unit]
+Description=FlightDeck
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/bin/bash /path/to/FlightDeck/flightdeck-start.sh
+Environment=FLIGHTDECK_NO_BROWSER=1
+Restart=on-failure
+
+[Install]
+WantedBy=default.target
+EOF
+```
+
+2. Enable and start:
+```bash
+systemctl --user daemon-reload
+systemctl --user enable --now flightdeck
+```
+
+For Caddy auto-start, create a second unit file pointing at `docker compose -f local-proxy/docker-compose.yml up` or add it to `flightdeck-start.sh` (it already does this by default).
+
+---
+
+### Windows
+
+FlightDeck requires **WSL2** (Windows Subsystem for Linux) or **Git Bash** since `flightdeck-start.sh` is a Bash script.
+
+Start manually (in WSL2 or Git Bash):
+```bash
+./flightdeck-start.sh
+```
+
+Start Caddy (port 80 proxy) — run in PowerShell or WSL2:
+```powershell
+docker compose -f local-proxy/docker-compose.yml up -d
+```
+
+Auto-start at login via Task Scheduler:
+1. Open **Task Scheduler** → Create Basic Task
+2. Trigger: **At log on**
+3. Action: **Start a program**
+   - Program: `wsl.exe` (or `C:\Program Files\Git\bin\bash.exe`)
+   - Arguments: `-e /path/to/FlightDeck/flightdeck-start.sh`
+4. In Settings, check **Run whether user is logged on or not** if running headless
+5. Add environment variable `FLIGHTDECK_NO_BROWSER=1` under **Edit → Environment Variables**
+
+---
+
 ## Start at Login (macOS)
 
 ```bash
@@ -138,14 +233,16 @@ Or use the ⚡ button on each card in the web UI. Apps flagged `autostart: true`
 
 ## Tailscale Access
 
-Both servers bind to `0.0.0.0`, so they are reachable over Tailscale without any extra configuration:
+Caddy proxies port 80 → FlightDeck, so the Web UI is accessible with no port number:
 
 | | URL |
 |---|---|
-| Web UI | `http://<tailscale-ip>:3325` |
+| Web UI | `http://<tailscale-ip>` |
 | Backend API | `http://<tailscale-ip>:5050` |
 
 Get your Mac Mini's Tailscale IP: `tailscale ip -4`
+
+> Caddy must be running (`docker compose up -d` in `local-proxy/`) for port 80 access. Direct access is also available at `http://<tailscale-ip>:3325`.
 
 ---
 
@@ -262,7 +359,7 @@ FlightDeck/
 │   └── images/
 ├── scripts/
 │   └── fd               # CLI (symlinked to /usr/local/bin/fd)
-├── start.sh             # Manual startup script
+├── flightdeck-start.sh             # Manual startup script
 └── docker-compose.yml
 ```
 
@@ -286,4 +383,4 @@ pip install flask flask-cors flask-socketio eventlet requests
 | Variable | Default | Description |
 |---|---|---|
 | `FLIGHTDECK_API` | `http://localhost:5050` | API base URL used by the `fd` CLI |
-| `FLIGHTDECK_NO_BROWSER` | `0` | Set to `1` to suppress browser open on `./start.sh` |
+| `FLIGHTDECK_NO_BROWSER` | `0` | Set to `1` to suppress browser open on `./flightdeck-start.sh` |

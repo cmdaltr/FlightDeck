@@ -6,6 +6,10 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 echo "🛩️  Starting Flight Deck..."
 
+# Start Caddy reverse proxy (enables port 80 access by IP, e.g. Tailscale)
+echo "   Starting Caddy reverse proxy on port 80..."
+docker compose -f "$SCRIPT_DIR/local-proxy/docker-compose.yml" up -d
+
 # Start the backend API server
 echo "   Starting backend API on port 5050..."
 cd "$SCRIPT_DIR/backend"
@@ -30,8 +34,8 @@ fi
 
 echo ""
 echo "✅ Flight Deck is running!"
-echo "   Homepage: http://localhost:3325"
-echo "   Backend API: http://localhost:5000"
+echo "   Homepage: http://localhost (port 80 via Caddy) or http://localhost:3325 direct"
+echo "   Backend API: http://localhost:5050"
 echo ""
 echo "   Press Ctrl+C to stop all services"
 
