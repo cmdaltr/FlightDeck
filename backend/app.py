@@ -764,36 +764,58 @@ def validate_app_dir(path: str) -> tuple[bool, str]:
 @app.route("/api/browse", methods=["GET"])
 def browse_directory():
     path = request.args.get("path", "").strip()
+    # mode=app   — dirs only, validates each as an app directory (default)
+    # mode=file  — dirs + files, shows hidden entries (for script/venv selection)
+    mode = request.args.get("mode", "app")
+    show_files = mode == "file"
+
     if not path:
         path = GITHUB_BASE
     path = os.path.abspath(os.path.expanduser(path))
     if not os.path.isdir(path):
-        return jsonify({"error": f"Not a directory: {path}"}), 400
+        # For file mode, if path is a file navigate to its parent
+        if show_files and os.path.isfile(path):
+            path = os.path.dirname(path)
+        else:
+            return jsonify({"error": f"Not a directory: {path}"}), 400
 
     parent = os.path.dirname(path)
     if parent == path:
         parent = None  # filesystem root
 
     try:
-        entries = []
+        dirs, files = [], []
         for name in sorted(os.listdir(path)):
-            if name.startswith("."):
+            if not show_files and name.startswith("."):
                 continue
             full = os.path.join(path, name)
-            if not os.path.isdir(full):
-                continue
-            valid, reason = validate_app_dir(full)
-            entries.append({"name": name, "path": full, "valid": valid, "reason": reason})
+            if os.path.isdir(full):
+                if show_files:
+                    dirs.append({"name": name, "path": full, "is_dir": True})
+                else:
+                    valid, reason = validate_app_dir(full)
+                    dirs.append({"name": name, "path": full, "valid": valid, "reason": reason})
+            elif show_files and os.path.isfile(full):
+                files.append({"name": name, "path": full, "is_dir": False})
     except PermissionError:
         return jsonify({"error": "Permission denied"}), 403
+
+    if show_files:
+        return jsonify({
+            "path": path,
+            "parent": parent,
+            "mode": "file",
+            "entries": dirs + files,
+        })
 
     current_valid, current_reason = validate_app_dir(path)
     return jsonify({
         "path": path,
         "parent": parent,
+        "mode": "app",
         "valid": current_valid,
         "reason": current_reason,
-        "dirs": entries,
+        "dirs": dirs,
     })
 
 

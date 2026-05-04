@@ -2080,7 +2080,9 @@
         .folder-item:last-child { border-bottom: none; }
 
         .folder-item-icon { color: #666; font-size: 0.85rem; flex-shrink: 0; }
+        .folder-item-icon.file-icon { color: #555; }
         .folder-item-name { flex: 1; color: #bbb; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .folder-item-name.file-name { color: #888; }
         .folder-item-badge-ok  { font-size: 0.65rem; color: #00ff88; flex-shrink: 0; }
         .folder-item-badge-bad { font-size: 0.65rem; color: #444;    flex-shrink: 0; }
 
@@ -2522,9 +2524,14 @@
                 </div>
             </div>
 
-            <div id="scriptField" class="field" style="margin-bottom:16px">
+            <div id="scriptField" style="margin-bottom:16px">
                 <label id="scriptLabel">Script / Working Directory</label>
-                <input type="text" id="addAppScript" placeholder="/path/to/script.py or /path/to/dir" />
+                <div class="dir-row">
+                    <div class="field" style="flex:1">
+                        <input type="text" id="addAppScript" placeholder="/path/to/script.py or /path/to/dir" />
+                    </div>
+                    <button class="btn btn-browse" id="btnBrowseScript" onclick="openBrowser('script')">Browse</button>
+                </div>
             </div>
 
             <div id="uvicornField" class="field" style="margin-bottom:16px; display:none">
@@ -2535,7 +2542,12 @@
             <div class="field-group">
                 <div class="field">
                     <label>Venv Path (optional)</label>
-                    <input type="text" id="addAppVenv" placeholder="/path/to/.venv" />
+                    <div class="dir-row" style="gap:6px">
+                        <div class="field" style="flex:1;margin:0">
+                            <input type="text" id="addAppVenv" placeholder="/path/to/.venv" />
+                        </div>
+                        <button class="btn btn-browse" id="btnBrowseVenv" onclick="openBrowser('venv')" style="align-self:flex-end">Browse</button>
+                    </div>
                 </div>
                 <div class="field">
                     <label>Health Endpoint (optional)</label>
@@ -3219,25 +3231,57 @@
         // ── Folder Browser ───────────────────────────────────────────────────────
         let _browserParent = null;
 
-        function toggleFolderBrowser() {
+        // _browserTarget: 'path' | 'script' | 'venv'
+        let _browserTarget = 'path';
+
+        const _browserBtnMap = {
+            path:   'btnBrowse',
+            script: 'btnBrowseScript',
+            venv:   'btnBrowseVenv',
+        };
+        const _browserSelectLabels = {
+            path:   'Use This Folder',
+            script: 'Use This',
+            venv:   'Use This Folder',
+        };
+
+        function openBrowser(target) {
             const browser = document.getElementById('folderBrowser');
-            const btn = document.getElementById('btnBrowse');
-            if (browser.classList.contains('open')) {
+            const isOpen = browser.classList.contains('open');
+            const sameTarget = _browserTarget === target && isOpen;
+
+            // Close any active button highlight
+            Object.values(_browserBtnMap).forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.remove('active');
+            });
+
+            if (sameTarget) {
                 browser.classList.remove('open');
-                btn.classList.remove('active');
-            } else {
-                browser.classList.add('open');
-                btn.classList.add('active');
-                const currentPath = document.getElementById('addAppPath').value.trim();
-                browseDir(currentPath || '');
+                return;
             }
+
+            _browserTarget = target;
+            browser.classList.add('open');
+            const btn = document.getElementById(_browserBtnMap[target]);
+            if (btn) btn.classList.add('active');
+
+            document.getElementById('browserSelectBtn').textContent = _browserSelectLabels[target];
+
+            const fieldId = target === 'path' ? 'addAppPath' : target === 'script' ? 'addAppScript' : 'addAppVenv';
+            const currentPath = document.getElementById(fieldId).value.trim();
+            browseDir(currentPath || '');
         }
+
+        function toggleFolderBrowser() { openBrowser('path'); }
 
         async function browseDir(path) {
             document.getElementById('browserList').innerHTML =
                 '<div style="color:#555;padding:12px;font-size:0.78rem">Loading…</div>';
+            const mode = (_browserTarget === 'script' || _browserTarget === 'venv') ? 'file' : 'app';
             try {
-                const url = `${API_URL}/api/browse` + (path ? `?path=${encodeURIComponent(path)}` : '');
+                let url = `${API_URL}/api/browse?mode=${mode}`;
+                if (path) url += `&path=${encodeURIComponent(path)}`;
                 const data = await fetch(url).then(r => r.json());
                 if (data.error) {
                     document.getElementById('browserList').innerHTML =
@@ -3249,22 +3293,38 @@
                 document.getElementById('browserUpBtn').disabled = !data.parent;
 
                 const selectBtn = document.getElementById('browserSelectBtn');
-                selectBtn.disabled = !data.valid;
-                selectBtn.title = data.valid ? 'Select this folder as the app directory' : data.reason;
-
-                if (data.dirs.length === 0) {
-                    document.getElementById('browserList').innerHTML =
-                        '<div style="color:#555;padding:12px;font-size:0.78rem">No subdirectories</div>';
+                if (mode === 'app') {
+                    selectBtn.disabled = !data.valid;
+                    selectBtn.title = data.valid ? 'Select this folder' : data.reason;
                 } else {
-                    document.getElementById('browserList').innerHTML = data.dirs.map(d => `
-                        <div class="folder-item" data-path="${d.path.replace(/"/g, '&quot;')}">
-                            <span class="folder-item-icon">▶</span>
-                            <span class="folder-item-name">${d.name}</span>
-                            ${d.valid
+                    selectBtn.disabled = false;
+                    selectBtn.title = 'Use current directory';
+                }
+
+                const entries = mode === 'file' ? (data.entries || []) : (data.dirs || []);
+                if (entries.length === 0) {
+                    document.getElementById('browserList').innerHTML =
+                        '<div style="color:#555;padding:12px;font-size:0.78rem">Empty directory</div>';
+                } else {
+                    document.getElementById('browserList').innerHTML = entries.map(d => {
+                        const isDir = d.is_dir !== false && !('valid' in d ? false : false) && (d.is_dir !== false);
+                        const actuallyDir = d.is_dir !== undefined ? d.is_dir : true;
+                        const icon = actuallyDir ? '▶' : '·';
+                        const nameClass = actuallyDir ? 'folder-item-name' : 'folder-item-name file-name';
+                        const iconClass = actuallyDir ? 'folder-item-icon' : 'folder-item-icon file-icon';
+                        let badge = '';
+                        if (mode === 'app') {
+                            badge = d.valid
                                 ? `<span class="folder-item-badge-ok" title="Valid app directory">✓</span>`
-                                : `<span class="folder-item-badge-bad" title="${d.reason}">—</span>`}
-                        </div>
-                    `).join('');
+                                : `<span class="folder-item-badge-bad" title="${d.reason || ''}">—</span>`;
+                        }
+                        const action = actuallyDir ? `data-path="${d.path.replace(/"/g, '&quot;')}"` : `data-file="${d.path.replace(/"/g, '&quot;')}"`;
+                        return `<div class="folder-item" ${action}>
+                            <span class="${iconClass}">${icon}</span>
+                            <span class="${nameClass}">${d.name}</span>
+                            ${badge}
+                        </div>`;
+                    }).join('');
                 }
             } catch (e) {
                 document.getElementById('browserList').innerHTML =
@@ -3274,19 +3334,36 @@
 
         document.getElementById('browserList').addEventListener('click', e => {
             const item = e.target.closest('.folder-item');
-            if (item) browseDir(item.dataset.path);
+            if (!item) return;
+            if (item.dataset.file) {
+                // File clicked — select it directly into the target field
+                selectBrowserItem(item.dataset.file);
+            } else if (item.dataset.path) {
+                browseDir(item.dataset.path);
+            }
         });
 
         function browserGoUp() {
             if (_browserParent) browseDir(_browserParent);
         }
 
+        function selectBrowserItem(path) {
+            const fieldId = _browserTarget === 'path' ? 'addAppPath' : _browserTarget === 'script' ? 'addAppScript' : 'addAppVenv';
+            document.getElementById(fieldId).value = path || document.getElementById('browserPathText').textContent;
+            closeBrowser();
+            if (_browserTarget === 'path') scanDirectory();
+        }
+
         function selectBrowserFolder() {
-            const path = document.getElementById('browserPathText').textContent;
-            document.getElementById('addAppPath').value = path;
+            selectBrowserItem(document.getElementById('browserPathText').textContent);
+        }
+
+        function closeBrowser() {
             document.getElementById('folderBrowser').classList.remove('open');
-            document.getElementById('btnBrowse').classList.remove('active');
-            scanDirectory();
+            Object.values(_browserBtnMap).forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.remove('active');
+            });
         }
 
         function openModal() {
@@ -3297,8 +3374,7 @@
         function closeModal() {
             document.getElementById('addAppModal').classList.remove('open');
             document.getElementById('modalStatus').className = 'modal-status';
-            document.getElementById('folderBrowser').classList.remove('open');
-            document.getElementById('btnBrowse').classList.remove('active');
+            closeBrowser();
         }
 
         document.getElementById('addAppModal').addEventListener('click', e => {
