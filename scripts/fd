@@ -423,6 +423,8 @@ cmd_setup() {
         msg=$(echo "$result" | jq -r '.message // .error')
         if echo "$result" | jq -e '.error' >/dev/null 2>&1; then
             echo -e "  ${RED}✗${RESET}  ${msg}"
+        elif echo "$result" | jq -e '.warning' >/dev/null 2>&1; then
+            echo -e "  ${YELLOW}⚠${RESET}  ${msg}"
         else
             echo -e "  ${GREEN}✓${RESET}  ${msg}"
         fi

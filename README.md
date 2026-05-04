@@ -68,6 +68,13 @@ fd setup  --all                # set up all apps
 - **OneDrive venv corruption** — OneDrive mangles Python venv symlinks into plain text files. `fd setup` creates a machine-local venv at `~/.local/share/flightdeck-venvs/<id>/` outside OneDrive and installs requirements there. Skipped automatically if the app's own venv is healthy.
 - **Docker image builds** — for `launch_type: docker` apps, runs `docker compose build` with live output. Run this before starting a Docker app for the first time.
 
+`fd setup` is a one-time operation per machine — venvs and Docker images persist across FlightDeck restarts.
+
+When no `requirements.txt` is found, `fd setup` scans the script's imports:
+- **stdlib-only** → `✓` clean success, no requirements needed
+- **third-party imports detected** → `⚠` warning listing the missing packages so you know to add a `requirements.txt`
+- **non-Python script** → `✓` venv created, no scan attempted
+
 `fd add` shows the current app registry, runs the directory analyzer, displays the suggested config, then prompts for confirmation. If the port is already in use by an external process, it warns and offers to force-add.
 
 ### Configuration
@@ -109,8 +116,12 @@ Open **http://localhost:3325** in your browser.
 ### Add App modal
 Click the **＋ Add App** card to register a new app.
 
-- **Browse** button — inline file-system navigator. Directories are marked ✓ (valid) or — (invalid) based on whether they contain a `README.md` plus at least one `.py`, `.sh`, or `index.html` file.
-- **Scan** — auto-detects launch type, port, entry point, venv, and health endpoint.
+All path fields use a server-side file browser — no local file picker — so browsing works correctly when accessing FlightDeck from a remote device (iPad, phone, another machine).
+
+- **Project Directory → Browse** — navigates the server's filesystem, showing directories only. Directories are marked ✓ (valid app) or — (invalid).
+- **Scan** — auto-detects launch type, port, entry point, venv, and health endpoint. Fills in Script and Venv fields automatically.
+- **Script → Browse** — file-mode browser showing both files and hidden directories. Click a file to select it directly.
+- **Venv → Browse** — same file-mode browser; shows hidden directories so `.venv` is visible.
 - Review the suggested config, edit if needed, then click **Add to FlightDeck**.
 
 If the port is in use by an external process, an **Add Anyway** button appears.
@@ -332,7 +343,7 @@ curl -s -X POST http://localhost:5050/api/apps/analyze \
 ### App management
 | Method | Path | Description |
 |---|---|---|
-| `GET` | `/api/browse?path=<dir>` | List subdirectories with validity indicators |
+| `GET` | `/api/browse?path=<dir>` | List subdirectories with validity indicators (`mode=file` to include files and hidden entries) |
 | `POST` | `/api/apps/analyze` | Analyze a directory, return suggested config |
 | `POST` | `/api/apps/add` | Add a new app (pass `"force": true` to override live port check) |
 | `POST` | `/api/apps/<id>/autostart` | Toggle autostart flag |

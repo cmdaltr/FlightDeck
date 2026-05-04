@@ -1,3 +1,4 @@
+import ast
 import atexit
 import json
 import os
@@ -174,6 +175,51 @@ def _find_requirements(app_cfg: dict) -> Optional[str]:
             break
         current = parent
     return None
+
+
+def _scan_third_party_imports(script_path: str) -> set:
+    """Parse a Python script and return the set of top-level imports that are not stdlib."""
+    try:
+        with open(script_path, "r", encoding="utf-8", errors="ignore") as f:
+            source = f.read()
+        tree = ast.parse(source, filename=script_path)
+    except Exception:
+        return set()
+
+    # sys.stdlib_module_names available in Python 3.10+; fall back to a broad set for 3.9
+    stdlib = getattr(sys, "stdlib_module_names", None)
+    if stdlib is None:
+        stdlib = {
+            "abc", "ast", "asyncio", "atexit", "base64", "binascii", "builtins",
+            "cgi", "cmath", "codecs", "collections", "concurrent", "configparser",
+            "contextlib", "copy", "csv", "ctypes", "dataclasses", "datetime",
+            "decimal", "difflib", "email", "enum", "errno", "fnmatch", "fractions",
+            "functools", "gc", "getopt", "getpass", "glob", "gzip", "hashlib",
+            "heapq", "hmac", "html", "http", "importlib", "inspect", "io",
+            "ipaddress", "itertools", "json", "keyword", "linecache", "locale",
+            "logging", "math", "mimetypes", "multiprocessing", "operator", "os",
+            "pathlib", "pickle", "platform", "pprint", "queue", "random", "re",
+            "shlex", "shutil", "signal", "socket", "socketserver", "sqlite3",
+            "ssl", "stat", "string", "struct", "subprocess", "sys", "tarfile",
+            "tempfile", "textwrap", "threading", "time", "traceback", "types",
+            "typing", "unicodedata", "unittest", "urllib", "uuid", "warnings",
+            "weakref", "xml", "xmlrpc", "zipfile", "zipimport", "zlib",
+            "_thread", "__future__",
+        }
+
+    third_party = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                top = alias.name.split(".")[0]
+                if top not in stdlib:
+                    third_party.add(top)
+        elif isinstance(node, ast.ImportFrom):
+            if node.level == 0 and node.module:
+                top = node.module.split(".")[0]
+                if top not in stdlib:
+                    third_party.add(top)
+    return third_party
 
 
 def _start_docker_deps(app_cfg: dict) -> Optional[str]:
@@ -641,8 +687,28 @@ def setup_app_venv(app_id):
 
     req = _find_requirements(app_cfg)
     if not req:
+        script = app_cfg.get("script")
+        script_file = script if (script and os.path.isfile(script)) else None
+        if script_file and script_file.endswith(".py"):
+            third_party = _scan_third_party_imports(script_file)
+        else:
+            third_party = set()
+        if third_party:
+            return jsonify({
+                "message": (
+                    f"venv created at {venv_dir} — no requirements.txt found, "
+                    f"but third-party imports detected: {', '.join(sorted(third_party))}. "
+                    "Add a requirements.txt and re-run setup."
+                ),
+                "venv": venv_dir,
+                "warning": True,
+            })
+        if script_file and script_file.endswith(".py"):
+            suffix = "stdlib-only — no requirements needed"
+        else:
+            suffix = "no requirements.txt found"
         return jsonify({
-            "message": f"venv created at {venv_dir} (no requirements.txt found — start manually)",
+            "message": f"venv ready at {venv_dir} ({suffix})",
             "venv": venv_dir,
         })
 
