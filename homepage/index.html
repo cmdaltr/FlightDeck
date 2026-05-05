@@ -829,57 +829,41 @@
             filter: drop-shadow(0 0 8px rgba(0, 255, 136, 0.2));
         }
 
-        /* Action button row between gauge and info */
-        .card-actions {
-            display: flex;
-            align-items: center;
-            padding: 0 10px;
-            height: 34px;
-            flex-shrink: 0;
-            border-top: 1px solid rgba(0, 255, 136, 0.07);
-            gap: 5px;
-        }
-
-        .card-actions-spacer { flex: 1; }
-
-        .card-action-btn {
-            width: 26px;
-            height: 26px;
-            border-radius: 6px;
-            background: transparent;
-            border: 1px solid #252535;
+        /* Side buttons stacked below the start/stop (or docker badge) */
+        .card-side-btn {
+            position: absolute;
+            left: 12px;
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: linear-gradient(145deg, #2a2a3a 0%, #1a1a25 100%);
+            border: 2px solid #333344;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             transition: all 0.2s ease;
-            font-size: 0.78rem;
-            color: #3a3a4a;
-            flex-shrink: 0;
+            font-size: 1.2rem;
+            color: #666;
+            z-index: 10;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
         }
 
-        .card-action-btn:hover { border-color: #555; color: #888; }
+        .card-side-btn.repo-btn { top: 68px; }
+        .card-side-btn.info-btn { top: 124px; }
 
-        .card-action-btn.repo-btn:hover  { border-color: #00aaff; color: #00aaff; }
-        .card-action-btn.repo-btn.dirty  { border-color: rgba(255,170,0,0.4); color: #ffaa00; }
-        .card-action-btn.repo-btn.ahead  { border-color: rgba(0,170,255,0.4); color: #00aaff; }
-
-        .card-action-btn.autostart-btn:hover { border-color: #ffaa00; color: #ffaa00; }
-        .card-action-btn.autostart-btn.active {
-            border-color: #ffaa00;
-            color: #ffaa00;
-            background: rgba(255,170,0,0.1);
-            box-shadow: 0 0 8px rgba(255,170,0,0.2);
-        }
-
-        .card-action-btn.info-btn:hover { border-color: rgba(0,255,136,0.5); color: #00ff88; }
+        .card-side-btn:hover           { border-color: #555; color: #aaa; }
+        .card-side-btn.repo-btn:hover  { border-color: #00aaff; color: #00aaff; }
+        .card-side-btn.repo-btn.dirty  { border-color: rgba(255,170,0,0.6); color: #ffaa00; }
+        .card-side-btn.repo-btn.ahead  { border-color: rgba(0,170,255,0.6); color: #00aaff; }
+        .card-side-btn.info-btn:hover  { border-color: rgba(0,255,136,0.5); color: #00ff88; }
 
         /* Info panel at bottom of card */
         .card-info {
             background: rgba(0, 0, 0, 0.4);
             padding: 14px 22px;
             border-top: 1px solid rgba(0, 255, 136, 0.15);
-            height: 88px;
+            height: 100px;
             flex-shrink: 0;
             display: flex;
             flex-direction: column;
@@ -1339,8 +1323,8 @@
             .card-port { font-size: 0.75rem; padding: 2px 8px; }
             .card-gauge { padding-top: 60px; }
             .card-icon { transform: scale(0.6); transform-origin: center; }
-            .card-actions { height: 30px; }
-            .card-action-btn { width: 24px; height: 24px; font-size: 0.72rem; }
+            .card-side-btn.repo-btn { top: 60px; }
+            .card-side-btn.info-btn { top: 116px; }
             .card-start-btn { width: 44px; height: 44px; top: 8px; left: 8px; }
             .card-start-btn svg { width: 20px; height: 20px; }
             .card:hover { transform: none; }
@@ -1367,8 +1351,8 @@
         }
 
         .docker-badge svg {
-            width: 26px;
-            height: 26px;
+            width: 30px;
+            height: auto;
         }
 
         /* Tooltip */
@@ -2654,11 +2638,11 @@
             cybercache:           { src: cybercacheIcon,          type: "html"                          },
             rivendell:            { src: "images/rivendell.png",  type: "image", size: 88               },
             ancestree:            { src: "images/ancestree.png",  type: "image", size: 88               },
-            audiobookconstructor: { src: "🎙️",                   type: "emoji", size: 160              },
-            rehseepee:            { src: "🥙",                   type: "emoji", size: 160              },
-            ciphr:                { src: "🔐",                   type: "emoji", size: 160              },
+            audiobookconstructor: { src: "🎙️",                   type: "emoji", size: 170, shiftUp: 5  },
+            rehseepee:            { src: "🥙",                   type: "emoji", size: 180              },
+            ciphr:                { src: "🔐",                   type: "emoji", size: 170, shiftUp: 10 },
             promptvault:          { src: "📚",                   type: "emoji", size: 160              },
-            "property-tracker":   { src: "🏠",                   type: "emoji", size: 160              },
+            "property-tracker":   { src: "🏠",                   type: "emoji", size: 170, shiftUp: 5  },
         };
 
         // ── State ────────────────────────────────────────────────────────────────
@@ -2692,14 +2676,14 @@
             const override = iconOverrides[appId];
             if (!override) return `<span style="font-size:2.8rem;line-height:1;color:#00ff88;">${appName.charAt(0).toUpperCase()}</span>`;
             const size    = override.size || 80;
-            const shift   = override.shiftUp ? `margin-top:-${override.shiftUp}px;` : '';
+            const shift   = override.shiftUp ? `transform:translateY(-${override.shiftUp}px);` : '';
             if (override.type === 'image') {
                 return `<img src="${override.src}" alt="${appName}" style="width:${size}px;height:${size}px;object-fit:contain;border-radius:8px;${shift}">`;
             }
             if (override.type === 'html') return override.src;
             // emoji font-size scales proportionally from base (80px → 3.6rem)
             const fs = (size * 0.045).toFixed(2);
-            return `<span style="font-size:${fs}rem;line-height:1;${shift}">${override.src}</span>`;
+            return `<span style="font-size:${fs}rem;line-height:1;display:inline-block;${shift}">${override.src}</span>`;
         }
 
         function renderGrid() {
@@ -2733,7 +2717,7 @@
                 const dockerBadgeHtml = `
                     <div class="docker-badge has-tooltip">
                         ${dockerIcon}
-                        <div class="tooltip">Docker-managed — FlightDeck monitors port only<br>
+                        <div class="tooltip" style="left:calc(100% + 8px);bottom:auto;top:0;transform:none;white-space:nowrap;">Docker-managed — FlightDeck monitors port only<br>
                             Start: <strong>docker compose up -d</strong><br>
                             Stop: &nbsp;<strong>docker compose down</strong><br>
                             Dir: &nbsp;&nbsp;~/Projects/GitHub/${app.id}/
@@ -2748,20 +2732,29 @@
                 const desc = getDescription(app.id, app.name);
 
 
+                const dockerClass = isDocker ? ' docker' : '';
+
                 const repoBtnHtml = `
-                    <div class="card-action-btn repo-btn has-tooltip" data-app-id="${app.id}">
-                        ⎇
-                        <div class="tooltip" style="left:0;transform:none;">Repo — status, pull, push, hygiene</div>
+                    <div class="card-side-btn repo-btn${dockerClass} has-tooltip" data-app-id="${app.id}">
+                        <svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor">
+                            <path d="M5 3.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0zm0 2.122a2.25 2.25 0 1 0-1.5 0v.878A2.25 2.25 0 0 0 5.75 8.5h1.5v2.128a2.251 2.251 0 1 0 1.5 0V8.5h1.5a2.25 2.25 0 0 0 2.25-2.25V5.372a2.25 2.25 0 1 0-1.5 0v.878a.75.75 0 0 1-.75.75h-4.5A.75.75 0 0 1 5 6.25v-.878zm3.75 7.378a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0zm3-8.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0z"/>
+                        </svg>
+                        <div class="tooltip" style="left:calc(100% + 8px);bottom:auto;top:0;transform:none;">Repo — status, pull, push, hygiene</div>
                     </div>`;
 
                 const infoBtnHtml = `
-                    <div class="card-action-btn info-btn" data-app-id="${app.id}">
-                        ⓘ
+                    <div class="card-side-btn info-btn${dockerClass} has-tooltip" data-app-id="${app.id}">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                        </svg>
+                        <div class="tooltip" style="left:calc(100% + 8px);bottom:auto;top:0;transform:none;">App info</div>
                     </div>`;
 
                 card.innerHTML = `
                     <div class="corner-bracket top-right"></div>
                     ${isDocker ? dockerBadgeHtml : startBtnHtml}
+                    ${repoBtnHtml}
+                    ${infoBtnHtml}
                     <div class="card-status">
                         <div class="card-status-dot ${statusClass}"></div>
                         <span class="card-status-text ${statusClass}">${statusText}</span>
@@ -2770,11 +2763,6 @@
                         <div class="gauge-ring">
                             <div class="card-icon">${iconContent}</div>
                         </div>
-                    </div>
-                    <div class="card-actions">
-                        ${repoBtnHtml}
-                        <div class="card-actions-spacer"></div>
-                        ${infoBtnHtml}
                     </div>
                     <div class="card-info card-link">
                         <div class="card-name">${app.name}</div>
