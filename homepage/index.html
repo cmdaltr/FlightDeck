@@ -1294,7 +1294,7 @@
         }
 
         @media (max-width: 900px) {
-            .fleet-btn { padding: 7px 11px; font-size: 0.68rem; letter-spacing: 0.8px; }
+            .fleet-btn { padding: 9px 16px; font-size: 0.95rem; letter-spacing: 0.8px; }
         }
 
         @media (max-width: 768px) {
@@ -1306,7 +1306,7 @@
             .uptime-readout { margin-left: 0; }
             .clock { position: static; transform: none; }
             .bottom-controls { flex-wrap: wrap; }
-            .fleet-btn { padding: 7px 8px; font-size: 0.64rem; letter-spacing: 0.5px; }
+            .fleet-btn { padding: 9px 12px; font-size: 0.85rem; letter-spacing: 0.5px; }
         }
 
         @media (max-width: 480px) {
@@ -1326,7 +1326,7 @@
             .fleet-toolbar { flex-direction: column; gap: 8px; padding: 8px 10px; margin-bottom: 14px; }
             .fleet-count { text-align: center; }
             .fleet-btns { flex-wrap: wrap; gap: 5px; }
-            .fleet-btn { flex: 1 1 30%; padding: 10px 4px; font-size: 0.58rem; letter-spacing: 0.5px; }
+            .fleet-btn { flex: 1 1 30%; padding: 10px 4px; font-size: 0.75rem; letter-spacing: 0.5px; }
 
             /* Single column grid */
             .grid { grid-template-columns: 1fr; gap: 10px; }
@@ -1668,7 +1668,7 @@
             font-size: 0.72rem;
             letter-spacing: 2px;
             text-transform: uppercase;
-            color: #555;
+            color: #ccc;
         }
 
         .fleet-count span {
@@ -1682,11 +1682,11 @@
         }
 
         .fleet-btn {
-            padding: 7px 18px;
+            padding: 11px 29px;
             border-radius: 6px;
             border: 1px solid;
             font-family: 'Courier New', monospace;
-            font-size: 0.72rem;
+            font-size: 1.15rem;
             letter-spacing: 1.5px;
             text-transform: uppercase;
             cursor: pointer;
@@ -2676,15 +2676,15 @@
         // Per-app icon overrides — keyed by app id
         // size: px dimension (square); shiftUp: px to move icon toward start/stop btn
         const iconOverrides = {
-            archer:               { src: "images/archer_new.png", type: "image", size: 179, shiftUp: 26 },
+            archer:               { src: "images/archer_new.png", type: "image", size: 180, shiftUp: 26 },
             cybercache:           { src: cybercacheIcon,          type: "html"                          },
             rivendell:            { src: "images/rivendell.png",  type: "image", size: 256, shiftUp: 20 },
-            ancestree:            { src: "images/ancestree.png",  type: "image", size: 172, shiftUp: 26 },
-            audiobookconstructor: { src: "🎙️",                   type: "emoji", size: 153, shiftUp: 26 },
+            ancestree:            { src: "images/ancestree.png",  type: "image", size: 180, shiftUp: 36 },
+            audiobookconstructor: { src: "🎙️",                   type: "emoji", size: 140, shiftUp: 16 },
             rehseepee:            { src: "🥙",                   type: "emoji", size: 180, shiftUp: 26 },
-            ciphr:                { src: "🔐",                   type: "emoji", size: 138, shiftUp: 26 },
-            promptvault:          { src: "📚",                   type: "emoji", size: 144, shiftUp: 26 },
-            "property-tracker":   { src: "🏠",                   type: "emoji", size: 153, shiftUp: 26 },
+            ciphr:                { src: "🔐",                   type: "emoji", size: 140, shiftUp: 16 },
+            promptvault:          { src: "📚",                   type: "emoji", size: 140, shiftUp: 16 },
+            "property-tracker":   { src: "🏠",                   type: "emoji", size: 140, shiftUp: 16 },
         };
 
         // ── State ────────────────────────────────────────────────────────────────
