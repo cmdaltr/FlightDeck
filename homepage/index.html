@@ -1006,6 +1006,22 @@
             transition: fill 0.2s ease;
         }
 
+        .card-start-btn.offline {
+            border-color: #444;
+        }
+
+        .card-start-btn.offline svg {
+            fill: #555;
+        }
+
+        .card-start-btn.offline:hover {
+            border-color: #666;
+        }
+
+        .card-start-btn.offline:hover svg {
+            fill: #888;
+        }
+
         .card-start-btn.running svg {
             fill: #ff4444;
         }
@@ -2718,7 +2734,7 @@
                 const stopIcon = `<svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12"/></svg>`;
 
                 const startBtnHtml = `
-                    <div class="card-start-btn ${isRunning ? 'running' : ''}" data-app-id="${app.id}">
+                    <div class="card-start-btn ${isRunning ? 'running' : 'offline'}" data-app-id="${app.id}">
                         ${isRunning ? stopIcon : playIcon}
                     </div>`;
 
