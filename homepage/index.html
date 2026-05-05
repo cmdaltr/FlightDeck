@@ -498,10 +498,25 @@
         .header-top {
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 16px;
+            justify-content: space-between;
             margin-bottom: 8px;
         }
+
+        .header-top-center {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-top-left,
+        .header-top-right {
+            flex: 1;
+            display: flex;
+            align-items: center;
+        }
+
+        .header-top-left  { justify-content: flex-start; }
+        .header-top-right { justify-content: flex-end; }
 
         .logo {
             font-size: 2.5rem;
@@ -708,7 +723,6 @@
         }
 
         .uptime-readout {
-            margin-left: 190px;
         }
 
         .footer-readout span {
@@ -721,13 +735,9 @@
             color: #00aaff;
             font-weight: 600;
             letter-spacing: 2px;
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
         }
 
         .header-readouts {
-            position: relative;
         }
 
         .grid {
@@ -2290,8 +2300,16 @@
         <div class="main-content">
             <header>
                 <div class="header-top">
-                    <div class="logo">🛩️</div>
-                    <h1>Flight Deck</h1>
+                    <div class="header-top-left">
+                        <div class="footer-readout uptime-readout">UPTIME<span id="uptime">0h 0m</span></div>
+                    </div>
+                    <div class="header-top-center">
+                        <div class="logo">🛩️</div>
+                        <h1>Flight Deck</h1>
+                    </div>
+                    <div class="header-top-right">
+                        <div class="clock" id="clock">00:00:00</div>
+                    </div>
                 </div>
                 <p>Local Development Command Center</p>
                 <div class="status-bar">
@@ -2321,10 +2339,6 @@
                     </div>
                     <div class="footer-readout station-readout">
                         STATION<span id="hostname">loading...</span>
-                    </div>
-                    <div class="clock" id="clock">00:00:00</div>
-                    <div class="footer-readout uptime-readout">
-                        UPTIME<span id="uptime">0h 0m</span>
                     </div>
                     <div class="header-controls-right">
                         <div class="mini-knob">
