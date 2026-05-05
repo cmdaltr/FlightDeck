@@ -734,7 +734,7 @@
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 48px 48px;
-            row-gap: 24px;
+            row-gap: 48px;
         }
 
         .card {
@@ -749,11 +749,11 @@
             color: inherit;
             display: flex;
             flex-direction: column;
-            height: 320px;
+            height: 340px;
             box-shadow:
                 0 4px 20px rgba(0, 0, 0, 0.5),
                 inset 0 1px 0 rgba(255, 255, 255, 0.05);
-            overflow: visible;
+            overflow: hidden;
             position: relative;
         }
 
@@ -2689,9 +2689,9 @@
         // Per-app icon overrides — keyed by app id
         // size: px dimension (square); shiftUp: px to move icon toward start/stop btn
         const iconOverrides = {
-            archer:               { src: "images/archer_new.png", type: "image", size: 220, shiftUp: 66 },
+            archer:               { src: "images/archer_new.png", type: "image", size: 220, shiftUp: 36 },
             cybercache:           { src: cybercacheIcon,          type: "html"                          },
-            rivendell:            { src: "images/rivendell.png",  type: "image", size: 256, shiftUp: 80 },
+            rivendell:            { src: "images/rivendell.png",  type: "image", size: 256, shiftUp: 20 },
             ancestree:            { src: "images/ancestree.png",  type: "image", size: 180, shiftUp: 36 },
             audiobookconstructor: { src: "🎙️",                   type: "emoji", size: 140, shiftUp: 16 },
             rehseepee:            { src: "🥙",                   type: "emoji", size: 180, shiftUp: 26 },
