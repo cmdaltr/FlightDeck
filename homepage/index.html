@@ -1665,13 +1665,25 @@
         }
 
         .fleet-count {
-            font-size: 1.1rem;
-            letter-spacing: 2px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
             text-transform: uppercase;
+        }
+
+        .fleet-count-label {
+            font-size: 1.1rem;
+            letter-spacing: 3px;
             color: #ccc;
         }
 
-        .fleet-count span {
+        .fleet-count-stats {
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            color: #ccc;
+        }
+
+        .fleet-count-stats span {
             color: #00ff88;
             margin: 0 2px;
         }
@@ -2328,7 +2340,8 @@
 
             <div class="fleet-toolbar">
                 <div class="fleet-count">
-                    FLEET &nbsp;·&nbsp; <span id="fleetRunning">—</span> running / <span id="fleetTotal">—</span> apps
+                    <div class="fleet-count-label">FLEET</div>
+                    <div class="fleet-count-stats"><span id="fleetRunning">—</span> running / <span id="fleetTotal">—</span> apps</div>
                 </div>
                 <div class="fleet-btns">
                     <button class="fleet-btn fleet-btn-start" id="fleetStartAll" onclick="fleetStartAll()">▶ Start</button>
