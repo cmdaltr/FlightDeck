@@ -1327,6 +1327,7 @@
             .card-side-btn.info-btn { top: 116px; }
             .card-start-btn { width: 44px; height: 44px; top: 8px; left: 8px; }
             .card-start-btn svg { width: 20px; height: 20px; }
+            .docker-badge { width: 44px; height: 44px; top: 8px; left: 8px; }
             .card:hover { transform: none; }
 
             /* Hide decorative cockpit strip */
@@ -1397,7 +1398,9 @@
             opacity: 1;
         }
 
-        /* Repo button (now lives in .card-actions row — see .card-action-btn) */
+        /* Restore absolute positioning — .has-tooltip adds position:relative which
+           would otherwise win by source order and break card button layout */
+        .card-side-btn, .docker-badge { position: absolute; }
 
         /* Repo panel modal */
         .repo-modal {
