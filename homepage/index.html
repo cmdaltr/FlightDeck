@@ -812,7 +812,6 @@
             justify-content: center;
             padding: 72px 20px 14px;
             position: relative;
-            overflow: hidden;
         }
 
         .gauge-ring {
@@ -2682,7 +2681,7 @@
             rivendell:            { src: "images/rivendell.png",  type: "image", size: 256               },
             ancestree:            { src: "images/ancestree.png",  type: "image", size: 172, shiftUp: 26 },
             audiobookconstructor: { src: "🎙️",                   type: "emoji", size: 170, shiftUp: 55 },
-            rehseepee:            { src: "🥙",                   type: "emoji", size: 180, shiftUp: 46 },
+            rehseepee:            { src: "🥙",                   type: "emoji", size: 180, shiftUp: 50 },
             ciphr:                { src: "🔐",                   type: "emoji", size: 153, shiftUp: 60 },
             promptvault:          { src: "📚",                   type: "emoji", size: 160, shiftUp: 50 },
             "property-tracker":   { src: "🏠",                   type: "emoji", size: 170, shiftUp: 55 },
@@ -2725,9 +2724,7 @@
                 return `<img src="${override.src}" alt="${appName}" style="width:${size}px;height:${size}px;object-fit:contain;border-radius:8px;${shift}">`;
             }
             if (override.type === 'html') return override.src;
-            // emoji font-size scales proportionally from base (80px → 3.6rem)
-            const fs = (size * 0.045).toFixed(2);
-            return `<span style="font-size:${fs}rem;line-height:1;display:inline-block;${shift}">${override.src}</span>`;
+            return `<span style="font-size:${size}px;line-height:1;display:inline-block;${shift}">${override.src}</span>`;
         }
 
         function renderGrid() {
