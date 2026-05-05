@@ -810,24 +810,27 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 16px 20px 16px;
+            padding-top: 72px; /* push icon below the 48px start/stop button */
             position: relative;
             overflow: hidden;
-            height: 240px;
         }
 
         .gauge-ring {
             display: flex;
             align-items: center;
             justify-content: center;
+            width: 80px;
+            height: 80px;
         }
 
         .card-icon {
-            font-size: 2.5rem;
-            filter: drop-shadow(0 0 8px rgba(0, 255, 136, 0.3));
+            width: 80px;
+            height: 80px;
             display: flex;
             align-items: center;
             justify-content: center;
+            filter: drop-shadow(0 0 8px rgba(0, 255, 136, 0.2));
         }
 
         /* Action button row between gauge and info */
@@ -1338,9 +1341,10 @@
             .card-info { height: 70px; padding: 10px 16px; }
             .card-name { font-size: 1rem; margin-bottom: 3px; }
             .card-port { font-size: 0.75rem; padding: 2px 8px; }
-            .card-icon { font-size: 1.8rem; }
-            .card-icon img { max-height: 80px !important; width: auto; }
-            .card-icon svg { max-height: 80px !important; width: auto !important; }
+            .card-gauge { padding-top: 60px; }
+            .gauge-ring { width: 56px; height: 56px; }
+            .card-icon { width: 56px; height: 56px; font-size: 1.6rem; }
+            .card-icon img { width: 56px; height: 56px; }
             .card-actions { height: 30px; }
             .card-action-btn { width: 24px; height: 24px; font-size: 0.72rem; }
             .card-start-btn { width: 44px; height: 44px; top: 8px; left: 8px; }
@@ -1785,6 +1789,47 @@
         }
 
         /* Autostart button (now lives in .card-actions row — see .card-action-btn) */
+
+        /* Info modal content */
+        .info-desc {
+            font-size: 0.9rem;
+            color: #aaa;
+            line-height: 1.6;
+            margin-bottom: 22px;
+            letter-spacing: 0.3px;
+        }
+
+        .info-table { display: flex; flex-direction: column; gap: 10px; }
+
+        .info-row {
+            display: flex;
+            gap: 16px;
+            align-items: baseline;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            padding-bottom: 10px;
+        }
+
+        .info-row:last-child { border-bottom: none; padding-bottom: 0; }
+
+        .info-label {
+            font-size: 0.65rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #555;
+            flex-shrink: 0;
+            width: 90px;
+        }
+
+        .info-value {
+            font-size: 0.85rem;
+            color: #ccc;
+        }
+
+        .info-value.mono {
+            font-family: 'Courier New', monospace;
+            font-size: 0.78rem;
+            color: #00aaff;
+        }
 
         /* Add App card */
         .card.add-app-card {
@@ -2456,6 +2501,15 @@
         </div>
     </div>
 
+    <!-- Info Modal -->
+    <div class="modal-overlay" id="infoModal">
+        <div class="modal repo-modal">
+            <button class="modal-close" onclick="closeInfoModal()">&#x2715;</button>
+            <h2 id="infoModalTitle">App Info</h2>
+            <div id="infoModalBody"></div>
+        </div>
+    </div>
+
     <!-- Add App Modal -->
     <div class="modal-overlay" id="addAppModal">
         <div class="modal">
@@ -2641,12 +2695,12 @@
 
         function getIconContent(appId, appName) {
             const override = iconOverrides[appId];
-            if (!override) return `<span style="font-size:3rem;line-height:1;">${appName.charAt(0).toUpperCase()}</span>`;
+            if (!override) return `<span style="font-size:2.8rem;line-height:1;color:#00ff88;">${appName.charAt(0).toUpperCase()}</span>`;
             if (override.type === 'image') {
-                return `<img src="${override.src}" alt="${appName}" style="max-height:160px;max-width:100%;width:auto;object-fit:contain;border-radius:8px;display:block;margin:auto;">`;
+                return `<img src="${override.src}" alt="${appName}" style="width:80px;height:80px;object-fit:contain;border-radius:8px;">`;
             }
             if (override.type === 'html') return override.src;
-            return `<span style="font-size:4.5rem;line-height:1;">${override.src}</span>`;
+            return `<span style="font-size:3.6rem;line-height:1;">${override.src}</span>`;
         }
 
         function renderGrid() {
@@ -2707,9 +2761,8 @@
                     </div>`;
 
                 const infoBtnHtml = `
-                    <div class="card-action-btn info-btn has-tooltip">
+                    <div class="card-action-btn info-btn" data-app-id="${app.id}">
                         ⓘ
-                        <div class="tooltip" style="max-width:220px;white-space:normal;text-align:left;left:auto;right:0;transform:none;">${desc}</div>
                     </div>`;
 
                 card.innerHTML = `
@@ -2752,6 +2805,11 @@
                     openRepoModal(app.id, app.name);
                 });
 
+                card.querySelector('.info-btn').addEventListener('click', e => {
+                    e.stopPropagation();
+                    openInfoModal(app.id, app.name);
+                });
+
                 card.querySelectorAll('.card-link').forEach(el => {
                     el.addEventListener('click', () => {
                         window.open(appWebUrls[app.id] || `http://${window.location.hostname}:${app.port}`, '_blank');
@@ -2779,6 +2837,7 @@
 
         // ── Status management ────────────────────────────────────────────────────
         function updateStatuses(statusList) {
+            _infoAppData = statusList;
             appList = statusList.map(a => ({ id: a.id, name: a.name, port: a.port }));
 
             statusList.forEach(a => {
@@ -3061,6 +3120,49 @@
 
         document.getElementById('repoModal').addEventListener('click', e => {
             if (e.target === e.currentTarget) closeRepoModal();
+        });
+
+        // ── Info Modal ───────────────────────────────────────────────────────────
+        let _infoAppData = null;
+
+        function openInfoModal(appId, appName) {
+            const data = _infoAppData && _infoAppData.find(a => a.id === appId);
+            const desc = getDescription(appId, appName);
+            const type  = (data && data.launch_type) || appTypes[appId] || '—';
+            const port  = (data && data.port)        || '—';
+            const url   = appWebUrls[appId] || '—';
+            const health = (data && data.health_endpoint) || null;
+            const script = (data && data.script) || null;
+            const dockerDeps = data && data.docker_deps;
+
+            const row = (label, value, mono) => value
+                ? `<div class="info-row">
+                     <span class="info-label">${label}</span>
+                     <span class="info-value${mono ? ' mono' : ''}">${value}</span>
+                   </div>`
+                : '';
+
+            document.getElementById('infoModalTitle').textContent = appName;
+            document.getElementById('infoModalBody').innerHTML = `
+                <p class="info-desc">${desc}</p>
+                <div class="info-table">
+                    ${row('Type',   type)}
+                    ${row('Port',   port)}
+                    ${row('URL',    url   ? `<a href="${url}" target="_blank" style="color:#00aaff;">${url}</a>` : null)}
+                    ${row('Health', health || 'none')}
+                    ${script ? row('Script', `<span style="word-break:break-all;">${script}</span>`, true) : ''}
+                    ${dockerDeps ? row('Docker deps', dockerDeps.services.join(', ')) : ''}
+                </div>
+            `;
+            document.getElementById('infoModal').classList.add('open');
+        }
+
+        function closeInfoModal() {
+            document.getElementById('infoModal').classList.remove('open');
+        }
+
+        document.getElementById('infoModal').addEventListener('click', e => {
+            if (e.target === e.currentTarget) closeInfoModal();
         });
 
         function switchRepoTab(name, el) {

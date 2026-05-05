@@ -137,6 +137,7 @@ def format_status() -> List[dict]:
             "health_endpoint": app_cfg.get("health_endpoint"),
             "healthy": health_info.get("healthy", False) if is_running else False,
             "health_error": health_info.get("error"),
+            "docker_deps": app_cfg.get("docker_deps"),
         })
     return status
 
