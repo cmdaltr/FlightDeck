@@ -573,7 +573,7 @@ def analyze_directory(path: str) -> dict:
 
 @app.route("/api/info", methods=["GET"])
 def info():
-    return jsonify({"start_time": BACKEND_START_TIME})
+    return jsonify({"start_time": BACKEND_START_TIME, "hostname": socket.gethostname()})
 
 
 @app.route("/api/apps", methods=["GET"])

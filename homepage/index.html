@@ -512,11 +512,20 @@
         .header-top-right {
             flex: 1;
             display: flex;
-            align-items: center;
+            flex-direction: column;
+            gap: 4px;
         }
 
-        .header-top-left  { justify-content: flex-start; }
-        .header-top-right { justify-content: flex-end; }
+        .header-top-left  { align-items: flex-start; }
+        .header-top-right { align-items: flex-end; }
+
+        .header-running {
+            font-size: 1.0rem;
+            letter-spacing: 2px;
+            color: #ccc;
+            text-transform: uppercase;
+        }
+        .header-running span { color: #00ff88; margin: 0 2px; }
 
         .logo {
             font-size: 2.5rem;
@@ -546,8 +555,7 @@
         /* Status indicators in header */
         .status-bar {
             display: flex;
-            justify-content: center;
-            gap: 40px;
+            justify-content: flex-start;
             padding-top: 12px;
             border-top: 1px solid rgba(0, 255, 136, 0.2);
         }
@@ -718,8 +726,8 @@
             text-transform: uppercase;
         }
 
-        .station-readout {
-            margin-right: 190px;
+        .footer-readout.station-readout span {
+            color: #ffcc00;
         }
 
         .uptime-readout {
@@ -1433,11 +1441,11 @@
         /* Per-card selection checkbox */
         .card-select {
             position: absolute;
-            top: 180px;
-            left: 12px;
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
+            top: 42px;
+            right: 15px;
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
             background: linear-gradient(145deg, #2a2a3a 0%, #1a1a25 100%);
             border: 2px solid #333344;
             display: flex;
@@ -1446,7 +1454,7 @@
             cursor: pointer;
             z-index: 15;
             transition: all 0.15s ease;
-            font-size: 0.75rem;
+            font-size: 0.65rem;
             color: transparent;
         }
         .card-select:hover { border-color: #555; background: rgba(0,0,0,0.7); }
@@ -1666,7 +1674,6 @@
         .fleet-toolbar {
             display: flex;
             align-items: center;
-            justify-content: space-between;
             margin-bottom: 28px;
             padding: 10px 18px;
             background: rgba(0,0,0,0.35);
@@ -1703,10 +1710,13 @@
         .fleet-btns {
             display: flex;
             gap: 10px;
+            flex: 1;
+            justify-content: space-between;
         }
 
         .fleet-btn {
-            padding: 11px 29px;
+            flex: 1;
+            padding: 11px 0;
             border-radius: 6px;
             border: 1px solid;
             font-family: 'Courier New', monospace;
@@ -1742,27 +1752,27 @@
         }
 
         .fleet-btn-pull {
-            background: rgba(0,255,136,0.07);
-            border-color: rgba(0,255,136,0.3);
-            color: #00ff88;
-        }
-
-        .fleet-btn-pull:hover {
-            background: rgba(0,255,136,0.17);
-            border-color: #00ff88;
-            box-shadow: 0 0 12px rgba(0,255,136,0.15);
-        }
-
-        .fleet-btn-push {
             background: rgba(0,170,255,0.07);
             border-color: rgba(0,170,255,0.3);
             color: #00aaff;
         }
 
-        .fleet-btn-push:hover {
+        .fleet-btn-pull:hover {
             background: rgba(0,170,255,0.17);
             border-color: #00aaff;
             box-shadow: 0 0 12px rgba(0,170,255,0.15);
+        }
+
+        .fleet-btn-push {
+            background: rgba(255,100,180,0.07);
+            border-color: rgba(255,100,180,0.3);
+            color: #ff64b4;
+        }
+
+        .fleet-btn-push:hover {
+            background: rgba(255,100,180,0.17);
+            border-color: #ff64b4;
+            box-shadow: 0 0 12px rgba(255,100,180,0.15);
         }
 
         .fleet-btn-commit {
@@ -1786,6 +1796,18 @@
         .fleet-btn-reload:hover {
             background: rgba(100,100,100,0.17);
             border-color: #aaa;
+        }
+
+        .fleet-btn-add {
+            background: rgba(180,100,255,0.07);
+            border-color: rgba(180,100,255,0.3);
+            color: #b464ff;
+        }
+
+        .fleet-btn-add:hover {
+            background: rgba(180,100,255,0.17);
+            border-color: #b464ff;
+            box-shadow: 0 0 12px rgba(180,100,255,0.15);
         }
 
         .fleet-btn:disabled {
@@ -2301,70 +2323,30 @@
             <header>
                 <div class="header-top">
                     <div class="header-top-left">
-                        <div class="footer-readout uptime-readout">UPTIME<span id="uptime">0h 0m</span></div>
+                        <div class="footer-readout station-readout">STATION<span id="hostname">loading...</span></div>
+                        <div class="fleet-count-stats header-running"><span id="fleetTotal">—</span> apps running</div>
                     </div>
                     <div class="header-top-center">
                         <div class="logo">🛩️</div>
                         <h1>Flight Deck</h1>
                     </div>
                     <div class="header-top-right">
+                        <div class="footer-readout uptime-readout">UPTIME<span id="uptime">0h 0m</span></div>
                         <div class="clock" id="clock">00:00:00</div>
                     </div>
                 </div>
                 <p>Local Development Command Center</p>
-                <div class="status-bar">
-                    <div class="status-item">
-                        <div class="status-dot"></div>
-                        SYSTEMS ONLINE
-                    </div>
-                    <div class="status-item">
-                        <div class="status-dot"></div>
-                        ALL SERVICES NOMINAL
-                    </div>
-                    <div class="status-item">
-                        <div class="status-dot warning"></div>
-                        DEV MODE ACTIVE
-                    </div>
-                </div>
-                <div class="header-readouts">
-                    <div class="header-controls-left">
-                        <div class="mini-toggle" onclick="this.classList.toggle('on')">
-                            <div class="mini-toggle-track"><div class="mini-toggle-handle"></div></div>
-                            <div class="mini-toggle-label">PWR</div>
-                        </div>
-                        <div class="mini-toggle on" onclick="this.classList.toggle('on')">
-                            <div class="mini-toggle-track"><div class="mini-toggle-handle"></div></div>
-                            <div class="mini-toggle-label">NET</div>
-                        </div>
-                    </div>
-                    <div class="footer-readout station-readout">
-                        STATION<span id="hostname">loading...</span>
-                    </div>
-                    <div class="header-controls-right">
-                        <div class="mini-knob">
-                            <div class="mini-knob-dial" style="transform: rotate(30deg);"><div class="mini-knob-dot"></div></div>
-                            <div class="mini-knob-label">VOL</div>
-                        </div>
-                        <div class="mini-indicator-group">
-                            <div class="mini-ind on-green"></div>
-                            <div class="mini-ind on-green"></div>
-                            <div class="mini-ind"></div>
-                        </div>
-                    </div>
-                </div>
             </header>
 
             <div class="fleet-toolbar">
-                <div class="fleet-count">
-                    <div class="fleet-count-stats"><span id="fleetRunning">—</span> running / <span id="fleetTotal">—</span> apps</div>
-                </div>
                 <div class="fleet-btns">
                     <button class="fleet-btn fleet-btn-start" id="fleetStartAll" onclick="fleetStartAll()">▶ Start</button>
                     <button class="fleet-btn fleet-btn-stop"  id="fleetStopAll"  onclick="fleetStopAll()">■ Stop</button>
                     <button class="fleet-btn fleet-btn-pull"   id="fleetPullAll"    onclick="fleetPullAll()">⬇ Pull</button>
-                    <button class="fleet-btn fleet-btn-push"   id="fleetPushAll"    onclick="fleetPushAll()">⬆ Push</button>
                     <button class="fleet-btn fleet-btn-commit" id="fleetCommitAll"  onclick="openCommitAllModal()">✎ Commit</button>
+                    <button class="fleet-btn fleet-btn-push"   id="fleetPushAll"    onclick="fleetPushAll()">⬆ Push</button>
                     <button class="fleet-btn fleet-btn-reload" id="fleetReload"     onclick="fleetReload()">↺ Reload</button>
+                    <button class="fleet-btn fleet-btn-add"                        onclick="openModal()">＋ Add App</button>
                 </div>
             </div>
 
@@ -2865,20 +2847,6 @@
                 grid.appendChild(card);
             });
 
-            // Add App card at the end
-            const addCard = document.createElement('div');
-            addCard.className = 'card add-app-card';
-            addCard.innerHTML = `
-                <div class="card-gauge" style="flex-direction:column;gap:12px;">
-                    <div class="add-icon">+</div>
-                </div>
-                <div class="card-info">
-                    <div class="card-name" style="color:#00ff88;opacity:0.7;">Add App</div>
-                    <div class="card-port" style="color:#444;">register new service</div>
-                </div>
-            `;
-            addCard.addEventListener('click', openModal);
-            grid.appendChild(addCard);
         }
 
         // ── Status management ────────────────────────────────────────────────────
@@ -2897,8 +2865,7 @@
 
             const manageable = statusList.filter(a => a.launch_type !== 'docker');
             const running    = manageable.filter(a => a.running).length;
-            document.getElementById('fleetRunning').textContent = running;
-            document.getElementById('fleetTotal').textContent   = manageable.length;
+            document.getElementById('fleetTotal').textContent = running;
 
             renderGrid();
         }
@@ -3158,6 +3125,7 @@
             try {
                 const data = await fetch(`${API_URL}/api/info`).then(r => r.json());
                 backendStartTime = data.start_time * 1000; // convert seconds → ms
+                if (data.hostname) document.getElementById('hostname').textContent = data.hostname.replace(/\.local$/i, '').toUpperCase();
                 updateUptime();
             } catch (e) { /* silent — uptime stays blank until backend responds */ }
         }
@@ -3704,7 +3672,6 @@
         }
 
         // ── Init ─────────────────────────────────────────────────────────────────
-        document.getElementById('hostname').textContent = 'MACBOOK';
         renderGrid();
         updateClock();
         fetchStatuses();
