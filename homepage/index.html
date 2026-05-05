@@ -1419,6 +1419,29 @@
            would otherwise win by source order and break card button layout */
         .card-side-btn, .docker-badge { position: absolute; }
 
+        /* Per-card selection checkbox */
+        .card-select {
+            position: absolute;
+            bottom: 12px;
+            right: 12px;
+            width: 22px;
+            height: 22px;
+            border-radius: 6px;
+            background: rgba(0,0,0,0.5);
+            border: 1.5px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 15;
+            transition: all 0.15s ease;
+            font-size: 0.75rem;
+            color: transparent;
+        }
+        .card-select:hover { border-color: #555; background: rgba(0,0,0,0.7); }
+        .card-select.checked { border-color: #00ff88; background: rgba(0,255,136,0.15); color: #00ff88; }
+        .card.selected-card { border-color: rgba(0,255,136,0.6) !important; box-shadow: 0 0 0 2px rgba(0,255,136,0.15), 0 4px 20px rgba(0,0,0,0.5); }
+
         /* Repo panel modal */
         .repo-modal {
             width: 640px;
@@ -2309,11 +2332,11 @@
                     FLEET &nbsp;·&nbsp; <span id="fleetRunning">—</span> running / <span id="fleetTotal">—</span> apps
                 </div>
                 <div class="fleet-btns">
-                    <button class="fleet-btn fleet-btn-start" id="fleetStartAll" onclick="fleetStartAll()">▶ Start All</button>
-                    <button class="fleet-btn fleet-btn-stop"  id="fleetStopAll"  onclick="fleetStopAll()">■ Stop All</button>
-                    <button class="fleet-btn fleet-btn-pull"   id="fleetPullAll"    onclick="fleetPullAll()">⬇ Pull All</button>
-                    <button class="fleet-btn fleet-btn-push"   id="fleetPushAll"    onclick="fleetPushAll()">⬆ Push All</button>
-                    <button class="fleet-btn fleet-btn-commit" id="fleetCommitAll"  onclick="openCommitAllModal()">✎ Commit All</button>
+                    <button class="fleet-btn fleet-btn-start" id="fleetStartAll" onclick="fleetStartAll()">▶ Start</button>
+                    <button class="fleet-btn fleet-btn-stop"  id="fleetStopAll"  onclick="fleetStopAll()">■ Stop</button>
+                    <button class="fleet-btn fleet-btn-pull"   id="fleetPullAll"    onclick="fleetPullAll()">⬇ Pull</button>
+                    <button class="fleet-btn fleet-btn-push"   id="fleetPushAll"    onclick="fleetPushAll()">⬆ Push</button>
+                    <button class="fleet-btn fleet-btn-commit" id="fleetCommitAll"  onclick="openCommitAllModal()">✎ Commit</button>
                     <button class="fleet-btn fleet-btn-reload" id="fleetReload"     onclick="fleetReload()">↺ Reload</button>
                 </div>
             </div>
@@ -2656,7 +2679,7 @@
         const iconOverrides = {
             archer:               { src: "images/archer_new.png", type: "image", size: 179, shiftUp: 36 },
             cybercache:           { src: cybercacheIcon,          type: "html"                          },
-            rivendell:            { src: "images/rivendell.png",  type: "image", size: 256, shiftUp: 20 },
+            rivendell:            { src: "images/rivendell.png",  type: "image", size: 256               },
             ancestree:            { src: "images/ancestree.png",  type: "image", size: 172, shiftUp: 20 },
             audiobookconstructor: { src: "🎙️",                   type: "emoji", size: 170, shiftUp: 15 },
             rehseepee:            { src: "🥙",                   type: "emoji", size: 180, shiftUp: 10 },
@@ -2673,6 +2696,7 @@
         const appWebUrls    = {};
         const appTypes      = {};   // launch_type per app
         const appAutostart  = {};   // autostart flag per app
+        const selectedApps  = new Set(); // user-selected app IDs
 
         // ── Render ───────────────────────────────────────────────────────────────
         // Per-app descriptions — shown in the ⓘ tooltip
@@ -2773,7 +2797,24 @@
                         <div class="card-name">${app.name}</div>
                         <div class="card-port">${window.location.hostname}:${app.port}</div>
                     </div>
+                    <div class="card-select${selectedApps.has(app.id) ? ' checked' : ''}" data-app-id="${app.id}">✓</div>
                 `;
+
+                if (selectedApps.has(app.id)) card.classList.add('selected-card');
+
+                card.querySelector('.card-select').addEventListener('click', e => {
+                    e.stopPropagation();
+                    const sel = e.currentTarget;
+                    if (selectedApps.has(app.id)) {
+                        selectedApps.delete(app.id);
+                        sel.classList.remove('checked');
+                        card.classList.remove('selected-card');
+                    } else {
+                        selectedApps.add(app.id);
+                        sel.classList.add('checked');
+                        card.classList.add('selected-card');
+                    }
+                });
 
                 card.querySelector('.card-start-btn').addEventListener('click', e => {
                     e.stopPropagation();
@@ -2862,14 +2903,19 @@
             btn.disabled = true;
             btn.textContent = '▶ Starting…';
             try {
-                const data = await fetch(`${API_URL}/api/start`, { method: 'POST' }).then(r => r.json());
-                if (data.status) updateStatuses(data.status);
+                if (selectedApps.size > 0) {
+                    for (const id of selectedApps) await fetch(`${API_URL}/api/start/${id}`, { method: 'POST' });
+                    await fetchStatuses();
+                } else {
+                    const data = await fetch(`${API_URL}/api/start`, { method: 'POST' }).then(r => r.json());
+                    if (data.status) updateStatuses(data.status);
+                }
             } catch (e) {
                 console.error('fleetStartAll error:', e);
                 fetchStatuses();
             } finally {
                 btn.disabled = false;
-                btn.textContent = '▶ Start All';
+                btn.textContent = '▶ Start';
             }
         }
 
@@ -2878,14 +2924,19 @@
             btn.disabled = true;
             btn.textContent = '■ Stopping…';
             try {
-                const data = await fetch(`${API_URL}/api/stop`, { method: 'POST' }).then(r => r.json());
-                if (data.status) updateStatuses(data.status);
+                if (selectedApps.size > 0) {
+                    for (const id of selectedApps) await fetch(`${API_URL}/api/stop/${id}`, { method: 'POST' });
+                    await fetchStatuses();
+                } else {
+                    const data = await fetch(`${API_URL}/api/stop`, { method: 'POST' }).then(r => r.json());
+                    if (data.status) updateStatuses(data.status);
+                }
             } catch (e) {
                 console.error('fleetStopAll error:', e);
                 fetchStatuses();
             } finally {
                 btn.disabled = false;
-                btn.textContent = '■ Stop All';
+                btn.textContent = '■ Stop';
             }
         }
 
@@ -2894,19 +2945,28 @@
             btn.disabled = true;
             btn.textContent = '⬇ Pulling…';
             try {
-                const data = await fetch(`${API_URL}/api/repo/pull-all`, { method: 'POST' }).then(r => r.json());
-                const pulled  = data.pulled  || [];
-                const errors  = data.errors  || [];
-                const skipped = data.skipped || [];
-                let parts = [];
-                if (pulled.length)  parts.push(`${pulled.length} pulled`);
-                if (errors.length)  parts.push(`${errors.length} failed`);
-                if (skipped.length) parts.push(`${skipped.length} skipped`);
-                btn.textContent = parts.length ? `⬇ ${parts.join(', ')}` : '⬇ Up to date';
-                setTimeout(() => { btn.textContent = '⬇ Pull All'; }, 4000);
+                if (selectedApps.size > 0) {
+                    let pulled = 0, errors = 0;
+                    for (const id of selectedApps) {
+                        const d = await fetch(`${API_URL}/api/repo/${id}/pull`, { method: 'POST' }).then(r => r.json());
+                        d.error ? errors++ : pulled++;
+                    }
+                    btn.textContent = errors ? `⬇ ${pulled} pulled, ${errors} failed` : `⬇ ${pulled} pulled`;
+                } else {
+                    const data = await fetch(`${API_URL}/api/repo/pull-all`, { method: 'POST' }).then(r => r.json());
+                    const pulled  = data.pulled  || [];
+                    const errors  = data.errors  || [];
+                    const skipped = data.skipped || [];
+                    let parts = [];
+                    if (pulled.length)  parts.push(`${pulled.length} pulled`);
+                    if (errors.length)  parts.push(`${errors.length} failed`);
+                    if (skipped.length) parts.push(`${skipped.length} skipped`);
+                    btn.textContent = parts.length ? `⬇ ${parts.join(', ')}` : '⬇ Up to date';
+                }
+                setTimeout(() => { btn.textContent = '⬇ Pull'; }, 4000);
             } catch (e) {
                 console.error('fleetPullAll error:', e);
-                btn.textContent = '⬇ Pull All';
+                btn.textContent = '⬇ Pull';
             } finally {
                 btn.disabled = false;
             }
@@ -2917,19 +2977,28 @@
             btn.disabled = true;
             btn.textContent = '⬆ Pushing…';
             try {
-                const data = await fetch(`${API_URL}/api/repo/push-all`, { method: 'POST' }).then(r => r.json());
-                const pushed  = data.pushed  || [];
-                const errors  = data.errors  || [];
-                const skipped = data.skipped || [];
-                let parts = [];
-                if (pushed.length)  parts.push(`${pushed.length} pushed`);
-                if (errors.length)  parts.push(`${errors.length} failed`);
-                if (skipped.length) parts.push(`${skipped.length} skipped`);
-                btn.textContent = parts.length ? `⬆ ${parts.join(', ')}` : '⬆ Nothing to push';
-                setTimeout(() => { btn.textContent = '⬆ Push All'; }, 4000);
+                if (selectedApps.size > 0) {
+                    let pushed = 0, errors = 0;
+                    for (const id of selectedApps) {
+                        const d = await fetch(`${API_URL}/api/repo/${id}/push`, { method: 'POST' }).then(r => r.json());
+                        d.error ? errors++ : pushed++;
+                    }
+                    btn.textContent = errors ? `⬆ ${pushed} pushed, ${errors} failed` : `⬆ ${pushed} pushed`;
+                } else {
+                    const data = await fetch(`${API_URL}/api/repo/push-all`, { method: 'POST' }).then(r => r.json());
+                    const pushed  = data.pushed  || [];
+                    const errors  = data.errors  || [];
+                    const skipped = data.skipped || [];
+                    let parts = [];
+                    if (pushed.length)  parts.push(`${pushed.length} pushed`);
+                    if (errors.length)  parts.push(`${errors.length} failed`);
+                    if (skipped.length) parts.push(`${skipped.length} skipped`);
+                    btn.textContent = parts.length ? `⬆ ${parts.join(', ')}` : '⬆ Nothing to push';
+                }
+                setTimeout(() => { btn.textContent = '⬆ Push'; }, 4000);
             } catch (e) {
                 console.error('fleetPushAll error:', e);
-                btn.textContent = '⬆ Push All';
+                btn.textContent = '⬆ Push';
             } finally {
                 btn.disabled = false;
             }
@@ -2943,7 +3012,8 @@
                 '<div style="color:#555;font-size:0.8rem">Loading apps…</div>';
             try {
                 const apps = await fetch(`${API_URL}/api/apps`).then(r => r.json());
-                const managed = apps.filter(a => a.launch_type !== 'docker');
+                const managed = apps.filter(a => a.launch_type !== 'docker' &&
+                    (selectedApps.size === 0 || selectedApps.has(a.id)));
                 document.getElementById('commitAllList').innerHTML = managed.map(a => `
                     <div class="commit-all-row">
                         <span class="commit-all-label">${a.id}</span>
