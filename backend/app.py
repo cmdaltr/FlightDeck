@@ -21,6 +21,7 @@ from flask_socketio import SocketIO, emit
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 APPS_PATH = os.path.join(BASE_DIR, "apps.json")
 VENV_CACHE_DIR = os.path.expanduser("~/.local/share/flightdeck-venvs")
+BACKEND_START_TIME = time.time()
 
 app = Flask(__name__)
 CORS(app)
@@ -568,6 +569,11 @@ def analyze_directory(path: str) -> dict:
 # ---------------------------------------------------------------------------
 # Routes
 # ---------------------------------------------------------------------------
+
+@app.route("/api/info", methods=["GET"])
+def info():
+    return jsonify({"start_time": BACKEND_START_TIME})
+
 
 @app.route("/api/apps", methods=["GET"])
 def list_apps():

@@ -825,14 +825,62 @@
         .card-icon {
             font-size: 2.5rem;
             filter: drop-shadow(0 0 8px rgba(0, 255, 136, 0.3));
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
+
+        /* Action button row between gauge and info */
+        .card-actions {
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            height: 34px;
+            flex-shrink: 0;
+            border-top: 1px solid rgba(0, 255, 136, 0.07);
+            gap: 5px;
+        }
+
+        .card-actions-spacer { flex: 1; }
+
+        .card-action-btn {
+            width: 26px;
+            height: 26px;
+            border-radius: 6px;
+            background: transparent;
+            border: 1px solid #252535;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.78rem;
+            color: #3a3a4a;
+            flex-shrink: 0;
+        }
+
+        .card-action-btn:hover { border-color: #555; color: #888; }
+
+        .card-action-btn.repo-btn:hover  { border-color: #00aaff; color: #00aaff; }
+        .card-action-btn.repo-btn.dirty  { border-color: rgba(255,170,0,0.4); color: #ffaa00; }
+        .card-action-btn.repo-btn.ahead  { border-color: rgba(0,170,255,0.4); color: #00aaff; }
+
+        .card-action-btn.autostart-btn:hover { border-color: #ffaa00; color: #ffaa00; }
+        .card-action-btn.autostart-btn.active {
+            border-color: #ffaa00;
+            color: #ffaa00;
+            background: rgba(255,170,0,0.1);
+            box-shadow: 0 0 8px rgba(255,170,0,0.2);
+        }
+
+        .card-action-btn.info-btn:hover { border-color: rgba(0,255,136,0.5); color: #00ff88; }
 
         /* Info panel at bottom of card */
         .card-info {
             background: rgba(0, 0, 0, 0.4);
-            padding: 22px;
+            padding: 14px 22px;
             border-top: 1px solid rgba(0, 255, 136, 0.15);
-            height: 100px;
+            height: 88px;
             flex-shrink: 0;
             display: flex;
             flex-direction: column;
@@ -1246,6 +1294,10 @@
             }
         }
 
+        @media (max-width: 900px) {
+            .fleet-btn { padding: 7px 11px; font-size: 0.68rem; letter-spacing: 0.8px; }
+        }
+
         @media (max-width: 768px) {
             .grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
             header h1 { font-size: 2rem; letter-spacing: 4px; }
@@ -1255,6 +1307,7 @@
             .uptime-readout { margin-left: 0; }
             .clock { position: static; transform: none; }
             .bottom-controls { flex-wrap: wrap; }
+            .fleet-btn { padding: 7px 8px; font-size: 0.64rem; letter-spacing: 0.5px; }
         }
 
         @media (max-width: 480px) {
@@ -1288,8 +1341,8 @@
             .card-icon { font-size: 1.8rem; }
             .card-icon img { max-height: 80px !important; width: auto; }
             .card-icon svg { max-height: 80px !important; width: auto !important; }
-            .repo-btn { bottom: 76px; }
-            .autostart-btn { bottom: 76px; }
+            .card-actions { height: 30px; }
+            .card-action-btn { width: 24px; height: 24px; font-size: 0.72rem; }
             .card-start-btn { width: 44px; height: 44px; top: 8px; left: 8px; }
             .card-start-btn svg { width: 20px; height: 20px; }
             .card:hover { transform: none; }
@@ -1362,40 +1415,7 @@
             opacity: 1;
         }
 
-        /* Repo button on card */
-        .repo-btn {
-            position: absolute;
-            bottom: 70px;
-            left: 12px;
-            width: 28px;
-            height: 28px;
-            border-radius: 6px;
-            background: transparent;
-            border: 1px solid #333;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            z-index: 10;
-            font-size: 0.8rem;
-            color: #444;
-        }
-
-        .repo-btn:hover {
-            border-color: #00aaff;
-            color: #00aaff;
-        }
-
-        .repo-btn.dirty {
-            border-color: rgba(255, 170, 0, 0.4);
-            color: #ffaa00;
-        }
-
-        .repo-btn.ahead {
-            border-color: rgba(0, 170, 255, 0.4);
-            color: #00aaff;
-        }
+        /* Repo button (now lives in .card-actions row — see .card-action-btn) */
 
         /* Repo panel modal */
         .repo-modal {
@@ -1764,36 +1784,7 @@
             border-color: rgba(255,170,0,0.4);
         }
 
-        .autostart-btn {
-            position: absolute;
-            bottom: 70px;
-            right: 12px;
-            width: 28px;
-            height: 28px;
-            border-radius: 6px;
-            background: transparent;
-            border: 1px solid #333;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            z-index: 10;
-            font-size: 0.85rem;
-            color: #444;
-        }
-
-        .autostart-btn:hover {
-            border-color: #ffaa00;
-            color: #ffaa00;
-        }
-
-        .autostart-btn.active {
-            border-color: #ffaa00;
-            color: #ffaa00;
-            background: rgba(255, 170, 0, 0.1);
-            box-shadow: 0 0 8px rgba(255, 170, 0, 0.2);
-        }
+        /* Autostart button (now lives in .card-actions row — see .card-action-btn) */
 
         /* Add App card */
         .card.add-app-card {
@@ -2631,15 +2622,31 @@
         const appAutostart  = {};   // autostart flag per app
 
         // ── Render ───────────────────────────────────────────────────────────────
+        // Per-app descriptions — shown in the ⓘ tooltip
+        const appDescriptions = {
+            rehseepee:            "Recipe manager — store, search, and scale recipes with web UI and CLI.",
+            archer:               "Full-stack app running in Docker.",
+            cybercache:           "CyberCache — local caching and data storage service.",
+            rivendell:            "Rivendell — project and task management with Postgres + Redis backend.",
+            ancestree:            "Ancestree — family tree and ancestry research tool.",
+            audiobookconstructor: "AudiobookConstructor — assemble audiobooks from chapter audio files.",
+            ciphr:                "Ciphr — encryption and cipher utilities, Docker-managed.",
+            promptvault:          "PromptVault — store and retrieve AI prompt templates.",
+            "property-tracker":   "Property Tracker — track and analyse property investment data.",
+        };
+
+        function getDescription(appId, appName) {
+            return appDescriptions[appId] || `${appName} — no description available.`;
+        }
+
         function getIconContent(appId, appName) {
             const override = iconOverrides[appId];
-            if (!override) return `<span style="font-size:3.5rem;">${appName.charAt(0).toUpperCase()}</span>`;
+            if (!override) return `<span style="font-size:3rem;line-height:1;">${appName.charAt(0).toUpperCase()}</span>`;
             if (override.type === 'image') {
-                const h = override.height || 216;
-                return `<img src="${override.src}" alt="${appName}" style="height:${h}px;width:auto;object-fit:contain;border-radius:8px;">`;
+                return `<img src="${override.src}" alt="${appName}" style="max-height:160px;max-width:100%;width:auto;object-fit:contain;border-radius:8px;display:block;margin:auto;">`;
             }
             if (override.type === 'html') return override.src;
-            return `<span style="font-size:7.15rem;">${override.src}</span>`;
+            return `<span style="font-size:4.5rem;line-height:1;">${override.src}</span>`;
         }
 
         function renderGrid() {
@@ -2685,23 +2692,29 @@
                         ${isRunning ? stopIcon : playIcon}
                     </div>`;
 
+                const desc = getDescription(app.id, app.name);
+
                 const autostartBtnHtml = !isDocker ? `
-                    <div class="autostart-btn has-tooltip ${isAutostart ? 'active' : ''}" data-app-id="${app.id}">
+                    <div class="card-action-btn autostart-btn has-tooltip ${isAutostart ? 'active' : ''}" data-app-id="${app.id}">
                         ⚡
                         <div class="tooltip">${isAutostart ? 'Autostart ON — click to disable' : 'Autostart OFF — click to enable'}</div>
                     </div>` : '';
 
                 const repoBtnHtml = `
-                    <div class="repo-btn has-tooltip" data-app-id="${app.id}">
+                    <div class="card-action-btn repo-btn has-tooltip" data-app-id="${app.id}">
                         ⎇
-                        <div class="tooltip">Repo — status, pull, push, hygiene</div>
+                        <div class="tooltip" style="left:0;transform:none;">Repo — status, pull, push, hygiene</div>
+                    </div>`;
+
+                const infoBtnHtml = `
+                    <div class="card-action-btn info-btn has-tooltip">
+                        ⓘ
+                        <div class="tooltip" style="max-width:220px;white-space:normal;text-align:left;left:auto;right:0;transform:none;">${desc}</div>
                     </div>`;
 
                 card.innerHTML = `
                     <div class="corner-bracket top-right"></div>
                     ${isDocker ? dockerBadgeHtml : startBtnHtml}
-                    ${autostartBtnHtml}
-                    ${repoBtnHtml}
                     <div class="card-status">
                         <div class="card-status-dot ${statusClass}"></div>
                         <span class="card-status-text ${statusClass}">${statusText}</span>
@@ -2710,6 +2723,12 @@
                         <div class="gauge-ring">
                             <div class="card-icon">${iconContent}</div>
                         </div>
+                    </div>
+                    <div class="card-actions">
+                        ${repoBtnHtml}
+                        ${autostartBtnHtml}
+                        <div class="card-actions-spacer"></div>
+                        ${infoBtnHtml}
                     </div>
                     <div class="card-info card-link">
                         <div class="card-name">${app.name}</div>
@@ -3000,9 +3019,17 @@
                     .map(n => String(n).padStart(2, '0')).join(':');
         }
 
-        const startTime = Date.now();
+        let backendStartTime = null;
+        async function fetchBackendStartTime() {
+            try {
+                const data = await fetch(`${API_URL}/api/info`).then(r => r.json());
+                backendStartTime = data.start_time * 1000; // convert seconds → ms
+                updateUptime();
+            } catch (e) { /* silent — uptime stays blank until backend responds */ }
+        }
         function updateUptime() {
-            const ms = Date.now() - startTime;
+            if (!backendStartTime) return;
+            const ms = Date.now() - backendStartTime;
             const h  = Math.floor(ms / 3600000);
             const m  = Math.floor((ms % 3600000) / 60000);
             document.getElementById('uptime').textContent = `${h}h ${m}m`;
@@ -3504,9 +3531,14 @@
         renderGrid();
         updateClock();
         fetchStatuses();
-        setInterval(updateClock,    1000);
-        setInterval(updateUptime,  60000);
-        setInterval(fetchStatuses,  5000);
+        fetchBackendStartTime();
+        setInterval(updateClock,              1000);
+        setInterval(updateUptime,            60000);
+        setInterval(fetchStatuses,            5000);
+        setInterval(fetchBackendStartTime, 300000); // re-sync every 5 min
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) { fetchBackendStartTime(); fetchStatuses(); }
+        });
     </script>
 </body>
 </html>
