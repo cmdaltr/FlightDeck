@@ -820,13 +820,9 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 80px;
-            height: 80px;
         }
 
         .card-icon {
-            width: 80px;
-            height: 80px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1342,9 +1338,7 @@
             .card-name { font-size: 1rem; margin-bottom: 3px; }
             .card-port { font-size: 0.75rem; padding: 2px 8px; }
             .card-gauge { padding-top: 60px; }
-            .gauge-ring { width: 56px; height: 56px; }
-            .card-icon { width: 56px; height: 56px; font-size: 1.6rem; }
-            .card-icon img { width: 56px; height: 56px; }
+            .card-icon { transform: scale(0.6); transform-origin: center; }
             .card-actions { height: 30px; }
             .card-action-btn { width: 24px; height: 24px; font-size: 0.72rem; }
             .card-start-btn { width: 44px; height: 44px; top: 8px; left: 8px; }
@@ -2654,16 +2648,17 @@
             </svg>`;
 
         // Per-app icon overrides — keyed by app id
+        // size: px dimension (square); shiftUp: px to move icon toward start/stop btn
         const iconOverrides = {
-            archer:               { src: "images/archer_new.png", type: "image" },
-            cybercache:           { src: cybercacheIcon,          type: "html"  },
-            rivendell:            { src: "images/rivendell.png",  type: "image" },
-            ancestree:            { src: "images/ancestree.png",  type: "image", height: 194 },
-            audiobookconstructor: { src: "🎙️",                   type: "emoji" },
-            rehseepee:            { src: "🥙",                   type: "emoji" },
-            ciphr:                { src: "🔐",                   type: "emoji" },
-            promptvault:          { src: "📚",                   type: "emoji" },
-            "property-tracker":   { src: "🏠",                   type: "emoji" },
+            archer:               { src: "images/archer_new.png", type: "image", size: 112, shiftUp: 26 },
+            cybercache:           { src: cybercacheIcon,          type: "html"                          },
+            rivendell:            { src: "images/rivendell.png",  type: "image", size: 88               },
+            ancestree:            { src: "images/ancestree.png",  type: "image", size: 88               },
+            audiobookconstructor: { src: "🎙️",                   type: "emoji", size: 160              },
+            rehseepee:            { src: "🥙",                   type: "emoji", size: 160              },
+            ciphr:                { src: "🔐",                   type: "emoji", size: 160              },
+            promptvault:          { src: "📚",                   type: "emoji", size: 160              },
+            "property-tracker":   { src: "🏠",                   type: "emoji", size: 160              },
         };
 
         // ── State ────────────────────────────────────────────────────────────────
@@ -2696,11 +2691,15 @@
         function getIconContent(appId, appName) {
             const override = iconOverrides[appId];
             if (!override) return `<span style="font-size:2.8rem;line-height:1;color:#00ff88;">${appName.charAt(0).toUpperCase()}</span>`;
+            const size    = override.size || 80;
+            const shift   = override.shiftUp ? `margin-top:-${override.shiftUp}px;` : '';
             if (override.type === 'image') {
-                return `<img src="${override.src}" alt="${appName}" style="width:80px;height:80px;object-fit:contain;border-radius:8px;">`;
+                return `<img src="${override.src}" alt="${appName}" style="width:${size}px;height:${size}px;object-fit:contain;border-radius:8px;${shift}">`;
             }
             if (override.type === 'html') return override.src;
-            return `<span style="font-size:3.6rem;line-height:1;">${override.src}</span>`;
+            // emoji font-size scales proportionally from base (80px → 3.6rem)
+            const fs = (size * 0.045).toFixed(2);
+            return `<span style="font-size:${fs}rem;line-height:1;${shift}">${override.src}</span>`;
         }
 
         function renderGrid() {
@@ -2748,11 +2747,6 @@
 
                 const desc = getDescription(app.id, app.name);
 
-                const autostartBtnHtml = !isDocker ? `
-                    <div class="card-action-btn autostart-btn has-tooltip ${isAutostart ? 'active' : ''}" data-app-id="${app.id}">
-                        ⚡
-                        <div class="tooltip">${isAutostart ? 'Autostart ON — click to disable' : 'Autostart OFF — click to enable'}</div>
-                    </div>` : '';
 
                 const repoBtnHtml = `
                     <div class="card-action-btn repo-btn has-tooltip" data-app-id="${app.id}">
@@ -2779,7 +2773,6 @@
                     </div>
                     <div class="card-actions">
                         ${repoBtnHtml}
-                        ${autostartBtnHtml}
                         <div class="card-actions-spacer"></div>
                         ${infoBtnHtml}
                     </div>
@@ -2793,10 +2786,6 @@
                     card.querySelector('.card-start-btn').addEventListener('click', e => {
                         e.stopPropagation();
                         toggleApp(app.id);
-                    });
-                    card.querySelector('.autostart-btn').addEventListener('click', e => {
-                        e.stopPropagation();
-                        toggleAutostart(app.id);
                     });
                 }
 
