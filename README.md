@@ -128,6 +128,40 @@ If the port is in use by an external process, an **Add Anyway** button appears.
 
 ---
 
+## Local `.lab` Domains
+
+FlightDeck includes a Caddy reverse proxy that gives each app a clean local domain (e.g. `http://cybercache.lab`) instead of a port number.
+
+### Setup
+
+```bash
+cd local-proxy
+bash local_apps.sh     # updates /etc/hosts, regenerates Caddyfile, restarts Caddy
+```
+
+This requires Docker and sudo (for `/etc/hosts` entries).
+
+### Adding or changing apps
+
+Edit `local-proxy/apps.conf` — one `domain port` pair per line — then re-run `local_apps.sh`:
+
+```
+flightdeck.lab       3325
+cybercache.lab       22244
+rivendell.lab        5688
+# add more here
+```
+
+Update `web_url` in `backend/apps.json` to use the `.lab` URL so FlightDeck card clicks open the right address.
+
+### How it works
+
+- `/etc/hosts` maps each `*.lab` hostname → `127.0.0.1`
+- Caddy (in Docker) listens on port 80 and reverse-proxies to the app's port on `host.docker.internal`
+- HTTP only — no certificates, no redirect warnings
+
+---
+
 ## Setup on Other Systems
 
 ### macOS (recommended)
@@ -137,7 +171,7 @@ Start manually:
 ./flightdeck-start.sh
 ```
 
-Start Caddy (port 80 proxy):
+Start Caddy (`.lab` proxy + port 80):
 ```bash
 docker compose -f local-proxy/docker-compose.yml up -d
 ```
@@ -274,7 +308,7 @@ Each entry in `backend/apps.json`:
   "script": "/path/to/script.py",
   "venv": "/path/to/.venv",
   "url": "http://localhost:8080",
-  "web_url": "http://localhost:8080",
+  "web_url": "http://myapp.lab",
   "health_endpoint": "/health",
   "launch_type": "python",
   "port": 8080,

@@ -157,6 +157,27 @@
             position: relative;
             z-index: 1;
             display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Banner row: MASTER | header | VIEW — align-items:stretch ensures equal height */
+        .cockpit-banner-row {
+            display: flex;
+            align-items: stretch;
+            gap: 20px;
+        }
+
+        .cockpit-banner-row .toggle-switch {
+            width: 168px;
+            flex-shrink: 0;
+            justify-content: center;
+            box-sizing: border-box;
+        }
+
+        /* Body row: remaining left controls | main content | remaining right controls */
+        .cockpit-body-row {
+            display: flex;
             gap: 20px;
         }
 
@@ -167,7 +188,6 @@
             display: flex;
             flex-direction: column;
             gap: 20px;
-            padding-top: 0;
         }
 
         /* Right control panel */
@@ -177,13 +197,10 @@
             display: flex;
             flex-direction: column;
             gap: 20px;
-            padding-top: 0;
         }
 
-        /* Minimal mode — hide everything except the top-right toggle */
-        .cockpit-wrapper.minimal-mode .main-content,
-        .cockpit-wrapper.minimal-mode .control-panel-left,
-        .cockpit-wrapper.minimal-mode .control-panel-right > *:not(:first-child) {
+        /* Minimal mode — hide body row, keep entire banner row visible */
+        .cockpit-wrapper.minimal-mode .cockpit-body-row {
             display: none;
         }
 
@@ -404,6 +421,12 @@
             gap: 8px;
         }
 
+        /* ARM panel matches GAIN knob height */
+        .control-panel-right > .push-button {
+            justify-content: center;
+            min-height: 146px;
+        }
+
         .push-button-label {
             font-size: 0.6rem;
             color: #666;
@@ -458,10 +481,11 @@
             background: linear-gradient(180deg, #1a1a2e 0%, #0d0d15 100%);
             border: 1px solid rgba(0, 255, 136, 0.3);
             border-radius: 8px;
-            padding: 15px 10px;
+            padding: 22px 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
             gap: 10px;
         }
 
@@ -500,7 +524,7 @@
 
         header {
             text-align: center;
-            margin-bottom: 30px;
+            flex: 1;
             padding: 20px 30px;
             background: linear-gradient(180deg, rgba(30, 30, 50, 0.8) 0%, rgba(20, 20, 35, 0.9) 100%);
             border: 1px solid rgba(0, 255, 136, 0.3);
@@ -508,6 +532,9 @@
             box-shadow:
                 0 0 30px rgba(0, 255, 136, 0.1),
                 inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .header-top {
@@ -2322,8 +2349,8 @@
     <div class="ambient-glow glow-2"></div>
 
     <div class="cockpit-wrapper">
-        <!-- Left Control Panel -->
-        <div class="control-panel-left">
+        <!-- Banner Row: MASTER | header | VIEW -->
+        <div class="cockpit-banner-row">
             <div class="toggle-switch on" id="masterToggle" onclick="toggleMaster(this)">
                 <div class="toggle-switch-label">MASTER</div>
                 <div class="toggle-track">
@@ -2332,6 +2359,37 @@
                 <div class="toggle-indicator"></div>
             </div>
 
+            <header>
+                <div class="header-top">
+                    <div class="header-top-left">
+                        <div class="footer-readout station-readout">STATION<span id="hostname">loading...</span></div>
+                        <div class="fleet-count-stats header-running"><span id="fleetTotal">—</span> apps running</div>
+                    </div>
+                    <div class="header-top-center">
+                        <div class="logo">🛩️</div>
+                        <h1>Flight Deck</h1>
+                    </div>
+                    <div class="header-top-right">
+                        <div class="footer-readout uptime-readout">UPTIME<span id="uptime">0h 0m</span></div>
+                        <div class="clock" id="clock">00:00:00</div>
+                    </div>
+                </div>
+                <p>Local Development Command Center</p>
+            </header>
+
+            <div class="toggle-switch on" id="minimalToggle" onclick="toggleMinimalMode(this)" title="Hide / show everything">
+                <div class="toggle-switch-label">VIEW</div>
+                <div class="toggle-track">
+                    <div class="toggle-handle"></div>
+                </div>
+                <div class="toggle-indicator"></div>
+            </div>
+        </div>
+
+        <!-- Body Row: left panel | main content | right panel -->
+        <div class="cockpit-body-row">
+        <!-- Left Control Panel -->
+        <div class="control-panel-left">
             <div class="rotary-knob">
                 <div class="rotary-knob-label">GAIN</div>
                 <div class="knob-outer">
@@ -2364,24 +2422,6 @@
 
         <!-- Main Content -->
         <div class="main-content">
-            <header>
-                <div class="header-top">
-                    <div class="header-top-left">
-                        <div class="footer-readout station-readout">STATION<span id="hostname">loading...</span></div>
-                        <div class="fleet-count-stats header-running"><span id="fleetTotal">—</span> apps running</div>
-                    </div>
-                    <div class="header-top-center">
-                        <div class="logo">🛩️</div>
-                        <h1>Flight Deck</h1>
-                    </div>
-                    <div class="header-top-right">
-                        <div class="footer-readout uptime-readout">UPTIME<span id="uptime">0h 0m</span></div>
-                        <div class="clock" id="clock">00:00:00</div>
-                    </div>
-                </div>
-                <p>Local Development Command Center</p>
-            </header>
-
             <div class="fleet-toolbar">
                 <div class="fleet-btns">
                     <button class="fleet-btn fleet-btn-start" id="fleetStartAll" onclick="fleetStartAll()">▶ Start</button>
@@ -2490,14 +2530,6 @@
 
         <!-- Right Control Panel -->
         <div class="control-panel-right">
-            <div class="toggle-switch on" id="minimalToggle" onclick="toggleMinimalMode(this)" title="Hide / show everything">
-                <div class="toggle-switch-label">VIEW</div>
-                <div class="toggle-track">
-                    <div class="toggle-handle"></div>
-                </div>
-                <div class="toggle-indicator"></div>
-            </div>
-
             <div class="lever-control">
                 <div class="lever-label">OPACITY</div>
                 <div class="lever-track" id="opacityTrack">
@@ -2524,7 +2556,8 @@
                 </div>
             </div>
         </div>
-    </div>
+        </div><!-- end cockpit-body-row -->
+    </div><!-- end cockpit-wrapper -->
 
     <!-- Repo Management Modal -->
     <div class="modal-overlay" id="repoModal">

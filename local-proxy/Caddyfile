@@ -1,28 +1,45 @@
 {
-    # Enable HTTPS locally with a local CA
-    local_certs
+    auto_https off
 }
 
-# Default HTTP site — serves FlightDeck for plain IP access (e.g. Tailscale IP on port 80)
-:80 {
+# Generated from apps.conf
+
+http://flightdeck.lab {
     reverse_proxy host.docker.internal:3325
 }
 
-# Generated from /Users/ben/Library/CloudStorage/OneDrive-Personal/Projects/GitHub/apps.conf
-# Maps <domain.app> → host.docker.internal:<port>
-
-flightdeck.app {
-    reverse_proxy host.docker.internal:3325
+http://rehseepee.lab {
+    reverse_proxy host.docker.internal:2665
 }
 
-archer.app {
+http://archer.lab {
     reverse_proxy host.docker.internal:8000
 }
 
-cybercache.app {
-    reverse_proxy host.docker.internal:22243
+http://cybercache.lab {
+    reverse_proxy host.docker.internal:22244
 }
 
-rivendell.app {
-    reverse_proxy host.docker.internal:5687
+http://rivendell.lab {
+    reverse_proxy host.docker.internal:5688
+}
+
+http://ancestree.lab {
+    reverse_proxy host.docker.internal:8733
+}
+
+http://audiobookconstructor.lab {
+    reverse_proxy host.docker.internal:26657
+}
+
+http://ciphr.lab {
+    reverse_proxy host.docker.internal:24747
+}
+
+http://promptvault.lab {
+    reverse_proxy host.docker.internal:4242
+}
+
+http://property-tracker.lab {
+    reverse_proxy host.docker.internal:3737
 }

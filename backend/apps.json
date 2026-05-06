@@ -5,7 +5,7 @@
     "script": "/Users/ben/Library/CloudStorage/OneDrive-Personal/Projects/GitHub/rehseepee/scripts/rehseepee.py",
     "venv": "/Users/ben/Library/CloudStorage/OneDrive-Personal/Projects/GitHub/rehseepee/.venv",
     "url": "http://localhost:2665",
-    "web_url": "http://localhost:2665",
+    "web_url": "http://rehseepee.lab",
     "health_endpoint": "/health",
     "launch_type": "python",
     "launch_args": [
@@ -13,7 +13,7 @@
     ],
     "port": 2665,
     "autostart": true,
-    "env": "dev"
+    "env": "prod"
   },
   {
     "id": "archer",
@@ -21,7 +21,7 @@
     "script": "/Users/ben/Library/CloudStorage/OneDrive-Personal/Projects/GitHub/archer",
     "venv": null,
     "url": "http://localhost:8000",
-    "web_url": "http://localhost:8000",
+    "web_url": "http://archer.lab",
     "health_endpoint": null,
     "launch_type": "docker",
     "port": 8000,
@@ -34,12 +34,12 @@
     "script": "/Users/ben/Library/CloudStorage/OneDrive-Personal/Projects/GitHub/cybercache",
     "venv": null,
     "url": "http://localhost:22244",
-    "web_url": "http://localhost:22244",
+    "web_url": "http://cybercache.lab",
     "health_endpoint": "/api/health",
     "launch_type": "docker",
     "port": 22244,
     "autostart": true,
-    "env": "dev"
+    "env": "prod"
   },
   {
     "id": "rivendell",
@@ -47,7 +47,7 @@
     "script": "/Users/ben/Library/CloudStorage/OneDrive-Personal/Projects/GitHub/rivendell/src/web/backend",
     "venv": "/Users/ben/Library/CloudStorage/OneDrive-Personal/Projects/GitHub/rivendell/.venv",
     "url": "http://localhost:5688",
-    "web_url": "http://localhost:5688",
+    "web_url": "http://rivendell.lab",
     "health_endpoint": "/api/health",
     "launch_type": "uvicorn",
     "uvicorn_app": "main:app",
@@ -60,7 +60,7 @@
         "redis"
       ]
     },
-    "env": "dev"
+    "env": "prod"
   },
   {
     "id": "ancestree",
@@ -68,7 +68,7 @@
     "script": "/Users/ben/Library/CloudStorage/OneDrive-Personal/Projects/GitHub/ancestree",
     "venv": null,
     "url": "http://localhost:8733",
-    "web_url": "http://localhost:8733",
+    "web_url": "http://ancestree.lab",
     "health_endpoint": null,
     "launch_type": "docker",
     "port": 8733,
@@ -81,12 +81,12 @@
     "script": "/Users/ben/Library/CloudStorage/OneDrive-Personal/Projects/GitHub/audiobookconstructor",
     "venv": null,
     "url": "http://localhost:26657",
-    "web_url": "http://localhost:26657",
+    "web_url": "http://audiobookconstructor.lab",
     "health_endpoint": null,
     "launch_type": "docker",
     "port": 26657,
     "autostart": false,
-    "env": "dev"
+    "env": "prod"
   },
   {
     "id": "ciphr",
@@ -94,7 +94,7 @@
     "script": "/Users/ben/Library/CloudStorage/OneDrive-Personal/Projects/GitHub/ciphr",
     "venv": null,
     "url": "http://localhost:24747",
-    "web_url": "http://localhost:24747",
+    "web_url": "http://ciphr.lab",
     "health_endpoint": null,
     "launch_type": "docker",
     "port": 24747,
@@ -107,12 +107,12 @@
     "script": "/Users/ben/Library/CloudStorage/OneDrive-Personal/Projects/GitHub/promptvault/server.py",
     "venv": null,
     "url": "http://localhost:4242",
-    "web_url": "http://localhost:4242",
+    "web_url": "http://promptvault.lab",
     "health_endpoint": "/health",
     "launch_type": "python",
     "port": 4242,
     "autostart": true,
-    "env": "dev"
+    "env": "prod"
   },
   {
     "id": "property-tracker",
@@ -120,11 +120,11 @@
     "script": "/Users/ben/Library/CloudStorage/OneDrive-Personal/Projects/GitHub/property-tracker/dist/server.py",
     "venv": null,
     "url": "http://localhost:3737",
-    "web_url": "http://localhost:3737",
+    "web_url": "http://property-tracker.lab",
     "health_endpoint": "/health",
     "launch_type": "python",
     "port": 3737,
     "autostart": true,
-    "env": "dev"
+    "env": "prod"
   }
 ]

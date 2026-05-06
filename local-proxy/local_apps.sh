@@ -31,7 +31,7 @@ echo "==> Generating Caddyfile..."
 
 cat > "$CADDYFILE" << EOF
 {
-    local_certs
+    auto_https off
 }
 
 # Generated from $APPS_FILE
@@ -44,7 +44,7 @@ while read -r domain port _; do
 
 cat >> "$CADDYFILE" << EOF
 
-$domain {
+http://$domain {
     reverse_proxy host.docker.internal:$port
 }
 EOF
@@ -66,7 +66,6 @@ services:
     restart: always
     ports:
       - "80:80"
-      - "443:443"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
@@ -119,6 +118,6 @@ $DC_CMD up -d
 echo ""
 echo "==> Setup Complete! 🎉"
 echo "Your apps are now available at:"
-grep -vE '^\s*#|^\s*$' "$APPS_FILE" | awk '{print "  https://" $1}'
+grep -vE '^\s*#|^\s*$' "$APPS_FILE" | awk '{print "  http://" $1}'
 echo ""
 echo "Modify apps in apps.conf → rerun ./local_apps.sh"
