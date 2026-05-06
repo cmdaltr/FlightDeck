@@ -2692,7 +2692,7 @@
             ancestree:            { src: "images/ancestree.png",  type: "image", size: 180, shiftUp: 36 },
             audiobookconstructor: { src: "🎙️",                   type: "emoji", size: 140, shiftUp: 36 },
             rehseepee:            { src: "🥙",                   type: "emoji", size: 140, shiftUp: 36 },
-            ciphr:                { src: "🔐",                   type: "emoji", size: 140, shiftUp: 36 },
+            ciphr:                { src: "images/ciphr.png",      type: "image", size: 200, shiftUp: 36 },
             promptvault:          { src: "📚",                   type: "emoji", size: 140, shiftUp: 36 },
             "property-tracker":   { src: "🏠",                   type: "emoji", size: 140, shiftUp: 36 },
         };
@@ -2840,7 +2840,14 @@
 
                 card.querySelectorAll('.card-link').forEach(el => {
                     el.addEventListener('click', () => {
-                        window.open(appWebUrls[app.id] || `http://${window.location.hostname}:${app.port}`, '_blank');
+                        const url = appWebUrls[app.id] || `http://${window.location.hostname}:${app.port}`;
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.target = '_blank';
+                        a.rel = 'noopener noreferrer';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
                     });
                 });
 
@@ -2863,8 +2870,7 @@
                 appAutostart[a.id]  = a.autostart || false;
             });
 
-            const manageable = statusList.filter(a => a.launch_type !== 'docker');
-            const running    = manageable.filter(a => a.running).length;
+            const running = statusList.filter(a => a.running).length;
             document.getElementById('fleetTotal').textContent = running;
 
             renderGrid();
