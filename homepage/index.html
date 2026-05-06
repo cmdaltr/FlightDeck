@@ -760,6 +760,7 @@
             --card-bg-alpha: 0.95;
             --card-bg-alpha2: 0.98;
             --grid-cols: 3;
+            --icon-scale: 1;
         }
 
         .grid {
@@ -859,6 +860,9 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            transform: scale(var(--icon-scale, 1));
+            transform-origin: center;
+            transition: transform 0.2s ease;
         }
 
         /* Side buttons stacked below the start/stop (or docker badge) */
@@ -2941,10 +2945,11 @@
             const label  = document.getElementById('flapsValue');
             if (!track || !handle) return;
 
-            const cols     = [2, 3, 4, 5];
-            const trackH   = 80, handleH = 20, margin = 10;
-            const range    = trackH - handleH - margin * 2; // 40px
-            let   current  = 1; // index into cols[] — default 3 cols
+            const cols       = [2, 3, 4, 5];
+            const iconScales = [1.20, 1.00, 0.80, 0.60]; // ±20% per step from default
+            const trackH     = 80, handleH = 20, margin = 10;
+            const range      = trackH - handleH - margin * 2; // 40px
+            let   current    = 1; // index into cols[] — default 3 cols
 
             function posForIdx(i) { return margin + (i / (cols.length - 1)) * range; }
             function applyIdx(i) {
@@ -2952,6 +2957,7 @@
                 handle.style.top = posForIdx(i) + 'px';
                 label.textContent = cols[i] + ' COL';
                 document.documentElement.style.setProperty('--grid-cols', cols[i]);
+                document.documentElement.style.setProperty('--icon-scale', iconScales[i]);
             }
             applyIdx(current);
 
