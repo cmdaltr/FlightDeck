@@ -1065,6 +1065,26 @@ def toggle_autostart(app_id):
     return jsonify({"autostart": new_val, "status": statuses})
 
 
+@app.route("/api/apps/<app_id>/env", methods=["POST"])
+def set_env(app_id):
+    """Set the env tag (dev/prod/paused) for an app and persist to apps.json."""
+    app_cfg = get_app(app_id)
+    if not app_cfg:
+        return jsonify({"error": "App not found"}), 404
+
+    data = request.get_json(silent=True) or {}
+    new_env = data.get("env", "dev")
+    if new_env not in ("dev", "prod", "paused"):
+        return jsonify({"error": "env must be dev, prod, or paused"}), 400
+
+    app_cfg["env"] = new_env
+    save_apps(APPS)
+
+    statuses = format_status()
+    socketio.emit("status_update", {"apps": statuses})
+    return jsonify({"env": new_env, "status": statuses})
+
+
 def launch_autostart_apps() -> None:
     """Start all apps flagged autostart=true that aren't already running."""
     for app_cfg in APPS:

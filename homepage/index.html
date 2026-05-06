@@ -2736,7 +2736,7 @@
         const appWebUrls    = {};
         const appTypes      = {};
         const appAutostart  = {};
-        const appEnvs       = JSON.parse(localStorage.getItem('appEnvs') || '{}');
+        const appEnvs       = {};
         const selectedApps  = new Set(); // user-selected app IDs
 
         // ── Render ───────────────────────────────────────────────────────────────
@@ -2871,13 +2871,22 @@
                     openInfoModal(app.id, app.name);
                 });
 
-                card.querySelector('.card-env').addEventListener('click', e => {
+                card.querySelector('.card-env').addEventListener('click', async e => {
                     e.stopPropagation();
                     const envOrder = ['dev', 'prod', 'paused'];
                     const cur = appEnvs[app.id] || 'dev';
-                    appEnvs[app.id] = envOrder[(envOrder.indexOf(cur) + 1) % envOrder.length];
-                    localStorage.setItem('appEnvs', JSON.stringify(appEnvs));
-                    e.currentTarget.dataset.env = appEnvs[app.id];
+                    const next = envOrder[(envOrder.indexOf(cur) + 1) % envOrder.length];
+                    appEnvs[app.id] = next;
+                    e.currentTarget.dataset.env = next;
+                    try {
+                        await fetch(`${API_URL}/api/apps/${app.id}/env`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ env: next })
+                        });
+                    } catch (err) {
+                        console.error('Failed to save env:', err);
+                    }
                 });
 
                 card.querySelectorAll('.card-link').forEach(el => {
@@ -2910,7 +2919,7 @@
                 appWebUrls[a.id]    = fixHost(a.web_url || a.url);
                 appTypes[a.id]      = a.launch_type || 'python';
                 appAutostart[a.id]  = a.autostart || false;
-                if (!appEnvs[a.id]) appEnvs[a.id] = a.env || 'dev';
+                appEnvs[a.id] = a.env || 'dev';
             });
 
             const running = statusList.filter(a => a.running).length;
