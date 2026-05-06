@@ -12,7 +12,8 @@
       "--web"
     ],
     "port": 2665,
-    "autostart": true
+    "autostart": true,
+    "env": "dev"
   },
   {
     "id": "archer",
@@ -24,7 +25,8 @@
     "health_endpoint": null,
     "launch_type": "docker",
     "port": 8000,
-    "autostart": false
+    "autostart": false,
+    "env": "dev"
   },
   {
     "id": "cybercache",
@@ -36,7 +38,8 @@
     "health_endpoint": "/api/health",
     "launch_type": "docker",
     "port": 22244,
-    "autostart": true
+    "autostart": true,
+    "env": "dev"
   },
   {
     "id": "rivendell",
@@ -56,7 +59,8 @@
         "postgres",
         "redis"
       ]
-    }
+    },
+    "env": "dev"
   },
   {
     "id": "ancestree",
@@ -68,7 +72,8 @@
     "health_endpoint": null,
     "launch_type": "docker",
     "port": 8733,
-    "autostart": true
+    "autostart": true,
+    "env": "dev"
   },
   {
     "id": "audiobookconstructor",
@@ -80,7 +85,8 @@
     "health_endpoint": null,
     "launch_type": "docker",
     "port": 26657,
-    "autostart": false
+    "autostart": false,
+    "env": "dev"
   },
   {
     "id": "ciphr",
@@ -92,7 +98,8 @@
     "health_endpoint": null,
     "launch_type": "docker",
     "port": 24747,
-    "autostart": false
+    "autostart": false,
+    "env": "dev"
   },
   {
     "id": "promptvault",
@@ -104,7 +111,8 @@
     "health_endpoint": "/health",
     "launch_type": "python",
     "port": 4242,
-    "autostart": true
+    "autostart": true,
+    "env": "dev"
   },
   {
     "id": "property-tracker",
@@ -116,6 +124,7 @@
     "health_endpoint": "/health",
     "launch_type": "python",
     "port": 3737,
-    "autostart": true
+    "autostart": true,
+    "env": "dev"
   }
 ]

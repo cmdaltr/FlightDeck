@@ -365,6 +365,14 @@
             border: 1px solid #ff6666;
         }
 
+        .lever-value {
+            font-size: 0.6rem;
+            color: #00ff88;
+            letter-spacing: 1px;
+            font-family: 'Courier New', monospace;
+            margin-top: 2px;
+        }
+
         .lever-handle::after {
             content: '';
             position: absolute;
@@ -748,15 +756,21 @@
         .header-readouts {
         }
 
+        :root {
+            --card-bg-alpha: 0.95;
+            --card-bg-alpha2: 0.98;
+            --grid-cols: 3;
+        }
+
         .grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(var(--grid-cols), 1fr);
             gap: 48px 48px;
             row-gap: 48px;
         }
 
         .card {
-            background: linear-gradient(145deg, rgba(25, 25, 40, 0.95) 0%, rgba(15, 15, 25, 0.98) 100%);
+            background: linear-gradient(145deg, rgba(25, 25, 40, var(--card-bg-alpha)) 0%, rgba(15, 15, 25, var(--card-bg-alpha2)) 100%);
             border: 1px solid rgba(0, 255, 136, 0.2);
             border-radius: 16px;
             padding: 0;
@@ -1460,6 +1474,23 @@
         .card-select:hover { border-color: #555; background: rgba(0,0,0,0.7); }
         .card-select.checked { border-color: #00ff88; background: rgba(0,255,136,0.15); color: #00ff88; }
         .card.selected-card { border-color: rgba(0,255,136,0.6) !important; box-shadow: 0 0 0 2px rgba(0,255,136,0.15), 0 4px 20px rgba(0,0,0,0.5); }
+
+        .card-env {
+            position: absolute;
+            top: 72px;
+            right: 15px;
+            width: 24px;
+            height: 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            z-index: 15;
+            transition: all 0.15s ease;
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+        .card-env:hover { filter: brightness(1.3); transform: scaleX(1.1); }
+        .card-env[data-env="dev"]    { background: #ff8800; box-shadow: 0 0 4px rgba(255,136,0,0.5); }
+        .card-env[data-env="prod"]   { background: #00cc44; box-shadow: 0 0 4px rgba(0,204,68,0.5); }
+        .card-env[data-env="paused"] { background: #cc2222; box-shadow: 0 0 4px rgba(204,34,34,0.5); }
 
         /* Repo panel modal */
         .repo-modal {
@@ -2281,7 +2312,7 @@
     <div class="cockpit-wrapper">
         <!-- Left Control Panel -->
         <div class="control-panel-left">
-            <div class="toggle-switch on" onclick="this.classList.toggle('on')">
+            <div class="toggle-switch on" id="masterToggle" onclick="toggleMaster(this)">
                 <div class="toggle-switch-label">MASTER</div>
                 <div class="toggle-track">
                     <div class="toggle-handle"></div>
@@ -2301,9 +2332,10 @@
 
             <div class="lever-control">
                 <div class="lever-label">FLAPS</div>
-                <div class="lever-track">
-                    <div class="lever-handle"></div>
+                <div class="lever-track" id="flapsTrack">
+                    <div class="lever-handle" id="flapsHandle"></div>
                 </div>
+                <div class="lever-value" id="flapsValue">3 COL</div>
             </div>
 
             <div class="indicator-panel">
@@ -2454,14 +2486,12 @@
                 <div class="toggle-indicator"></div>
             </div>
 
-            <div class="rotary-knob">
-                <div class="rotary-knob-label">FREQ</div>
-                <div class="knob-outer">
-                    <div class="knob-inner" style="transform: rotate(-30deg);">
-                        <div class="knob-indicator"></div>
-                    </div>
+            <div class="lever-control">
+                <div class="lever-label">OPACITY</div>
+                <div class="lever-track" id="opacityTrack">
+                    <div class="lever-handle" id="opacityHandle" style="background:linear-gradient(180deg,#00aaff,#0055aa);border-color:#44aaff;top:10px;"></div>
                 </div>
-                <div class="knob-value">121.5</div>
+                <div class="lever-value" id="opacityValue">0%</div>
             </div>
 
             <div class="push-button">
@@ -2703,8 +2733,9 @@
         const appStatuses   = {};
         const appHealth     = {};
         const appWebUrls    = {};
-        const appTypes      = {};   // launch_type per app
-        const appAutostart  = {};   // autostart flag per app
+        const appTypes      = {};
+        const appAutostart  = {};
+        const appEnvs       = JSON.parse(localStorage.getItem('appEnvs') || '{}');
         const selectedApps  = new Set(); // user-selected app IDs
 
         // ── Render ───────────────────────────────────────────────────────────────
@@ -2805,6 +2836,7 @@
                         <div class="card-port">${window.location.hostname}:${app.port}</div>
                     </div>
                     <div class="card-select${selectedApps.has(app.id) ? ' checked' : ''}" data-app-id="${app.id}">✓</div>
+                    <div class="card-env" data-app-id="${app.id}" data-env="${appEnvs[app.id] || 'dev'}" title="Click to cycle: dev → prod → paused"></div>
                 `;
 
                 if (selectedApps.has(app.id)) card.classList.add('selected-card');
@@ -2838,6 +2870,15 @@
                     openInfoModal(app.id, app.name);
                 });
 
+                card.querySelector('.card-env').addEventListener('click', e => {
+                    e.stopPropagation();
+                    const envOrder = ['dev', 'prod', 'paused'];
+                    const cur = appEnvs[app.id] || 'dev';
+                    appEnvs[app.id] = envOrder[(envOrder.indexOf(cur) + 1) % envOrder.length];
+                    localStorage.setItem('appEnvs', JSON.stringify(appEnvs));
+                    e.currentTarget.dataset.env = appEnvs[app.id];
+                });
+
                 card.querySelectorAll('.card-link').forEach(el => {
                     el.addEventListener('click', () => {
                         const url = appWebUrls[app.id] || `http://${window.location.hostname}:${app.port}`;
@@ -2868,12 +2909,105 @@
                 appWebUrls[a.id]    = fixHost(a.web_url || a.url);
                 appTypes[a.id]      = a.launch_type || 'python';
                 appAutostart[a.id]  = a.autostart || false;
+                if (!appEnvs[a.id]) appEnvs[a.id] = a.env || 'dev';
             });
 
             const running = statusList.filter(a => a.running).length;
             document.getElementById('fleetTotal').textContent = running;
 
             renderGrid();
+        }
+
+        // ── Cockpit controls ─────────────────────────────────────────────────────
+        function toggleMaster(el) {
+            el.classList.toggle('on');
+            const toolbar = document.querySelector('.fleet-toolbar');
+            if (toolbar) toolbar.style.display = el.classList.contains('on') ? '' : 'none';
+        }
+
+        function initFlapsLever() {
+            const track  = document.getElementById('flapsTrack');
+            const handle = document.getElementById('flapsHandle');
+            const label  = document.getElementById('flapsValue');
+            if (!track || !handle) return;
+
+            const cols     = [2, 3, 4, 5];
+            const trackH   = 80, handleH = 20, margin = 10;
+            const range    = trackH - handleH - margin * 2; // 40px
+            let   current  = 1; // index into cols[] — default 3 cols
+
+            function posForIdx(i) { return margin + (i / (cols.length - 1)) * range; }
+            function applyIdx(i) {
+                current = i;
+                handle.style.top = posForIdx(i) + 'px';
+                label.textContent = cols[i] + ' COL';
+                document.documentElement.style.setProperty('--grid-cols', cols[i]);
+            }
+            applyIdx(current);
+
+            let dragging = false, startY = 0, startTop = 0;
+            handle.addEventListener('mousedown', e => {
+                dragging = true; startY = e.clientY; startTop = posForIdx(current);
+                e.preventDefault();
+            });
+            document.addEventListener('mousemove', e => {
+                if (!dragging) return;
+                const newTop = Math.max(margin, Math.min(margin + range, startTop + (e.clientY - startY)));
+                const frac   = (newTop - margin) / range;
+                const snap   = Math.round(frac * (cols.length - 1));
+                if (snap !== current) applyIdx(snap);
+            });
+            document.addEventListener('mouseup', () => { dragging = false; });
+            track.addEventListener('click', e => {
+                if (e.target === handle) return;
+                const rect = track.getBoundingClientRect();
+                const frac = (e.clientY - rect.top - margin) / range;
+                applyIdx(Math.max(0, Math.min(cols.length - 1, Math.round(frac * (cols.length - 1)))));
+            });
+        }
+
+        function initOpacityLever() {
+            const track  = document.getElementById('opacityTrack');
+            const handle = document.getElementById('opacityHandle');
+            const label  = document.getElementById('opacityValue');
+            if (!track || !handle) return;
+
+            const steps  = [0,10,20,30,40,50,60,70,80,90,100]; // % transparency
+            const trackH = 80, handleH = 20, margin = 10;
+            const range  = trackH - handleH - margin * 2;
+            let   current = 0;
+
+            function posForIdx(i) { return margin + (i / (steps.length - 1)) * range; }
+            function applyIdx(i) {
+                current = i;
+                handle.style.top = posForIdx(i) + 'px';
+                label.textContent = steps[i] + '%';
+                const alpha  = parseFloat((0.95 * (1 - steps[i] / 100)).toFixed(2));
+                const alpha2 = parseFloat((0.98 * (1 - steps[i] / 100)).toFixed(2));
+                document.documentElement.style.setProperty('--card-bg-alpha',  Math.max(0.02, alpha));
+                document.documentElement.style.setProperty('--card-bg-alpha2', Math.max(0.02, alpha2));
+            }
+            applyIdx(current);
+
+            let dragging = false, startY = 0, startTop = 0;
+            handle.addEventListener('mousedown', e => {
+                dragging = true; startY = e.clientY; startTop = posForIdx(current);
+                e.preventDefault();
+            });
+            document.addEventListener('mousemove', e => {
+                if (!dragging) return;
+                const newTop = Math.max(margin, Math.min(margin + range, startTop + (e.clientY - startY)));
+                const frac   = (newTop - margin) / range;
+                const snap   = Math.round(frac * (steps.length - 1));
+                if (snap !== current) applyIdx(snap);
+            });
+            document.addEventListener('mouseup', () => { dragging = false; });
+            track.addEventListener('click', e => {
+                if (e.target === handle) return;
+                const rect = track.getBoundingClientRect();
+                const frac = (e.clientY - rect.top - margin) / range;
+                applyIdx(Math.max(0, Math.min(steps.length - 1, Math.round(frac * (steps.length - 1)))));
+            });
         }
 
         async function fetchStatuses() {
@@ -3681,6 +3815,8 @@
         renderGrid();
         updateClock();
         fetchStatuses();
+        initFlapsLever();
+        initOpacityLever();
         fetchBackendStartTime();
         setInterval(updateClock,              1000);
         setInterval(updateUptime,            60000);
