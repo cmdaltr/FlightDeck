@@ -2688,7 +2688,7 @@
         const iconOverrides = {
             archer:               { src: "images/archer_new.png", type: "image", size: 220, shiftUp: 36 },
             cybercache:           { src: cybercacheIcon,          type: "html"                          },
-            rivendell:            { src: "images/rivendell.png",  type: "image", size: 260, shiftUp: 36 },
+            rivendell:            { src: "images/rivendell.png",  type: "image", size: 230, shiftUp: 36 },
             ancestree:            { src: "images/ancestree.png",  type: "image", size: 180, shiftUp: 36 },
             audiobookconstructor: { src: "🎙️",                   type: "emoji", size: 140, shiftUp: 36 },
             rehseepee:            { src: "🥙",                   type: "emoji", size: 140, shiftUp: 36 },
@@ -2855,7 +2855,7 @@
             appList = statusList.map(a => ({ id: a.id, name: a.name, port: a.port }));
 
             statusList.forEach(a => {
-                appStatuses[a.id]   = a.running ? 'online' : 'offline';
+                appStatuses[a.id]   = a.building ? 'building' : (a.running ? 'online' : 'offline');
                 appHealth[a.id]     = { healthy: a.healthy, error: a.health_error, endpoint: a.health_endpoint };
                 const fixHost = url => url ? url.replace('localhost', window.location.hostname) : url;
                 appWebUrls[a.id]    = fixHost(a.web_url || a.url);

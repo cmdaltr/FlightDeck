@@ -30,6 +30,9 @@ socketio = SocketIO(app, cors_allowed_origins="*", async_mode="eventlet")
 # Track running processes by app id
 running_processes: Dict[str, subprocess.Popen] = {}
 
+# Track apps currently being built (docker builds)
+building_apps: set = set()
+
 # Cache health check results
 health_cache: Dict[str, dict] = {}
 
@@ -123,6 +126,7 @@ def format_status() -> List[dict]:
         is_running = is_managed or (port and is_port_in_use(port))
         health_info = health_cache.get(app_id, {})
 
+        is_building = app_id in building_apps
         status.append({
             "id": app_id,
             "name": app_cfg.get("name"),
@@ -133,6 +137,7 @@ def format_status() -> List[dict]:
             "launch_type": app_cfg.get("launch_type", "python"),
             "autostart": app_cfg.get("autostart", False),
             "running": is_running,
+            "building": is_building,
             "pid": proc.pid if proc and proc.poll() is None else None,
             "health_endpoint": app_cfg.get("health_endpoint"),
             "healthy": health_info.get("healthy", False) if is_running else False,
@@ -590,15 +595,22 @@ def start_app(app_id):
     if app_cfg.get("launch_type") == "docker":
         if is_port_in_use(app_cfg.get("port", 0)):
             return jsonify({"message": "Already running", "status": format_status()}), 200
+        if app_id in building_apps:
+            return jsonify({"message": "Already building", "status": format_status()}), 200
         docker_dir = get_docker_compose_dir(app_cfg)
         if not docker_dir:
             return jsonify({"error": f"docker-compose.yml not found for '{app_id}'"}), 500
-        rc, out = _docker_compose(docker_dir, "up", "-d", "--remove-orphans")
-        if rc != 0:
-            return jsonify({"error": out, "status": format_status()}), 500
-        statuses = format_status()
-        socketio.emit("status_update", {"apps": statuses})
-        return jsonify({"message": "Started", "status": statuses}), 200
+
+        building_apps.add(app_id)
+        socketio.emit("status_update", {"apps": format_status()})
+
+        def _build_and_start():
+            rc, out = _docker_compose(docker_dir, "up", "-d", "--remove-orphans")
+            building_apps.discard(app_id)
+            socketio.emit("status_update", {"apps": format_status()})
+
+        threading.Thread(target=_build_and_start, daemon=True).start()
+        return jsonify({"message": "Building", "status": format_status()}), 202
 
     existing = running_processes.get(app_id)
     if existing and existing.poll() is None:
